@@ -26,7 +26,6 @@ class NguoiDung extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // Quan hệ
     public function hang_hang_khong()
     {
         return $this->belongsTo(HangHangKhong::class, 'ma_hang_hang_khong');
