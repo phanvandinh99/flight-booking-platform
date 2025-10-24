@@ -1,0 +1,52 @@
+### Laravel ###
+.env
+.env.backup
+.env.*
+/vendor
+/storage/*.key
+/storage/app/*.log
+/storage/app/public
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+/bootstrap/cache/*.php
+.phpunit.cache
+
+### Composer ###
+composer.phar
+
+### Node (nếu dùng Vite) ###
+/node_modules
+/public/hot
+/public/build
+npm-debug.log*
+yarn-error.log*
+
+### Windows ###
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.Trashes
+._*
+
+### IDE - VS Code (giữ nếu bạn dùng VS Code) ###
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### IDE - PhpStorm (giữ nếu bạn dùng PhpStorm) ###
+.idea/
+*.iml
+*.ipr
+*.iws
+
+### Project Specific ###
+_ide_helper.php
