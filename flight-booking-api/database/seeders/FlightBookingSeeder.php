@@ -68,14 +68,14 @@ class FlightBookingSeeder extends Seeder
         // === 3. NGƯỜI DÙNG MẪU ===
         NguoiDung::create([
             'ten_day_du' => 'Admin Hệ Thống',
-            'email' => 'admin@flightbooking.com',
+            'email' => 'admin@gmail.com',
             'mat_khau' => Hash::make('Abc123'),
             'vai_tro' => 'admin'
         ]);
 
         NguoiDung::create([
             'ten_day_du' => 'Đại Diện Vietnam Airlines',
-            'email' => 'vn@flightbooking.com',
+            'email' => 'vn@gmail.com',
             'mat_khau' => Hash::make('Abc123'),
             'vai_tro' => 'dai_dien_hang',
             'ma_hang_hang_khong' => $airlineIds['VN']
@@ -83,7 +83,7 @@ class FlightBookingSeeder extends Seeder
 
         NguoiDung::create([
             'ten_day_du' => 'Khách Hàng Mẫu',
-            'email' => 'customer@flightbooking.com',
+            'email' => 'customer@gmail.com',
             'mat_khau' => Hash::make('Abc123'),
             'vai_tro' => 'khach_hang'
         ]);

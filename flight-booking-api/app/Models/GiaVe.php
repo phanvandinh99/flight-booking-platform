@@ -23,7 +23,6 @@ class GiaVe extends Model
         'ngay_ket_thuc' => 'date',
     ];
 
-    // Quan hệ
     public function chuyen_bay()
     {
         return $this->belongsTo(ChuyenBay::class, 'ma_chuyen_bay');
