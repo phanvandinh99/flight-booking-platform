@@ -1,0 +1,754 @@
+{
+	"info": {
+		"_postman_id": "be501e1b-f4d4-4105-985a-01e4735af71b",
+		"name": "Flight Booking Platform",
+		"description": "API Test cho hệ thống quản lý vé bay",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "46839473",
+		"_collection_link": "https://nhatminh-6042840.postman.co/workspace/Flight-Booking-API~3efa99f5-169a-406e-bdca-d0090523e03a/collection/46839473-be501e1b-f4d4-4105-985a-01e4735af71b?action=share&source=collection_link&creator=46839473"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register-Customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"ten_day_du\": \"Huỳnh Gia Huy\",\r\n    \"email\": \"agiahuy2005@gmail.com\",\r\n    \"so_dien_thoai\": \"0971010282\",\r\n    \"password\": \"Abc123456\",\r\n    \"password_confirmation\": \"Abc123456\",\r\n    \"vai_tro\": \"khach_hang\",\r\n    \"ma_hang_hang_khong\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login-Customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"customer@gmail.com\",\r\n  \"password\": \"Abc123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register-Airline-Rep",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"ten_day_du\": \"Trần Thanh Định\",\r\n    \"email\": \"Dinh@gmail.com\",\r\n    \"so_dien_thoai\": \"0971234567\",\r\n    \"password\": \"Abc123456\",\r\n    \"password_confirmation\": \"Abc123456\",\r\n    \"vai_tro\": \"dai_dien_hang\",\r\n    \"ma_hang_hang_khong\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login-Airline-Rep",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"vn@gmail.com\",\r\n  \"password\": \"Abc123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login-Admin",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"admin@gmail.com\",\r\n  \"password\": \"Abc123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Detail-Account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "TEyvOAECXC5R6pu4ysMVvFW6UPFk4FBQRlgTZFAg6ea52ad0",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update-Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "RIfOzSD24d6UvMPEKrm2cKLbOSZWB8UbetHP5wOT476dd4c8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"ten_day_du\": \"Nguyễn Đức Huy\",\r\n  \"so_dien_thoai\": \"0972222222\",\r\n  \"password\": \"Abc1234567\",\r\n  \"password_confirmation\": \"Abc1234567\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/profile",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "MB6qlJqsaHv6EvQNtEVJY4lwMRWno1rE5fyw0pume52ad042",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout-All",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "4V1TOQtcyK1bCIbeSjXfTvg3yzbGMwlod04vnuIr9acc2ed8",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/logout-all",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout-all"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Xác thực tài khoản: Đăng nhập, đăng ký, đăng xuất, xem profile , đổi mật khẩu"
+		},
+		{
+			"name": "Admin",
+			"item": [],
+			"description": "Quản trị hệ thống"
+		},
+		{
+			"name": "Airline Rep",
+			"item": [
+				{
+					"name": "Aircraft",
+					"item": [
+						{
+							"name": "Aircraft-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/aircrafts",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"aircrafts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Aircraft-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/aircrafts/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"aircrafts",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Aircraft-Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"loai_may_bay\": \"Airbus A321\",\r\n    \"tong_so_ghe\": 180,\r\n    \"so_do_ghe\": {\r\n        \"pho_thong\": [\"1A\", \"1B\", \"1C\", \"1D\"],\r\n        \"thuong_gia\": [\"10A\", \"10B\"]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/aircrafts",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"aircrafts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Aircraft-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"loai_may_bay\": \"Airbus A321 update test\",\r\n    \"tong_so_ghe\": 180,\r\n    \"so_do_ghe\": {\r\n        \"pho_thong\": [\"1A\", \"1B\", \"1C\", \"1D\"],\r\n        \"thuong_gia\": [\"10A\", \"10B\"]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/aircrafts/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"aircrafts",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Aircraft-Delete",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/aircrafts/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"aircrafts",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Quản lý máy bay dành cho nhân viên từng hãng hàng không"
+				},
+				{
+					"name": "Flight",
+					"item": [
+						{
+							"name": "Flight-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/flights",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"flights"
+									],
+									"query": [
+										{
+											"key": "ngay_khoi_hanh",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "trang_thai",
+											"value": "du_kien",
+											"description": "du_kien, bi_huy, da_hoan_thanh",
+											"disabled": true
+										},
+										{
+											"key": "ma_tuyen_bay",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Flight-Approved-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/flights/routes/approved",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"flights",
+										"routes",
+										"approved"
+									],
+									"query": [
+										{
+											"key": "ngay_khoi_hanh",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "trang_thai",
+											"value": "du_kien",
+											"description": "du_kien, bi_huy, da_hoan_thanh",
+											"disabled": true
+										},
+										{
+											"key": "ma_tuyen_bay",
+											"value": "1",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Flight-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/flights/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"flights",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Flight-Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ma_may_bay\": 1,\r\n    \"ma_chuyen_bay\": \"VN123\",\r\n    \"ma_tuyen_bay\": 1,\r\n    \"gio_khoi_hanh\": \"2025-01-27T08:00:00\",\r\n    \"gio_ha_canh\": \"2025-01-27T10:15:00\",\r\n    \"tan_suat\": \"hang_ngay\",\r\n    \"trang_thai\": \"du_kien\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/flights",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"flights"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Flight-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ma_may_bay\": 1,\r\n    \"ma_chuyen_bay\": \"VN123\",\r\n    \"ma_tuyen_bay\": 1,\r\n    \"gio_khoi_hanh\": \"2025-01-25T08:00:00\",\r\n    \"gio_ha_canh\": \"2025-01-25T10:15:00\",\r\n    \"tan_suat\": \"hang_ngay\",\r\n    \"trang_thai\": \"du_kien\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/flights/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"flights",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Flight-Delete",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/flights/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"flights",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Quản lý chuyến bay"
+				}
+			],
+			"description": "Nhân viên hãng hàng không.\n\n(Ex: Nhân viên Vietnam Airline sẽ chỉ quản lý thông tin Vietnam Airline không thể quản lý thông tin của Vietjet Air)",
+			"auth": {
+				"type": "bearer"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [],
+			"description": "Khách hàng: Người dùng cuối"
+		},
+		{
+			"name": "Common",
+			"item": [
+				{
+					"name": "Airline",
+					"item": [
+						{
+							"name": "Airlines",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airlines",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airlines"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airline-Detail",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airlines/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airlines",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "Các api dùng chung\n\nTrường hợp Các Actor có chung api sẽ được đặt ở common để gọi nhiều lần. thay vì tạo api trùng lặp"
+		}
+	]
+}
