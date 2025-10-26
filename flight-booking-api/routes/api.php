@@ -23,7 +23,7 @@ Route::get('/airlines/{id}', [HangHangKhongController::class, 'show']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     // Authentication routes
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/logout-all', [AuthController::class, 'logoutAll']);
@@ -36,8 +36,33 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Chỉ đại diện hãng
-    Route::middleware('role:dai_dien_hang')->group(function () {
-        //
+    Route::middleware('role:dai_dien_hang')->prefix('airline')->group(function () {
+        // Quản lý máy bay
+        Route::apiResource('aircrafts', \App\Http\Controllers\Api\HangHangKhong\MayBayController::class);
+
+        // Quản lý chuyến bay
+        Route::apiResource('flights', \App\Http\Controllers\Api\HangHangKhong\ChuyenBayController::class);
+        Route::get('flights/routes/approved', [\App\Http\Controllers\Api\HangHangKhong\ChuyenBayController::class, 'getApprovedRoutes']);
+
+        // Quản lý giá vé
+        Route::apiResource('pricing', \App\Http\Controllers\Api\HangHangKhong\GiaVeController::class);
+        Route::get('pricing/flights', [\App\Http\Controllers\Api\HangHangKhong\GiaVeController::class, 'getFlights']);
+
+        // Quản lý đặt vé
+        Route::apiResource('bookings', \App\Http\Controllers\Api\HangHangKhong\DatVeController::class);
+        Route::put('bookings/{id}/status', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'updateStatus']);
+        Route::get('bookings/statistics', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'getStatistics']);
+        Route::get('bookings/flights', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'getFlights']);
+
+        // Báo cáo
+        Route::prefix('reports')->group(function () {
+            Route::get('daily-revenue', [\App\Http\Controllers\Api\HangHangKhong\BaoCaoController::class, 'doanhThuTheoNgay']);
+            Route::get('weekly-revenue', [\App\Http\Controllers\Api\HangHangKhong\BaoCaoController::class, 'doanhThuTheoTuan']);
+            Route::get('monthly-revenue', [\App\Http\Controllers\Api\HangHangKhong\BaoCaoController::class, 'doanhThuTheoThang']);
+            Route::get('flight-report', [\App\Http\Controllers\Api\HangHangKhong\BaoCaoController::class, 'baoCaoTheoChuyenBay']);
+            Route::get('fare-class-report', [\App\Http\Controllers\Api\HangHangKhong\BaoCaoController::class, 'baoCaoTheoHangVe']);
+            Route::get('overview', [\App\Http\Controllers\Api\HangHangKhong\BaoCaoController::class, 'tongQuan']);
+        });
     });
 
     // Khách hàng
