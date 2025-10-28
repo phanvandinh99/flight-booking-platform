@@ -668,6 +668,631 @@
 						}
 					],
 					"description": "Quản lý chuyến bay"
+				},
+				{
+					"name": "Pricing",
+					"item": [
+						{
+							"name": "Pricing-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/pricing",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"pricing"
+									],
+									"query": [
+										{
+											"key": "ma_chuyen_bay",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "hang_ve",
+											"value": "pho_thong",
+											"description": "pho_thong, thuong_gia, hang_nhat",
+											"disabled": true
+										},
+										{
+											"key": "ngay_bat_dau",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Pricing-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/pricing/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"pricing",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Pricing-Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ma_chuyen_bay\": 1,\r\n    \"hang_ve\": \"pho_thong\",\r\n    \"gia\": 1500000,\r\n    \"hanh_ly_ky_gui\": \"20kg\",\r\n    \"chinh_sach_huy_ve\": \"Hủy trước 24h: hoàn 100%\",\r\n    \"chinh_sach_doi_ve\": \"Đổi trước 2h: phí 200k\",\r\n    \"ngay_bat_dau\": \"2025-01-25\",\r\n    \"ngay_ket_thuc\": \"2025-12-31\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/pricing",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"pricing"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Pricing-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ma_chuyen_bay\": 1,\r\n    \"hang_ve\": \"pho_thong\",\r\n    \"gia\": 1500000,\r\n    \"hanh_ly_ky_gui\": \"20kg\",\r\n    \"chinh_sach_huy_ve\": \"Hủy trước 24h: hoàn 100%\",\r\n    \"chinh_sach_doi_ve\": \"Đổi trước 2h: phí 200k\",\r\n    \"ngay_bat_dau\": \"2025-01-25\",\r\n    \"ngay_ket_thuc\": \"2025-12-31\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/pricing/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"pricing",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Pricing-Delete",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/pricing/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"pricing",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Pricing-Flights-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/pricing/flights",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"pricing",
+										"flights"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Quản lý giá vé"
+				},
+				{
+					"name": "Booking",
+					"item": [
+						{
+							"name": "Booking-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/bookings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"bookings"
+									],
+									"query": [
+										{
+											"key": "ma_chuyen_bay",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "trang_thai",
+											"value": "giu_cho",
+											"description": "giu_cho, da_thanh_toan, da_huy",
+											"disabled": true
+										},
+										{
+											"key": "ngay_dat",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "ma_dat_ve",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/bookings/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"bookings",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"trang_thai\": \"da_thanh_toan\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/airline/bookings/1/status",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"bookings",
+										"1",
+										"status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Statistic",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/bookings/statistics",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"bookings",
+										"statistics"
+									],
+									"query": [
+										{
+											"key": "tu_ngay",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "den_ngay",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Flights-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/bookings/flights",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"bookings",
+										"flights"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Quản lý đặt vé"
+				},
+				{
+					"name": "Report",
+					"item": [
+						{
+							"name": "Report-List-Date",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/reports/daily-revenue",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"reports",
+										"daily-revenue"
+									],
+									"query": [
+										{
+											"key": "tu_ngay",
+											"value": "2025-10-01",
+											"disabled": true
+										},
+										{
+											"key": "den_ngay",
+											"value": "2025-10-30",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Report-List-Week",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/reports/weekly-revenue",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"reports",
+										"weekly-revenue"
+									],
+									"query": [
+										{
+											"key": "tu_ngay",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "den_ngay",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Report-List-Month",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/reports/weekly-revenue",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"reports",
+										"weekly-revenue"
+									],
+									"query": [
+										{
+											"key": "tu_ngay",
+											"value": "",
+											"disabled": true
+										},
+										{
+											"key": "den_ngay",
+											"value": "",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Report-List-Flight",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/reports/flight-report",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"reports",
+										"flight-report"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Report-List-Fare-Class",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/reports/fare-class-report",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"reports",
+										"fare-class-report"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Report-Overview",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/airline/reports/overview",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"airline",
+										"reports",
+										"overview"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Báo cáo doanh thu"
 				}
 			],
 			"description": "Nhân viên hãng hàng không.\n\n(Ex: Nhân viên Vietnam Airline sẽ chỉ quản lý thông tin Vietnam Airline không thể quản lý thông tin của Vietjet Air)",
@@ -701,8 +1326,343 @@
 		},
 		{
 			"name": "Customer",
-			"item": [],
-			"description": "Khách hàng: Người dùng cuối"
+			"item": [
+				{
+					"name": "Search",
+					"item": [
+						{
+							"name": "Flights",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "dInYoCFBqGn8qLDzguHHRODmpwkpn5KsDVOGwF6Td3508f74",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"san_bay_di\": \"SGN\",\r\n    \"san_bay_den\": \"HAN\",\r\n    \"ngay_khoi_hanh\": \"2025-01-25\",\r\n    \"ngay_ve\": \"2025-01-28\",\r\n    \"loai_chuyen\": \"khứ_hồi\",\r\n    \"nguoi_lon\": 2,\r\n    \"tre_em\": 1,\r\n    \"em_be\": 0,\r\n    \"hang_ve\": \"pho_thong\",\r\n    \"gia_tu\": 1000000,\r\n    \"gia_den\": 3000000,\r\n    \"gio_khoi_hanh_tu\": \"08:00\",\r\n    \"gio_khoi_hanh_den\": \"18:00\",\r\n    \"hang_hang_khong\": [1, 2]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/customer/search/flights",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"search",
+										"flights"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airports",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "dInYoCFBqGn8qLDzguHHRODmpwkpn5KsDVOGwF6Td3508f74",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/customer/search/airports",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"search",
+										"airports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airlines",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "dInYoCFBqGn8qLDzguHHRODmpwkpn5KsDVOGwF6Td3508f74",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/customer/search/airports",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"search",
+										"airports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Flight-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "dInYoCFBqGn8qLDzguHHRODmpwkpn5KsDVOGwF6Td3508f74",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/customer/search/airports",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"search",
+										"airports"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Tìm kiếm chuyến bay"
+				},
+				{
+					"name": "Booking",
+					"item": [
+						{
+							"name": "Booking-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "KAUN3JxvunkM4tEi8Gqf806UCGnJgJUMspnYncWl4436009e",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/customer/bookings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"bookings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "KAUN3JxvunkM4tEi8Gqf806UCGnJgJUMspnYncWl4436009e",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/customer/bookings/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"bookings",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "KAUN3JxvunkM4tEi8Gqf806UCGnJgJUMspnYncWl4436009e",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ma_chuyen_bay_di\": 1,\r\n    \"ma_chuyen_bay_ve\": 2,\r\n    \"hang_ve\": \"pho_thong\",\r\n    \"hanh_khach\": [\r\n        {\r\n            \"ho_ten\": \"Nguyễn Văn A\",\r\n            \"so_ho_chieu\": \"A1234567\",\r\n            \"so_ghe\": \"12A\",\r\n            \"loai_hanh_khach\": \"nguoi_lon\"\r\n        },\r\n        {\r\n            \"ho_ten\": \"Nguyễn Thị B\",\r\n            \"so_ho_chieu\": \"B1234567\",\r\n            \"so_ghe\": \"12B\",\r\n            \"loai_hanh_khach\": \"nguoi_lon\"\r\n        },\r\n        {\r\n            \"ho_ten\": \"Nguyễn Văn C\",\r\n            \"so_ho_chieu\": null,\r\n            \"so_ghe\": \"12C\",\r\n            \"loai_hanh_khach\": \"tre_em\"\r\n        }\r\n    ],\r\n    \"thong_tin_lien_he\": {\r\n        \"email\": \"customer@example.com\",\r\n        \"so_dien_thoai\": \"0123456789\",\r\n        \"ten_day_du\": \"Nguyễn Văn A\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/customer/bookings",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"bookings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Payment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "KAUN3JxvunkM4tEi8Gqf806UCGnJgJUMspnYncWl4436009e",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"phuong_thuc_thanh_toan\": \"the_ngan_hang\",\r\n    \"thong_tin_thanh_toan\": {\r\n        \"so_the\": \"1234567890123456\",\r\n        \"ngay_het_han\": \"12/25\",\r\n        \"cvv\": \"123\",\r\n        \"ten_chu_the\": \"NGUYEN VAN A\"\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/customer/bookings/1/payment",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"bookings",
+										"1",
+										"payment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Booking-Cancel",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "KAUN3JxvunkM4tEi8Gqf806UCGnJgJUMspnYncWl4436009e",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/customer/bookings/1/cancel",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"customer",
+										"bookings",
+										"1",
+										"cancel"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Đặt vé"
+				}
+			],
+			"description": "Khách hàng: Người dùng cuối",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "dInYoCFBqGn8qLDzguHHRODmpwkpn5KsDVOGwF6Td3508f74",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
 		},
 		{
 			"name": "Common",
