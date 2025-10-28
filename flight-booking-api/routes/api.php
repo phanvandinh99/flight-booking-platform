@@ -66,7 +66,16 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Khách hàng
-    Route::middleware('role:khach_hang')->group(function () {
-        //
+    Route::middleware('role:khach_hang')->prefix('customer')->group(function () {
+        // Tìm kiếm chuyến bay
+        Route::post('search/flights', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'timKiem']);
+        Route::get('search/airports', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachSanBay']);
+        Route::get('search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
+        Route::get('search/flights/{id}', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chiTietChuyenBay']);
+        
+        // Đặt vé
+        Route::apiResource('bookings', \App\Http\Controllers\Api\KhachHang\DatVeController::class);
+        Route::post('bookings/{id}/payment', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'thanhToan']);
+        Route::put('bookings/{id}/cancel', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'huyDatVe']);
     });
 });

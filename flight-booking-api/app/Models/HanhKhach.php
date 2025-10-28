@@ -12,7 +12,8 @@ class HanhKhach extends Model
         'ho_ten',
         'so_ho_chieu',
         'so_ghe',
-        'hang_ve'
+        'hang_ve',
+        'loai_hanh_khach'
     ];
 
     public function dat_ve()
