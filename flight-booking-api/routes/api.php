@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\HangHangKhongController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 // Public data routes
 Route::get('/airlines', [HangHangKhongController::class, 'index']);
@@ -73,8 +73,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
         Route::get('search/flights/{id}', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chiTietChuyenBay']);
         
-        // Đặt vé
-        Route::apiResource('bookings', \App\Http\Controllers\Api\KhachHang\DatVeController::class);
+        // Đặt vé (explicit routes)
+        Route::post('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'datVe']);
+        Route::get('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'danhSachDatVe']);
+        Route::get('bookings/{id}', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'chiTietDatVe']);
         Route::post('bookings/{id}/payment', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'thanhToan']);
         Route::put('bookings/{id}/cancel', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'huyDatVe']);
     });
