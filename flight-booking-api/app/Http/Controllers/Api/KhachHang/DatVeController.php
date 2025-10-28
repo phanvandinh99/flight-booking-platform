@@ -25,6 +25,8 @@ class DatVeController extends Controller
             'hanh_khach' => 'required|array|min:1',
             'hanh_khach.*.ho_ten' => 'required|string|max:255',
             'hanh_khach.*.so_ho_chieu' => 'nullable|string|max:20',
+            'hanh_khach.*.loai_giay_to' => 'nullable|in:can_cuoc,ho_chieu',
+            'hanh_khach.*.so_giay_to' => 'nullable|string|max:30',
             'hanh_khach.*.so_ghe' => 'nullable|string|max:10',
             'hanh_khach.*.loai_hanh_khach' => 'required|in:nguoi_lon,tre_em,em_be',
             'thong_tin_lien_he' => 'required|array',
@@ -91,7 +93,9 @@ class DatVeController extends Controller
                 'so_ho_chieu' => $hanhKhachData['so_ho_chieu'] ?? null,
                 'so_ghe' => $hanhKhachData['so_ghe'] ?? null,
                 'hang_ve' => $request->hang_ve,
-                'loai_hanh_khach' => $hanhKhachData['loai_hanh_khach']
+                'loai_hanh_khach' => $hanhKhachData['loai_hanh_khach'],
+                'loai_giay_to' => $hanhKhachData['loai_giay_to'] ?? null,
+                'so_giay_to' => $hanhKhachData['so_giay_to'] ?? null
             ]);
         }
 

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('so_ghe')->nullable();
             $table->enum('hang_ve', ['pho_thong', 'thuong_gia', 'hang_nhat']);
             $table->enum('loai_hanh_khach', ['nguoi_lon', 'tre_em', 'em_be'])->default('nguoi_lon');
+            $table->enum('loai_giay_to', ['can_cuoc', 'ho_chieu'])->nullable();
+            $table->string('so_giay_to')->nullable();
             $table->timestamps();
 
             $table->foreign('ma_dat_ve')->references('id')->on('dat_ve')->onDelete('cascade');
