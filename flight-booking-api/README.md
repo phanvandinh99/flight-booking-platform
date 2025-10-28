@@ -1,61 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Flight Booking API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API phục vụ nền tảng đặt vé máy bay (backend Laravel).
 
-## About Laravel
+### 1) Tính năng chính
+- Quản lý sân bay, tuyến bay, hãng hàng không, máy bay, chuyến bay, giá vé
+- Tìm kiếm chuyến bay theo hành trình/ngày/hạng ghế, lọc và sắp xếp
+- Đặt vé cho nhiều hành khách, giữ chỗ tạm thời, thanh toán (mock)
+- Xác thực người dùng, phân quyền (Khách hàng, Đại diện hãng, Quản trị)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 1.1) Luồng nghiệp vụ khớp với mã nguồn
+- Public:
+  - POST `/api/register` — đăng ký (vai trò: `khach_hang` hoặc `dai_dien_hang`)
+  - POST `/api/login` — đăng nhập, nhận token Sanctum
+  - GET `/api/airlines` — danh sách hãng hàng không
+  - GET `/api/airlines/{id}` — chi tiết hãng hàng không
+- Sau khi đăng nhập, gửi `Authorization: Bearer {token}`:
+  - Auth: POST `/api/logout`, POST `/api/logout-all`, GET `/api/me`, PUT `/api/profile`
+  - Khách hàng (`role: khach_hang`, prefix `/api/customer`):
+    - Tìm kiếm: `POST /search/flights`, `GET /search/airports`, `GET /search/airlines`, `GET /search/flights/{id}`
+    - Đặt vé: `POST /bookings`, `GET /bookings`, `GET /bookings/{id}`, `POST /bookings/{id}/payment`, `PUT /bookings/{id}/cancel`
+  - Đại diện hãng (`role: dai_dien_hang`, prefix `/api/airline`):
+    - Máy bay: `apiResource('aircrafts', ...)`
+    - Chuyến bay: `apiResource('flights', ...)`, `GET /flights/routes/approved`
+    - Giá vé: `apiResource('pricing', ...)`, `GET /pricing/flights`
+    - Đặt vé: `apiResource('bookings', ...)`, `PUT /bookings/{id}/status`, `GET /bookings/statistics`, `GET /bookings/flights`
+    - Báo cáo: `GET /reports/daily-revenue|weekly-revenue|monthly-revenue|flight-report|fare-class-report|overview`
+- Ghi chú:
+  - Sử dụng Laravel Sanctum cho xác thực token.
+  - Middleware `role:` kiểm soát truy cập theo `vai_tro` (`khach_hang`, `dai_dien_hang`, `admin`).
+  - Thanh toán hiện tại là mô phỏng (mock) trong `customer/bookings/{id}/payment`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2) Yêu cầu hệ thống
+- PHP 8.2+
+- Composer
+- SQLite (mặc định) hoặc MySQL/PostgreSQL (tùy cấu hình `.env`)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 3) Cài đặt nhanh (local)
+```bash
+# 1) Cài đặt dependencies
+composer install
 
-## Learning Laravel
+# 2) Tạo file môi trường
+cp .env.example .env
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+# 3) (Khuyến nghị) Dùng SQLite sẵn có
+#   - Đảm bảo file database/database.sqlite tồn tại
+#   - Trong .env:
+#       DB_CONNECTION=sqlite
+#       DB_DATABASE=./database/database.sqlite
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# 4) Tạo APP_KEY
+php artisan key:generate
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 5) Chạy migration + seed dữ liệu mẫu
+php artisan migrate --seed
 
-## Laravel Sponsors
+# 6) Khởi động server dev
+php artisan serve
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Mặc định API base URL: `http://127.0.0.1:8000`
 
-### Premium Partners
+### 3.1) Cấu hình MySQL (bạn đang dùng MySQL)
+1) Tạo database trống (VD: `flight_booking`)
+2) Chỉnh `.env`:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=flight_booking
+DB_USERNAME=<mysql_user>
+DB_PASSWORD=<mysql_password>
+```
+3) Chạy lại lệnh:
+```bash
+php artisan migrate:fresh --seed
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 4) Tài liệu API
+- Tài liệu cho Khách hàng: `CUSTOMER_API_DOCUMENTATION.md`
+- Tài liệu cho Hãng hàng không: `HANG_HANG_KHONG_API_DOCUMENTATION.md`
+- Bộ sưu tập Postman: `docs/JSON-POSTMAN/Flight Booking Platform.postman_collection.json`
 
-## Contributing
+### 5) Cấu trúc thư mục (rút gọn)
+- `app/Models`: Các model như `ChuyenBay`, `DatVe`, `GiaVe`, `HanhKhach`, ...
+- `app/Http/Controllers/Api`: Controller cho xác thực, tìm kiếm, đặt vé, ...
+- `routes/api.php`: Khai báo route API
+- `database/migrations`: Lược đồ CSDL
+- `database/seeders/FlightBookingSeeder.php`: Dữ liệu mẫu
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 6) Lưu ý môi trường
+- Có thể chuyển sang MySQL/PostgreSQL bằng cách chỉnh `.env` và chạy lại `migrate --seed`
+- Log: `storage/logs/laravel.log`
 
-## Code of Conduct
+### 7) Kiểm thử nhanh
+```bash
+php artisan test
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 8) Bản quyền
+Sử dụng nội bộ phục vụ bài tập/POC. Tuân thủ giấy phép của các thư viện bên thứ ba theo `composer.json`.
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
