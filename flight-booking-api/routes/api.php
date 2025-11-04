@@ -31,8 +31,37 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/profile', [AuthController::class, 'updateProfile']);
 
     // Chỉ admin mới dùng được
-    Route::middleware('role:admin')->group(function () {
-        //
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        // Duyệt/Quản lý hãng hàng không
+        Route::get('airlines/pending', [\App\Http\Controllers\Api\Admin\AirlineApprovalController::class, 'pending']);
+        Route::post('airlines/{id}/approve', [\App\Http\Controllers\Api\Admin\AirlineApprovalController::class, 'approve']);
+        Route::post('airlines/{id}/reject', [\App\Http\Controllers\Api\Admin\AirlineApprovalController::class, 'reject']);
+        Route::post('airlines/{id}/activate', [\App\Http\Controllers\Api\Admin\AirlineApprovalController::class, 'activate']);
+        Route::post('airlines/{id}/suspend', [\App\Http\Controllers\Api\Admin\AirlineApprovalController::class, 'suspend']);
+
+        // Quản lý sân bay
+        Route::apiResource('airports', \App\Http\Controllers\Api\Admin\AirportController::class);
+
+        // Quản lý tuyến bay
+        Route::apiResource('routes', \App\Http\Controllers\Api\Admin\RouteController::class);
+        Route::post('routes/{id}/approve', [\App\Http\Controllers\Api\Admin\RouteController::class, 'approve']);
+        Route::post('routes/{id}/revoke', [\App\Http\Controllers\Api\Admin\RouteController::class, 'revoke']);
+
+        // Giám sát hoạt động hệ thống
+        Route::get('monitoring/overview', [\App\Http\Controllers\Api\Admin\SystemMonitorController::class, 'overview']);
+
+        // Báo cáo tổng hợp
+        Route::prefix('reports')->group(function () {
+            Route::get('revenue/summary', [\App\Http\Controllers\Api\Admin\ReportsController::class, 'revenueSummary']);
+            Route::get('revenue/monthly', [\App\Http\Controllers\Api\Admin\ReportsController::class, 'monthlyRevenue']);
+            Route::get('top-airlines', [\App\Http\Controllers\Api\Admin\ReportsController::class, 'topAirlines']);
+        });
+
+        // Cấu hình hệ thống
+        Route::get('config', [\App\Http\Controllers\Api\Admin\ConfigController::class, 'index']);
+        Route::post('config', [\App\Http\Controllers\Api\Admin\ConfigController::class, 'store']);
+        Route::put('config/{key}', [\App\Http\Controllers\Api\Admin\ConfigController::class, 'update']);
+        Route::delete('config/{key}', [\App\Http\Controllers\Api\Admin\ConfigController::class, 'destroy']);
     });
 
     // Chỉ đại diện hãng
