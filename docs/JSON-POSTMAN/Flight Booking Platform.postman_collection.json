@@ -18,7 +18,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"ten_day_du\": \"Huỳnh Gia Huy\",\r\n    \"email\": \"agiahuy2005@gmail.com\",\r\n    \"so_dien_thoai\": \"0971010282\",\r\n    \"password\": \"Abc123456\",\r\n    \"password_confirmation\": \"Abc123456\",\r\n    \"vai_tro\": \"khach_hang\",\r\n    \"ma_hang_hang_khong\": null\r\n}",
+							"raw": "{\r\n    \"ten_day_du\": \"Huỳnh Gia Huy\",\r\n    \"email\": \"agiahuy2005@gmail.com\",\r\n    \"so_dien_thoai\": \"0971010282\",\r\n    \"password\": \"Abc123456\",\r\n    \"password_confirmation\": \"Abc123456\",\r\n    \"vai_tro\": \"khach_hang\",\r\n    \"ma_hang_hang_khong\": null\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -32,6 +32,13 @@
 							],
 							"path": [
 								"register"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -263,7 +270,273 @@
 		},
 		{
 			"name": "Admin",
-			"item": [],
+			"item": [
+				{
+					"name": "Airline",
+					"item": [
+						{
+							"name": "Airline-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airlines/pending",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airlines",
+										"pending"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airline-Approve",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airlines/1/approve",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airlines",
+										"1",
+										"approve"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airline-Reject",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airlines/1/reject",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airlines",
+										"1",
+										"reject"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airline-Active",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airlines/1/activate",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airlines",
+										"1",
+										"activate"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airline-Suspend",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airlines/1/suspend",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airlines",
+										"1",
+										"suspend"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Hãng hàng không - Phê duyệt & trạng thái  \nCác trangh thái của hãng hàng không:  \nApprove: Phê duyệt - Tức là ban đầu trạng thái sẽ chờ duyệt\n\nReject: Từ chối hãng  \nActive: Hoạt động  \nSuspend: Đình chỉ hãng"
+				},
+				{
+					"name": "Airport",
+					"item": [
+						{
+							"name": "Airport-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airports",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airport-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airports/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airports",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Airport-Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"ma_san_bay\": \"SGN\",\r\n  \"ten_san_bay\": \"Tan Son Nhat International Airport\",\r\n  \"thanh_pho\": \"Ho Chi Minh\",\r\n  \"quoc_gia\": \"Vietnam\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/airports",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airports"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Quản lý sân bay"
+				},
+				{
+					"name": "Monitoring",
+					"item": [],
+					"description": "Giám sát hệ thống"
+				},
+				{
+					"name": "Config",
+					"item": [],
+					"description": "Cấu hình hệ thống"
+				}
+			],
 			"description": "Quản trị hệ thống"
 		},
 		{
@@ -1413,14 +1686,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/customer/search/airports",
+									"raw": "{{base_url}}/customer/search/airlines",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"customer",
 										"search",
-										"airports"
+										"airlines"
 									]
 								}
 							},
@@ -1442,14 +1715,15 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/customer/search/airports",
+									"raw": "{{base_url}}/customer/search/flights/1",
 									"host": [
 										"{{base_url}}"
 									],
 									"path": [
 										"customer",
 										"search",
-										"airports"
+										"flights",
+										"1"
 									]
 								}
 							},
