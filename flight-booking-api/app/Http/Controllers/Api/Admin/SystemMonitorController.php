@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\DatVe;
 use App\Models\ChuyenBay;
 use App\Models\HangHangKhong;
+use App\Http\Controllers\Controller;
 
 class SystemMonitorController extends Controller
 {
@@ -31,3 +31,4 @@ class SystemMonitorController extends Controller
         ]);
     }
 }
+

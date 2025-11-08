@@ -101,7 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('search/airports', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachSanBay']);
         Route::get('search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
         Route::get('search/flights/{id}', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chiTietChuyenBay']);
-        
+
         // Đặt vé (explicit routes)
         Route::post('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'datVe']);
         Route::get('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'danhSachDatVe']);
