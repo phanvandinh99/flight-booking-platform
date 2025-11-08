@@ -522,18 +522,541 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Airport-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"ten_san_bay\": \"Tan Son Nhat new test\",\r\n  \"thanh_pho\": \"Ho Chi Minh City\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/airports/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airports",
+										"1"
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"description": "Quản lý sân bay"
 				},
 				{
+					"name": "Route",
+					"item": [
+						{
+							"name": "Route-List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/airports",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"airports"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Route-Detail",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/routes/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"routes",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Route-Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"san_bay_di\": 1,\r\n  \"san_bay_den\": 2,\r\n  \"duoc_phe_duyet\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/routes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"routes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Route-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"duoc_phe_duyet\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/routes/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"routes",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Route-Delete",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/routes/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"routes",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Route-approve",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/routes/1/approve",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"routes",
+										"1",
+										"approve"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Route-Revoke",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "rhzohLDsIaqYgHdxl56kSScXl4VAxo9saVM9U36Abbffdeed",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/routes/1/revoke",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"routes",
+										"1",
+										"revoke"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Quản lý tuyến bay"
+				},
+				{
 					"name": "Monitoring",
-					"item": [],
+					"item": [
+						{
+							"name": "Monitoring",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/monitoring/overview",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"monitoring",
+										"overview"
+									]
+								}
+							},
+							"response": []
+						}
+					],
 					"description": "Giám sát hệ thống"
 				},
 				{
+					"name": "Report",
+					"item": [
+						{
+							"name": "Reports-Summary",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/reports/revenue/summary",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"reports",
+										"revenue",
+										"summary"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reports-Monthly",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/reports/revenue/summary",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"reports",
+										"revenue",
+										"summary"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reports-Top-Airlines",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/reports/top-airlines",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"reports",
+										"top-airlines"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Báo cáo tổng hợp"
+				},
+				{
 					"name": "Config",
-					"item": [],
+					"item": [
+						{
+							"name": "Config",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/config",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Config-Create",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"ten_cau_hinh\": \"thue\",\r\n  \"gia_tri\": \"0.1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/config",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"config"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Config-Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/admin/config/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"config",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Config-Delete",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "npdSLphMLnd6fa2btQaXD44uOAzW3XgxLf2zwvsR23155bdf",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/admin/config/1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"admin",
+										"config",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
 					"description": "Cấu hình hệ thống"
 				}
 			],
