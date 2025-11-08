@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\HangHangKhong;
+use App\Http\Controllers\Controller;
 
 class AirlineApprovalController extends Controller
 {
