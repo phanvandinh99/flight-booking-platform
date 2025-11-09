@@ -1,27 +1,33 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const raw = localStorage.getItem('fb_user');
+    const raw = localStorage.getItem("fb_user");
     return raw ? JSON.parse(raw) : null;
   });
-  const [token, setToken] = useState(() => localStorage.getItem('fb_token'));
+  const [token, setToken] = useState(() => localStorage.getItem("fb_token"));
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('fb_user', JSON.stringify(user));
+      localStorage.setItem("fb_user", JSON.stringify(user));
     } else {
-      localStorage.removeItem('fb_user');
+      localStorage.removeItem("fb_user");
     }
   }, [user]);
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem('fb_token', token);
+      localStorage.setItem("fb_token", token);
     } else {
-      localStorage.removeItem('fb_token');
+      localStorage.removeItem("fb_token");
     }
   }, [token]);
 
@@ -43,8 +49,3 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
-
-
-
-
-

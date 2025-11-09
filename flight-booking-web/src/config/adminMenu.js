@@ -21,8 +21,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to approval page
-          console.log("Navigate to approval page");
+          window.location.href = "/admin/airlines/approval";
         },
       },
       {
@@ -41,8 +40,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to airport management
-          console.log("Navigate to airport management");
+          window.location.href = "/admin/airports";
         },
       },
       {
@@ -61,8 +59,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to route management
-          console.log("Navigate to route management");
+          window.location.href = "/admin/routes";
         },
       },
     ],
@@ -87,8 +84,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to reports
-          console.log("Navigate to reports");
+          window.location.href = "/admin/reports";
         },
       },
     ],
@@ -112,8 +108,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to system settings
-          console.log("Navigate to system settings");
+          window.location.href = "/admin/config";
         },
       },
     ],

@@ -85,4 +85,3 @@ class RouteController extends Controller
         return response()->json(['message' => 'Đã thu hồi phê duyệt', 'data' => $route]);
     }
 }
-
