@@ -67,3 +67,49 @@ export async function deleteAirport(id) {
   const res = await client.delete(`/admin/airports/${id}`);
   return res.data;
 }
+
+/**
+ * API cho Admin - Quản lý tuyến bay
+ */
+
+// Lấy danh sách tuyến bay
+export async function getRoutes() {
+  const res = await client.get("/admin/routes");
+  return res.data;
+}
+
+// Lấy chi tiết tuyến bay
+export async function getRoute(id) {
+  const res = await client.get(`/admin/routes/${id}`);
+  return res.data;
+}
+
+// Tạo tuyến bay mới
+export async function createRoute(data) {
+  const res = await client.post("/admin/routes", data);
+  return res.data;
+}
+
+// Cập nhật tuyến bay
+export async function updateRoute(id, data) {
+  const res = await client.put(`/admin/routes/${id}`, data);
+  return res.data;
+}
+
+// Xóa tuyến bay
+export async function deleteRoute(id) {
+  const res = await client.delete(`/admin/routes/${id}`);
+  return res.data;
+}
+
+// Phê duyệt tuyến bay
+export async function approveRoute(id) {
+  const res = await client.post(`/admin/routes/${id}/approve`);
+  return res.data;
+}
+
+// Thu hồi phê duyệt tuyến bay
+export async function revokeRoute(id) {
+  const res = await client.post(`/admin/routes/${id}/revoke`);
+  return res.data;
+}
