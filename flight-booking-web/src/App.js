@@ -5,6 +5,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AirlineApproval from "./pages/admin/AirlineApproval";
 import AirportManagement from "./pages/admin/AirportManagement";
 import RouteManagement from "./pages/admin/RouteManagement";
+import Reports from "./pages/admin/Reports";
 import AirlineDashboard from "./pages/airline/AirlineDashboard";
 import CustomerHome from "./pages/customer/CustomerHome";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -27,6 +28,7 @@ function App() {
           />
           <Route path="/admin/airports" element={<AirportManagement />} />
           <Route path="/admin/routes" element={<RouteManagement />} />
+          <Route path="/admin/reports" element={<Reports />} />
         </Route>
 
         {/* Airline representative protected */}

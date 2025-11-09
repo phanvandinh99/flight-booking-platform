@@ -85,7 +85,7 @@ class ReportsController extends Controller
     {
         $limit = $request->get('limit', 10);
 
-        $topAirlines = DatVe::where('trang_thai', 'da_thanh_toan')
+        $topAirlines = DatVe::where('dat_ve.trang_thai', 'da_thanh_toan')
             ->join('chuyen_bay', 'dat_ve.ma_chuyen_bay', '=', 'chuyen_bay.id')
             ->join('hang_hang_khong', 'chuyen_bay.ma_hang_hang_khong', '=', 'hang_hang_khong.id')
             ->select(

@@ -113,3 +113,27 @@ export async function revokeRoute(id) {
   const res = await client.post(`/admin/routes/${id}/revoke`);
   return res.data;
 }
+
+/**
+ * API cho Admin - Báo cáo tổng hợp
+ */
+
+// Tổng doanh thu
+export async function getRevenueSummary() {
+  const res = await client.get("/admin/reports/revenue/summary");
+  return res.data;
+}
+
+// Doanh thu theo tháng
+export async function getMonthlyRevenue(params = {}) {
+  const res = await client.get("/admin/reports/revenue/monthly", { params });
+  return res.data;
+}
+
+// Top hãng hàng không theo doanh thu
+export async function getTopAirlines(limit = 10) {
+  const res = await client.get("/admin/reports/top-airlines", {
+    params: { limit },
+  });
+  return res.data;
+}

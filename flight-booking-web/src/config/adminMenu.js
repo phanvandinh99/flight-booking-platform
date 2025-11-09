@@ -84,8 +84,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to reports
-          console.log("Navigate to reports");
+          window.location.href = "/admin/reports";
         },
       },
     ],
