@@ -19,15 +19,11 @@ export default function AirplaneManagement() {
   const [formData, setFormData] = useState({
     loai_may_bay: "",
     tong_so_ghe: "",
-    so_do_ghe: {
-      pho_thong: [],
-      thuong_gia: [],
-    },
+    so_do_ghe: {},
   });
-  const [seatInput, setSeatInput] = useState({
-    pho_thong: "",
-    thuong_gia: "",
-  });
+  const [seatClasses, setSeatClasses] = useState([
+    { id: 1, name: "pho_thong", label: "Phổ thông", rows: "", seatsPerRow: "" },
+  ]);
   const [formErrors, setFormErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,7 +41,39 @@ export default function AirplaneManagement() {
       setLoading(true);
       setError(null);
       const response = await getAircrafts();
-      setAircrafts(response.data || []);
+      // Normalize so_do_ghe data - đảm bảo format đúng
+      const normalizedAircrafts = (response.data || []).map((aircraft) => {
+        let soDoGhe = aircraft.so_do_ghe;
+
+        // Nếu so_do_ghe là string (JSON chưa parse), parse nó
+        if (typeof soDoGhe === "string") {
+          try {
+            soDoGhe = JSON.parse(soDoGhe);
+          } catch (e) {
+            soDoGhe = {};
+          }
+        }
+
+        // Normalize: chỉ giữ lại các giá trị là array có phần tử, giữ lại _metadata
+        const normalizedSeatMap = {};
+        if (soDoGhe && typeof soDoGhe === "object" && !Array.isArray(soDoGhe)) {
+          Object.keys(soDoGhe).forEach((key) => {
+            const value = soDoGhe[key];
+            // Giữ lại _metadata hoặc các giá trị là array có phần tử
+            if (key === "_metadata" && typeof value === "object") {
+              normalizedSeatMap[key] = value;
+            } else if (Array.isArray(value) && value.length > 0) {
+              normalizedSeatMap[key] = value;
+            }
+          });
+        }
+
+        // Gán lại so_do_ghe đã được normalize
+        aircraft.so_do_ghe = normalizedSeatMap;
+
+        return aircraft;
+      });
+      setAircrafts(normalizedAircrafts);
     } catch (err) {
       setError(
         err.response?.data?.message || "Không thể tải danh sách máy bay"
@@ -56,39 +84,136 @@ export default function AirplaneManagement() {
     }
   };
 
+  // Hàm generate mã ghế tự động
+  const generateSeatCodes = (rows, seatsPerRow) => {
+    const seats = [];
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    for (let row = 1; row <= rows; row++) {
+      for (let seat = 0; seat < seatsPerRow; seat++) {
+        seats.push(`${row}${letters[seat]}`);
+      }
+    }
+
+    return seats;
+  };
+
+  // Parse seat configuration từ existing data
+  const parseSeatConfiguration = (soDoGhe) => {
+    if (!soDoGhe || typeof soDoGhe !== "object") {
+      return [
+        {
+          id: 1,
+          name: "pho_thong",
+          label: "Phổ thông",
+          rows: "",
+          seatsPerRow: "",
+        },
+      ];
+    }
+
+    const classes = [];
+    let id = 1;
+
+    // Map tên loại ghế mặc định (để tương thích với dữ liệu cũ)
+    const labelMap = {
+      pho_thong: "Phổ thông",
+      pho_thong_cao_cap: "Phổ thông cao cấp",
+      thuong_gia: "Thương gia",
+      hang_nhat: "Hạng nhất",
+    };
+
+    // Lấy metadata nếu có (chứa label của các loại ghế)
+    const metadata = soDoGhe._metadata || {};
+
+    for (const [key, seats] of Object.entries(soDoGhe)) {
+      // Bỏ qua key _metadata
+      if (key === "_metadata") continue;
+
+      if (Array.isArray(seats) && seats.length > 0) {
+        // Tính số dãy và số ghế mỗi dãy từ mã ghế
+        // Giả sử mã ghế có format: số + chữ cái (ví dụ: 1A, 1B, 2A, ...)
+        const rowNumbers = new Set();
+        let maxSeatsInRow = 0;
+        const rowSeatsMap = {};
+
+        seats.forEach((seat) => {
+          const match = seat.toString().match(/^(\d+)([A-Z])$/i);
+          if (match) {
+            const row = parseInt(match[1]);
+            const col = match[2].toUpperCase();
+            rowNumbers.add(row);
+
+            if (!rowSeatsMap[row]) {
+              rowSeatsMap[row] = new Set();
+            }
+            rowSeatsMap[row].add(col);
+            maxSeatsInRow = Math.max(maxSeatsInRow, rowSeatsMap[row].size);
+          }
+        });
+
+        if (rowNumbers.size > 0) {
+          // Ưu tiên dùng label từ metadata, nếu không có thì dùng labelMap, nếu không có nữa thì format key
+          let label = metadata[key] || labelMap[key];
+          if (!label) {
+            // Format key để hiển thị (thay underscore bằng space, capitalize)
+            label = key
+              .replace(/_/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase());
+          }
+
+          classes.push({
+            id: id++,
+            name: key,
+            label: label,
+            rows: rowNumbers.size.toString(),
+            seatsPerRow: maxSeatsInRow.toString(),
+          });
+        }
+      }
+    }
+
+    // Nếu không có dữ liệu, trả về default
+    if (classes.length === 0) {
+      return [
+        {
+          id: 1,
+          name: "pho_thong",
+          label: "Phổ thông",
+          rows: "",
+          seatsPerRow: "",
+        },
+      ];
+    }
+
+    return classes;
+  };
+
   const handleOpenModal = (aircraft = null) => {
     if (aircraft) {
       setEditingAircraft(aircraft);
       setFormData({
         loai_may_bay: aircraft.loai_may_bay || "",
         tong_so_ghe: aircraft.tong_so_ghe || "",
-        so_do_ghe: aircraft.so_do_ghe || {
-          pho_thong: [],
-          thuong_gia: [],
-        },
+        so_do_ghe: aircraft.so_do_ghe || {},
       });
-      setSeatInput({
-        pho_thong: Array.isArray(aircraft.so_do_ghe?.pho_thong)
-          ? aircraft.so_do_ghe.pho_thong.join(", ")
-          : "",
-        thuong_gia: Array.isArray(aircraft.so_do_ghe?.thuong_gia)
-          ? aircraft.so_do_ghe.thuong_gia.join(", ")
-          : "",
-      });
+      setSeatClasses(parseSeatConfiguration(aircraft.so_do_ghe));
     } else {
       setEditingAircraft(null);
       setFormData({
         loai_may_bay: "",
         tong_so_ghe: "",
-        so_do_ghe: {
-          pho_thong: [],
-          thuong_gia: [],
+        so_do_ghe: {},
+      });
+      setSeatClasses([
+        {
+          id: 1,
+          name: "pho_thong",
+          label: "Phổ thông",
+          rows: "",
+          seatsPerRow: "",
         },
-      });
-      setSeatInput({
-        pho_thong: "",
-        thuong_gia: "",
-      });
+      ]);
     }
     setFormErrors({});
     setShowModal(true);
@@ -100,31 +225,95 @@ export default function AirplaneManagement() {
     setFormData({
       loai_may_bay: "",
       tong_so_ghe: "",
-      so_do_ghe: {
-        pho_thong: [],
-        thuong_gia: [],
+      so_do_ghe: {},
+    });
+    setSeatClasses([
+      {
+        id: 1,
+        name: "pho_thong",
+        label: "Phổ thông",
+        rows: "",
+        seatsPerRow: "",
       },
-    });
-    setSeatInput({
-      pho_thong: "",
-      thuong_gia: "",
-    });
+    ]);
     setFormErrors({});
   };
 
-  const handleSeatInputChange = (type, value) => {
-    setSeatInput({ ...seatInput, [type]: value });
-    const seats = value
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0);
-    setFormData({
-      ...formData,
-      so_do_ghe: {
-        ...formData.so_do_ghe,
-        [type]: seats,
+  // Thêm loại ghế mới
+  const handleAddSeatClass = () => {
+    const newId = Math.max(...seatClasses.map((sc) => sc.id), 0) + 1;
+    setSeatClasses([
+      ...seatClasses,
+      {
+        id: newId,
+        name: `loai_ghe_${newId}`,
+        label: "",
+        rows: "",
+        seatsPerRow: "",
       },
+    ]);
+  };
+
+  // Xóa loại ghế
+  const handleRemoveSeatClass = (id) => {
+    if (seatClasses.length > 1) {
+      setSeatClasses(seatClasses.filter((sc) => sc.id !== id));
+    }
+  };
+
+  // Hàm chuyển đổi tiếng Việt có dấu sang không dấu
+  const removeVietnameseTones = (str) => {
+    if (!str) return "";
+    // Chuyển đổi tất cả các ký tự có dấu sang không dấu
+    str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Chuyển đổi đ và Đ
+    str = str.replace(/đ/g, "d").replace(/Đ/g, "D");
+    return str;
+  };
+
+  // Cập nhật thông tin loại ghế
+  const handleSeatClassChange = (id, field, value) => {
+    setSeatClasses(
+      seatClasses.map((sc) => {
+        if (sc.id === id) {
+          const updated = { ...sc, [field]: value };
+          // Tự động tạo name từ label nếu label thay đổi
+          if (field === "label" && value.trim()) {
+            // Chuyển label thành name (lowercase, không dấu, thay khoảng trắng bằng underscore)
+            const nameWithoutTones = removeVietnameseTones(value);
+            updated.name = nameWithoutTones
+              .toLowerCase()
+              .replace(/\s+/g, "_")
+              .replace(/[^a-z0-9_]/g, "");
+          }
+          return updated;
+        }
+        return sc;
+      })
+    );
+  };
+
+  // Tính toán và cập nhật so_do_ghe từ seatClasses
+  const calculateSeatMap = () => {
+    const seatMap = {};
+    const seatMetadata = {}; // Lưu metadata (label) cho mỗi loại ghế
+    let totalSeats = 0;
+
+    seatClasses.forEach((seatClass) => {
+      if (seatClass.rows && seatClass.seatsPerRow && seatClass.label) {
+        const rows = parseInt(seatClass.rows);
+        const seatsPerRow = parseInt(seatClass.seatsPerRow);
+
+        if (rows > 0 && seatsPerRow > 0) {
+          const seats = generateSeatCodes(rows, seatsPerRow);
+          seatMap[seatClass.name] = seats;
+          seatMetadata[seatClass.name] = seatClass.label; // Lưu label
+          totalSeats += seats.length;
+        }
+      }
     });
+
+    return { seatMap, totalSeats, seatMetadata };
   };
 
   const validateForm = () => {
@@ -132,25 +321,65 @@ export default function AirplaneManagement() {
     if (!formData.loai_may_bay.trim()) {
       errors.loai_may_bay = "Loại máy bay là bắt buộc";
     }
-    if (!formData.tong_so_ghe) {
-      errors.tong_so_ghe = "Tổng số ghế là bắt buộc";
-    } else if (isNaN(formData.tong_so_ghe) || formData.tong_so_ghe < 1) {
-      errors.tong_so_ghe = "Tổng số ghế phải là số nguyên dương";
+
+    // Validate seat classes
+    const { totalSeats } = calculateSeatMap();
+    if (totalSeats === 0) {
+      errors.seatClasses = "Vui lòng nhập ít nhất một loại ghế hợp lệ";
     }
+
+    // Validate từng loại ghế
+    seatClasses.forEach((seatClass) => {
+      if (!seatClass.label.trim()) {
+        errors[`seatClass_${seatClass.id}_label`] = "Tên loại ghế là bắt buộc";
+      }
+
+      // Kiểm tra nếu có nhập một trong hai thì cả hai đều phải có
+      if (seatClass.rows || seatClass.seatsPerRow) {
+        if (!seatClass.rows) {
+          errors[`seatClass_${seatClass.id}_rows`] = "Vui lòng nhập số dãy";
+        } else if (parseInt(seatClass.rows) < 1) {
+          errors[`seatClass_${seatClass.id}_rows`] = "Số dãy phải lớn hơn 0";
+        }
+
+        if (!seatClass.seatsPerRow) {
+          errors[`seatClass_${seatClass.id}_seatsPerRow`] =
+            "Vui lòng nhập số ghế mỗi dãy";
+        } else if (
+          parseInt(seatClass.seatsPerRow) < 1 ||
+          parseInt(seatClass.seatsPerRow) > 26
+        ) {
+          errors[`seatClass_${seatClass.id}_seatsPerRow`] =
+            "Số ghế mỗi dãy phải từ 1 đến 26";
+        }
+      }
+    });
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateForm()) return;
+
+    // Tính toán so_do_ghe từ seatClasses
+    const { seatMap, totalSeats, seatMetadata } = calculateSeatMap();
 
     try {
       setSubmitting(true);
+
+      // Tạo so_do_ghe với metadata (lưu label trong một key đặc biệt)
+      const soDoGheWithMetadata = {
+        ...seatMap,
+        _metadata: seatMetadata, // Lưu metadata để hiển thị lại
+      };
+
       const submitData = {
         loai_may_bay: formData.loai_may_bay,
-        tong_so_ghe: parseInt(formData.tong_so_ghe),
-        so_do_ghe: formData.so_do_ghe,
+        tong_so_ghe: totalSeats,
+        so_do_ghe: soDoGheWithMetadata,
       };
       if (editingAircraft) {
         await updateAircraft(editingAircraft.id, submitData);
@@ -423,18 +652,81 @@ export default function AirplaneManagement() {
                       <td>{aircraft.tong_so_ghe}</td>
                       <td>
                         <div className="seat-info">
-                          <span className="seat-badge">
-                            Phổ thông:{" "}
-                            {Array.isArray(aircraft.so_do_ghe?.pho_thong)
-                              ? aircraft.so_do_ghe.pho_thong.length
-                              : 0}
-                          </span>
-                          <span className="seat-badge">
-                            Thương gia:{" "}
-                            {Array.isArray(aircraft.so_do_ghe?.thuong_gia)
-                              ? aircraft.so_do_ghe.thuong_gia.length
-                              : 0}
-                          </span>
+                          {(() => {
+                            // Map tên loại ghế
+                            const labelMap = {
+                              pho_thong: "Phổ thông",
+                              pho_thong_cao_cap: "Phổ thông cao cấp",
+                              thuong_gia: "Thương gia",
+                              hang_nhat: "Hạng nhất",
+                            };
+
+                            // Kiểm tra so_do_ghe
+                            let soDoGhe = aircraft.so_do_ghe;
+
+                            // Nếu không có so_do_ghe hoặc không phải object
+                            if (
+                              !soDoGhe ||
+                              typeof soDoGhe !== "object" ||
+                              Array.isArray(soDoGhe)
+                            ) {
+                              return (
+                                <span className="seat-badge">
+                                  Chưa có dữ liệu
+                                </span>
+                              );
+                            }
+
+                            // Lấy metadata nếu có (chứa label của các loại ghế)
+                            const metadata = soDoGhe._metadata || {};
+
+                            // Lọc các entries hợp lệ (chỉ lấy array có phần tử, bỏ qua _metadata)
+                            const validEntries = Object.entries(soDoGhe)
+                              .filter(([key, value]) => {
+                                // Bỏ qua key _metadata và chỉ lấy giá trị là array có phần tử
+                                return (
+                                  key !== "_metadata" &&
+                                  Array.isArray(value) &&
+                                  value.length > 0
+                                );
+                              })
+                              .map(([key, seats]) => {
+                                // Ưu tiên dùng label từ metadata, nếu không có thì dùng labelMap, nếu không có nữa thì format key
+                                let label = metadata[key] || labelMap[key];
+
+                                // Nếu vẫn không có, format key để hiển thị (thay underscore bằng space, capitalize)
+                                if (!label) {
+                                  label = key
+                                    .replace(/_/g, " ")
+                                    .replace(/\b\w/g, (l) => l.toUpperCase());
+                                }
+
+                                return {
+                                  key,
+                                  count: seats.length,
+                                  label: label,
+                                };
+                              });
+
+                            // Nếu không có entries hợp lệ, hiển thị "Chưa có dữ liệu"
+                            if (validEntries.length === 0) {
+                              return (
+                                <span className="seat-badge">
+                                  Chưa có dữ liệu
+                                </span>
+                              );
+                            }
+
+                            // Hiển thị các loại ghế
+                            return validEntries.map((entry, index) => (
+                              <span
+                                key={entry.key || index}
+                                className="seat-badge"
+                              >
+                                {entry.label}: {entry.count}
+                              </span>
+                            ));
+                          })()}
                         </div>
                       </td>
                       <td>{aircraft.hang_hang_khong?.ten_hang || "N/A"}</td>
@@ -656,67 +948,244 @@ export default function AirplaneManagement() {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="tong_so_ghe">
-                      Tổng số ghế <span className="required">*</span>
+                    <label>
+                      Tổng số ghế
+                      {(() => {
+                        const { totalSeats } = calculateSeatMap();
+                        return totalSeats > 0 ? (
+                          <span className="total-seats-info">
+                            {" "}
+                            (Tự động: {totalSeats})
+                          </span>
+                        ) : null;
+                      })()}
                     </label>
                     <input
-                      id="tong_so_ghe"
                       type="number"
                       min="1"
-                      value={formData.tong_so_ghe}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          tong_so_ghe: e.target.value,
-                        })
-                      }
+                      value={(() => {
+                        const { totalSeats } = calculateSeatMap();
+                        return totalSeats > 0
+                          ? totalSeats
+                          : formData.tong_so_ghe;
+                      })()}
                       className={formErrors.tong_so_ghe ? "error" : ""}
-                      placeholder="VD: 270"
-                      disabled={submitting}
+                      placeholder="Sẽ tự động tính từ các loại ghế"
+                      disabled={true}
+                      readOnly
                     />
                     {formErrors.tong_so_ghe && (
                       <span className="error-message">
                         {formErrors.tong_so_ghe}
                       </span>
                     )}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="so_do_ghe_pho_thong">
-                      Sơ đồ ghế - Phổ thông
-                    </label>
-                    <input
-                      id="so_do_ghe_pho_thong"
-                      type="text"
-                      value={seatInput.pho_thong}
-                      onChange={(e) =>
-                        handleSeatInputChange("pho_thong", e.target.value)
-                      }
-                      placeholder="VD: 1A, 1B, 1C, 2A, 2B (phân cách bằng dấu phẩy)"
-                      disabled={submitting}
-                    />
                     <small className="form-hint">
-                      Nhập mã ghế phân cách bằng dấu phẩy
+                      Tổng số ghế sẽ được tính tự động từ các loại ghế bên dưới
                     </small>
                   </div>
 
+                  {/* Dynamic Seat Classes */}
                   <div className="form-group">
-                    <label htmlFor="so_do_ghe_thuong_gia">
-                      Sơ đồ ghế - Thương gia
-                    </label>
-                    <input
-                      id="so_do_ghe_thuong_gia"
-                      type="text"
-                      value={seatInput.thuong_gia}
-                      onChange={(e) =>
-                        handleSeatInputChange("thuong_gia", e.target.value)
-                      }
-                      placeholder="VD: 10A, 10B, 11A, 11B (phân cách bằng dấu phẩy)"
-                      disabled={submitting}
-                    />
-                    <small className="form-hint">
-                      Nhập mã ghế phân cách bằng dấu phẩy
-                    </small>
+                    <div className="seat-classes-header">
+                      <label>
+                        Sơ đồ ghế <span className="required">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        className="btn-add-seat-class"
+                        onClick={handleAddSeatClass}
+                        disabled={submitting}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                        Thêm loại ghế
+                      </button>
+                    </div>
+                    {formErrors.seatClasses && (
+                      <span className="error-message">
+                        {formErrors.seatClasses}
+                      </span>
+                    )}
+
+                    {seatClasses.map((seatClass, index) => {
+                      const seatClassTotal =
+                        seatClass.rows && seatClass.seatsPerRow
+                          ? parseInt(seatClass.rows) *
+                            parseInt(seatClass.seatsPerRow)
+                          : 0;
+
+                      return (
+                        <div key={seatClass.id} className="seat-class-item">
+                          <div className="seat-class-header">
+                            <h4>Loại ghế {index + 1}</h4>
+                            {seatClasses.length > 1 && (
+                              <button
+                                type="button"
+                                className="btn-remove-seat-class"
+                                onClick={() =>
+                                  handleRemoveSeatClass(seatClass.id)
+                                }
+                                disabled={submitting}
+                                title="Xóa loại ghế"
+                              >
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                >
+                                  <line x1="18" y1="6" x2="6" y2="18" />
+                                  <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="form-row">
+                            <div className="form-group">
+                              <label>
+                                Tên loại ghế <span className="required">*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={seatClass.label}
+                                onChange={(e) =>
+                                  handleSeatClassChange(
+                                    seatClass.id,
+                                    "label",
+                                    e.target.value
+                                  )
+                                }
+                                className={
+                                  formErrors[`seatClass_${seatClass.id}_label`]
+                                    ? "error"
+                                    : ""
+                                }
+                                placeholder="VD: Phổ thông, Thương gia"
+                                disabled={submitting}
+                              />
+                              {formErrors[
+                                `seatClass_${seatClass.id}_label`
+                              ] && (
+                                <span className="error-message">
+                                  {
+                                    formErrors[
+                                      `seatClass_${seatClass.id}_label`
+                                    ]
+                                  }
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="form-group">
+                              <label>
+                                Số dãy <span className="required">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                value={seatClass.rows}
+                                onChange={(e) =>
+                                  handleSeatClassChange(
+                                    seatClass.id,
+                                    "rows",
+                                    e.target.value
+                                  )
+                                }
+                                className={
+                                  formErrors[`seatClass_${seatClass.id}_rows`]
+                                    ? "error"
+                                    : ""
+                                }
+                                placeholder="VD: 20"
+                                disabled={submitting}
+                              />
+                              {formErrors[`seatClass_${seatClass.id}_rows`] && (
+                                <span className="error-message">
+                                  {formErrors[`seatClass_${seatClass.id}_rows`]}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="form-group">
+                              <label>
+                                Số ghế mỗi dãy{" "}
+                                <span className="required">*</span>
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="26"
+                                value={seatClass.seatsPerRow}
+                                onChange={(e) =>
+                                  handleSeatClassChange(
+                                    seatClass.id,
+                                    "seatsPerRow",
+                                    e.target.value
+                                  )
+                                }
+                                className={
+                                  formErrors[
+                                    `seatClass_${seatClass.id}_seatsPerRow`
+                                  ]
+                                    ? "error"
+                                    : ""
+                                }
+                                placeholder="VD: 6 (A-F)"
+                                disabled={submitting}
+                              />
+                              {formErrors[
+                                `seatClass_${seatClass.id}_seatsPerRow`
+                              ] && (
+                                <span className="error-message">
+                                  {
+                                    formErrors[
+                                      `seatClass_${seatClass.id}_seatsPerRow`
+                                    ]
+                                  }
+                                </span>
+                              )}
+                              <small className="form-hint">
+                                Tối đa 26 ghế (A-Z)
+                              </small>
+                            </div>
+                          </div>
+
+                          {seatClassTotal > 0 && (
+                            <div className="seat-class-preview">
+                              <small>
+                                Tổng: {seatClassTotal} ghế (từ{" "}
+                                {
+                                  generateSeatCodes(
+                                    parseInt(seatClass.rows),
+                                    parseInt(seatClass.seatsPerRow)
+                                  )[0]
+                                }{" "}
+                                đến{" "}
+                                {
+                                  generateSeatCodes(
+                                    parseInt(seatClass.rows),
+                                    parseInt(seatClass.seatsPerRow)
+                                  )[seatClassTotal - 1]
+                                }
+                                )
+                              </small>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                   <div className="modal-footer">
                     <button
