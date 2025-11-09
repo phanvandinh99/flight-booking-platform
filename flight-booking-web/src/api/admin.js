@@ -137,3 +137,31 @@ export async function getTopAirlines(limit = 10) {
   });
   return res.data;
 }
+
+/**
+ * API cho Admin - Cấu hình hệ thống
+ */
+
+// Lấy danh sách cấu hình
+export async function getConfigs() {
+  const res = await client.get("/admin/config");
+  return res.data;
+}
+
+// Tạo cấu hình mới
+export async function createConfig(data) {
+  const res = await client.post("/admin/config", data);
+  return res.data;
+}
+
+// Cập nhật cấu hình
+export async function updateConfig(key, data) {
+  const res = await client.put(`/admin/config/${key}`, data);
+  return res.data;
+}
+
+// Xóa cấu hình
+export async function deleteConfig(key) {
+  const res = await client.delete(`/admin/config/${key}`);
+  return res.data;
+}

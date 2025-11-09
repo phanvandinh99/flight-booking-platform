@@ -108,8 +108,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to system settings
-          console.log("Navigate to system settings");
+          window.location.href = "/admin/config";
         },
       },
     ],
