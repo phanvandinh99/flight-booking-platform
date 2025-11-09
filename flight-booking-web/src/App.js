@@ -1,10 +1,12 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AirlineDashboard from './pages/airline/AirlineDashboard';
-import CustomerHome from './pages/customer/CustomerHome';
-import ProtectedRoute from './routes/ProtectedRoute';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AirlineApproval from "./pages/admin/AirlineApproval";
+import AirportManagement from "./pages/admin/AirportManagement";
+import AirlineDashboard from "./pages/airline/AirlineDashboard";
+import CustomerHome from "./pages/customer/CustomerHome";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
   return (
@@ -18,6 +20,11 @@ function App() {
         {/* Admin protected */}
         <Route element={<ProtectedRoute allowRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route
+            path="/admin/airlines/approval"
+            element={<AirlineApproval />}
+          />
+          <Route path="/admin/airports" element={<AirportManagement />} />
         </Route>
 
         {/* Airline representative protected */}

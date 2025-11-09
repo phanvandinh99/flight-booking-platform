@@ -1,34 +1,34 @@
-import React, { useState } from "react";
-import { useAuth } from "../../auth/AuthContext";
-import { logoutApi } from "../../api/auth";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/dashboard.css";
 
-/**
- * Layout chung cho Admin và Airline Representative Dashboard
- * @param {Object} props
- * @param {React.ReactNode} props.children - Nội dung trang
- * @param {Array} props.menuItems - Danh sách menu items cho sidebar
- * @param {string} props.title - Tiêu đề trang
- */
-export default function DashboardLayout({
-  children,
-  menuItems = [],
-  title = "Dashboard",
-}) {
-  const { user, logout } = useAuth();
+export default function DashboardLayout({ menuItems, title, children }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeMenuItem, setActiveMenuItem] = useState(null);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    try {
-      await logoutApi();
-    } catch {}
-    logout();
-    window.location.href = "/login";
+  useEffect(() => {
+    // Lấy thông tin user từ localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+  const handleMenuClick = (menuItem) => {
+    if (menuItem.onClick) {
+      menuItem.onClick();
+    }
   };
 
   return (
@@ -38,30 +38,21 @@ export default function DashboardLayout({
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <svg
-              width="32"
-              height="32"
+              width="24"
+              height="24"
               viewBox="0 0 24 24"
               fill="none"
-              xmlns="http://www.w3.org/2000/svg"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <path
-                d="M21 16V14C21 12.9 20.1 12 19 12H5C3.9 12 3 12.9 3 14V16C3 17.1 3.9 18 5 18H19C20.1 18 21 17.1 21 16Z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M7 10L12 15L17 10"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
             </svg>
-            {sidebarOpen && <span className="logo-text">Flight Booking</span>}
+            <span className="logo-text">Flight Booking</span>
           </div>
-          <button className="sidebar-toggle" onClick={toggleSidebar}>
+          <button
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+          >
             <svg
               width="20"
               height="20"
@@ -70,42 +61,25 @@ export default function DashboardLayout({
               stroke="currentColor"
               strokeWidth="2"
             >
-              {sidebarOpen ? (
-                <path d="M18 6L6 18M6 6L18 18" />
-              ) : (
-                <path d="M3 12H21M3 6H21M3 18H21" />
-              )}
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
         </div>
 
         <nav className="sidebar-nav">
-          {menuItems.map((item, index) => (
-            <div key={index} className="nav-section">
-              {item.section && sidebarOpen && (
-                <div className="nav-section-title">{item.section}</div>
-              )}
-              {item.items?.map((menuItem, itemIndex) => (
+          {menuItems.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="nav-section">
+              <div className="nav-section-title">{section.section}</div>
+              {section.items.map((item, itemIndex) => (
                 <button
                   key={itemIndex}
-                  className={`nav-item ${
-                    activeMenuItem === `${index}-${itemIndex}` ? "active" : ""
-                  }`}
-                  onClick={() => {
-                    setActiveMenuItem(`${index}-${itemIndex}`);
-                    if (menuItem.onClick) {
-                      menuItem.onClick();
-                    }
-                  }}
-                  title={!sidebarOpen ? menuItem.label : ""}
+                  className="nav-item"
+                  onClick={() => handleMenuClick(item)}
                 >
-                  <span className="nav-icon">{menuItem.icon}</span>
-                  {sidebarOpen && (
-                    <span className="nav-label">{menuItem.label}</span>
-                  )}
-                  {menuItem.badge && sidebarOpen && (
-                    <span className="nav-badge">{menuItem.badge}</span>
-                  )}
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
                 </button>
               ))}
             </div>
@@ -115,28 +89,32 @@ export default function DashboardLayout({
         <div className="sidebar-footer">
           <div className="user-info">
             <div className="user-avatar">
-              {user?.ten_day_du?.charAt(0)?.toUpperCase() ||
-                user?.email?.charAt(0)?.toUpperCase() ||
-                "U"}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </div>
-            {sidebarOpen && (
-              <div className="user-details">
-                <div className="user-name">
-                  {user?.ten_day_du || user?.email || "User"}
-                </div>
-                <div className="user-role">
-                  {user?.vai_tro === "admin"
-                    ? "Quản trị viên"
-                    : "Đại diện hãng"}
-                </div>
+            <div className="user-details">
+              <div className="user-name">
+                {user?.ho_ten || user?.name || "Admin"}
               </div>
-            )}
+              <div className="user-role">
+                {user?.vai_tro === "admin"
+                  ? "Quản trị viên"
+                  : user?.vai_tro === "dai_dien_hang"
+                  ? "Đại diện hãng"
+                  : "Người dùng"}
+              </div>
+            </div>
           </div>
-          <button
-            className="logout-btn"
-            onClick={handleLogout}
-            title={!sidebarOpen ? "Đăng xuất" : ""}
-          >
+          <button className="logout-btn" onClick={handleLogout}>
             <svg
               width="20"
               height="20"
@@ -149,41 +127,23 @@ export default function DashboardLayout({
               <polyline points="16 17 21 12 16 7" />
               <line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            {sidebarOpen && <span>Đăng xuất</span>}
+            <span>Đăng xuất</span>
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <div className="dashboard-main">
-        {/* Header */}
+      <main className="dashboard-main">
         <header className="dashboard-header">
-          <div className="header-left">
-            <h1 className="page-title">{title}</h1>
-          </div>
-          <div className="header-right">
-            <div className="header-actions">
-              <button className="header-icon-btn" title="Thông báo">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                <span className="notification-badge">3</span>
-              </button>
-            </div>
-          </div>
+          <h1 className="dashboard-title">
+            <span className="title-text">{title}</span>
+            <span className="title-decoration"></span>
+          </h1>
         </header>
 
-        {/* Content */}
-        <main className="dashboard-content">{children}</main>
-      </div>
+        <div className="dashboard-content">{children}</div>
+      </main>
     </div>
   );
 }
+

@@ -31,4 +31,3 @@ class SystemMonitorController extends Controller
         ]);
     }
 }
-

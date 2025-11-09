@@ -21,8 +21,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to approval page
-          console.log("Navigate to approval page");
+          window.location.href = "/admin/airlines/approval";
         },
       },
       {
@@ -41,8 +40,7 @@ export const adminMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to airport management
-          console.log("Navigate to airport management");
+          window.location.href = "/admin/airports";
         },
       },
       {
