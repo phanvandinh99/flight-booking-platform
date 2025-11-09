@@ -8,6 +8,7 @@ import RouteManagement from "./pages/admin/RouteManagement";
 import Reports from "./pages/admin/Reports";
 import SystemConfig from "./pages/admin/SystemConfig";
 import AirlineDashboard from "./pages/airline/AirlineDashboard";
+import AirplaneManagement from "./pages/airline/AirplaneManagement";
 import CustomerHome from "./pages/customer/CustomerHome";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -36,6 +37,7 @@ function App() {
         {/* Airline representative protected */}
         <Route element={<ProtectedRoute allowRoles={["dai_dien_hang"]} />}>
           <Route path="/airline" element={<AirlineDashboard />} />
+          <Route path="/airline/airplanes" element={<AirplaneManagement />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

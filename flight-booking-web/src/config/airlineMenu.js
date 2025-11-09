@@ -20,8 +20,7 @@ export const airlineMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to aircraft management
-          console.log("Navigate to aircraft management");
+          window.location.href = "/airline/airplanes";
         },
       },
       {
