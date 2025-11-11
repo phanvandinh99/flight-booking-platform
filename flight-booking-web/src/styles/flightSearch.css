@@ -406,7 +406,15 @@
 .time-arrival {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
+}
+
+.time-departure .date,
+.time-arrival .date {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .time {

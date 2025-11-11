@@ -178,6 +178,17 @@ export default function CustomerHome() {
     });
   };
 
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const handleSelectBanner = (index) => {
     setCurrentBanner(index);
   };
@@ -581,6 +592,9 @@ export default function CustomerHome() {
                         <span className="time">
                           {formatTime(flight.gio_khoi_hanh)}
                         </span>
+                        <span className="date">
+                          {formatDateTime(flight.gio_khoi_hanh).split(",")[0]}
+                        </span>
                       </div>
                       <div className="route-arrow">→</div>
                       <div className="route-item">
@@ -590,6 +604,9 @@ export default function CustomerHome() {
                         </span>
                         <span className="time">
                           {formatTime(flight.gio_ha_canh)}
+                        </span>
+                        <span className="date">
+                          {formatDateTime(flight.gio_ha_canh).split(",")[0]}
                         </span>
                       </div>
                     </div>

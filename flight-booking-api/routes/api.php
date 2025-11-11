@@ -110,7 +110,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'datVe']);
         Route::get('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'danhSachDatVe']);
         Route::get('bookings/{id}', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'chiTietDatVe']);
-        Route::post('bookings/{id}/payment', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'thanhToan']);
+        Route::post('bookings/{id}/payment', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'createPayment']);
+        Route::post('bookings/{id}/payment/confirm', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'confirmPayment']);
         Route::put('bookings/{id}/cancel', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'huyDatVe']);
     });
+});
+
+// Payment routes (public for VNPAY callbacks)
+Route::prefix('payment')->group(function () {
+    Route::get('vnpay/return', [\App\Http\Controllers\Api\PaymentController::class, 'vnpayReturn']);
+    Route::post('vnpay/ipn', [\App\Http\Controllers\Api\PaymentController::class, 'vnpayIpn']);
 });

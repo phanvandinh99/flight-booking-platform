@@ -8,18 +8,33 @@ export default function DashboardLayout({ menuItems, title, children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Lấy thông tin user từ localStorage
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData));
-      } catch (error) {
-        console.error("Error parsing user data:", error);
-      }
+    // Kiểm tra authentication
+    const token = localStorage.getItem("fb_token");
+    const userData =
+      localStorage.getItem("fb_user") || localStorage.getItem("user");
+
+    if (!token || !userData) {
+      // Chưa đăng nhập, redirect đến trang login
+      navigate("/login");
+      return;
     }
-  }, []);
+
+    try {
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      // Nếu parse lỗi, xóa dữ liệu và redirect
+      localStorage.removeItem("fb_token");
+      localStorage.removeItem("fb_user");
+      localStorage.removeItem("user");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleLogout = () => {
+    localStorage.removeItem("fb_token");
+    localStorage.removeItem("fb_user");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
@@ -146,4 +161,3 @@ export default function DashboardLayout({ menuItems, title, children }) {
     </div>
   );
 }
-

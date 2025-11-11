@@ -493,6 +493,19 @@
   gap: 10px;
 }
 
+.fare-detail-item.availability {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.fare-detail-item.availability strong {
+  font-size: 18px;
+  margin: 0 4px;
+}
+
 .fare-detail-item {
   display: flex;
   align-items: center;

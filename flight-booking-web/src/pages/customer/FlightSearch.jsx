@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, useLocation, Link } from "react-router-dom";
-import { searchFlights, getAirlines, getFlightDetail } from "../../api/customer";
+import {
+  useNavigate,
+  useSearchParams,
+  useLocation,
+  Link,
+} from "react-router-dom";
+import {
+  searchFlights,
+  getAirlines,
+  getFlightDetail,
+} from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import "../../styles/flightSearch.css";
 
@@ -65,7 +74,9 @@ export default function FlightSearch() {
         chuyen_bay_ve: null,
       });
     } catch (err) {
-      setError(err.response?.data?.message || "Không thể tải chi tiết chuyến bay");
+      setError(
+        err.response?.data?.message || "Không thể tải chi tiết chuyến bay"
+      );
       console.error("Error loading flight detail:", err);
     } finally {
       setLoading(false);
@@ -89,7 +100,11 @@ export default function FlightSearch() {
       };
 
       // Validate required fields
-      if (!searchData.san_bay_di || !searchData.san_bay_den || !searchData.ngay_khoi_hanh) {
+      if (
+        !searchData.san_bay_di ||
+        !searchData.san_bay_den ||
+        !searchData.ngay_khoi_hanh
+      ) {
         setError("Vui lòng nhập đầy đủ thông tin tìm kiếm");
         setLoading(false);
         return;
@@ -182,6 +197,17 @@ export default function FlightSearch() {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -421,7 +447,8 @@ export default function FlightSearch() {
           <div className="route-info">
             <div className="route-item">
               <span className="airport-name-large">
-                {searchResults.san_bay_di?.ten_san_bay || searchResults.san_bay_di?.ma_san_bay}
+                {searchResults.san_bay_di?.ten_san_bay ||
+                  searchResults.san_bay_di?.ma_san_bay}
               </span>
               <span className="airport-code-small">
                 {searchResults.san_bay_di?.ma_san_bay}
@@ -430,7 +457,8 @@ export default function FlightSearch() {
             <div className="route-arrow">→</div>
             <div className="route-item">
               <span className="airport-name-large">
-                {searchResults.san_bay_den?.ten_san_bay || searchResults.san_bay_den?.ma_san_bay}
+                {searchResults.san_bay_den?.ten_san_bay ||
+                  searchResults.san_bay_den?.ma_san_bay}
               </span>
               <span className="airport-code-small">
                 {searchResults.san_bay_den?.ma_san_bay}
@@ -560,8 +588,12 @@ export default function FlightSearch() {
                           <span className="time">
                             {formatTime(flight.gio_khoi_hanh)}
                           </span>
+                          <span className="date">
+                            {formatDateTime(flight.gio_khoi_hanh).split(",")[0]}
+                          </span>
                           <span className="airport-name">
-                            {flight.tuyen_bay?.san_bay_di?.ten_san_bay || flight.tuyen_bay?.san_bay_di?.ma_san_bay}
+                            {flight.tuyen_bay?.san_bay_di?.ten_san_bay ||
+                              flight.tuyen_bay?.san_bay_di?.ma_san_bay}
                           </span>
                           <span className="airport-code">
                             {flight.tuyen_bay?.san_bay_di?.ma_san_bay}
@@ -579,8 +611,12 @@ export default function FlightSearch() {
                           <span className="time">
                             {formatTime(flight.gio_ha_canh)}
                           </span>
+                          <span className="date">
+                            {formatDateTime(flight.gio_ha_canh).split(",")[0]}
+                          </span>
                           <span className="airport-name">
-                            {flight.tuyen_bay?.san_bay_den?.ten_san_bay || flight.tuyen_bay?.san_bay_den?.ma_san_bay}
+                            {flight.tuyen_bay?.san_bay_den?.ten_san_bay ||
+                              flight.tuyen_bay?.san_bay_den?.ma_san_bay}
                           </span>
                           <span className="airport-code">
                             {flight.tuyen_bay?.san_bay_den?.ma_san_bay}
@@ -637,8 +673,16 @@ export default function FlightSearch() {
                               <span className="time">
                                 {formatTime(flight.gio_khoi_hanh)}
                               </span>
+                              <span className="date">
+                                {
+                                  formatDateTime(flight.gio_khoi_hanh).split(
+                                    ","
+                                  )[0]
+                                }
+                              </span>
                               <span className="airport-name">
-                                {flight.tuyen_bay?.san_bay_di?.ten_san_bay || flight.tuyen_bay?.san_bay_di?.ma_san_bay}
+                                {flight.tuyen_bay?.san_bay_di?.ten_san_bay ||
+                                  flight.tuyen_bay?.san_bay_di?.ma_san_bay}
                               </span>
                               <span className="airport-code">
                                 {flight.tuyen_bay?.san_bay_di?.ma_san_bay}
@@ -656,8 +700,16 @@ export default function FlightSearch() {
                               <span className="time">
                                 {formatTime(flight.gio_ha_canh)}
                               </span>
+                              <span className="date">
+                                {
+                                  formatDateTime(flight.gio_ha_canh).split(
+                                    ","
+                                  )[0]
+                                }
+                              </span>
                               <span className="airport-name">
-                                {flight.tuyen_bay?.san_bay_den?.ten_san_bay || flight.tuyen_bay?.san_bay_den?.ma_san_bay}
+                                {flight.tuyen_bay?.san_bay_den?.ten_san_bay ||
+                                  flight.tuyen_bay?.san_bay_den?.ma_san_bay}
                               </span>
                               <span className="airport-code">
                                 {flight.tuyen_bay?.san_bay_den?.ma_san_bay}

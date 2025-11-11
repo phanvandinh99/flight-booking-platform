@@ -68,7 +68,15 @@ export async function getBooking(id) {
   return res.data;
 }
 
-// Thanh toán đặt vé
+// Tạo URL thanh toán VNPAY
+export async function createPaymentUrl(bookingId, bankCode = null) {
+  const res = await client.post(`/customer/bookings/${bookingId}/payment`, {
+    bank_code: bankCode,
+  });
+  return res.data;
+}
+
+// Thanh toán đặt vé (deprecated - use createPaymentUrl instead)
 export async function payBooking(id, data) {
   const res = await client.post(`/customer/bookings/${id}/payment`, data);
   return res.data;
@@ -77,5 +85,14 @@ export async function payBooking(id, data) {
 // Hủy đặt vé
 export async function cancelBooking(id) {
   const res = await client.put(`/customer/bookings/${id}/cancel`);
+  return res.data;
+}
+
+// Xác nhận thanh toán từ VNPAY callback
+export async function confirmPayment(bookingId, vnpayParams) {
+  const res = await client.post(
+    `/customer/bookings/${bookingId}/payment/confirm`,
+    vnpayParams
+  );
   return res.data;
 }

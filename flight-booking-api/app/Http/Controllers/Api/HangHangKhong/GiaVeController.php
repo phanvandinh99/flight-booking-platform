@@ -170,7 +170,27 @@ class GiaVeController extends Controller
             'chinh_sach_huy_ve' => 'sometimes|nullable|string',
             'chinh_sach_doi_ve' => 'sometimes|nullable|string',
             'ngay_bat_dau' => 'sometimes|required|date',
-            'ngay_ket_thuc' => 'sometimes|required|date|after:ngay_bat_dau'
+            'ngay_ket_thuc' => [
+                'sometimes',
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($request, $price) {
+                    // Lấy ngày bắt đầu từ request hoặc từ giá vé hiện tại
+                    $ngayBatDau = null;
+                    if ($request->has('ngay_bat_dau')) {
+                        $ngayBatDau = $request->ngay_bat_dau;
+                    } elseif ($price && $price->ngay_bat_dau) {
+                        // Format date từ model (Carbon instance)
+                        $ngayBatDau = $price->ngay_bat_dau instanceof \Carbon\Carbon
+                            ? $price->ngay_bat_dau->format('Y-m-d')
+                            : $price->ngay_bat_dau;
+                    }
+
+                    if ($value && $ngayBatDau && strtotime($value) <= strtotime($ngayBatDau)) {
+                        $fail('Ngày kết thúc phải sau ngày bắt đầu.');
+                    }
+                }
+            ]
         ]);
 
         if ($validator->fails()) {
@@ -193,16 +213,37 @@ class GiaVeController extends Controller
             }
         }
 
-        $price->update($request->only([
-            'ma_chuyen_bay',
-            'hang_ve',
-            'gia',
-            'hanh_ly_ky_gui',
-            'chinh_sach_huy_ve',
-            'chinh_sach_doi_ve',
-            'ngay_bat_dau',
-            'ngay_ket_thuc'
-        ]));
+        // Kiểm tra unique constraint khi cập nhật ngày bắt đầu hoặc hạng vé
+        $maChuyenBay = $request->has('ma_chuyen_bay') ? $request->ma_chuyen_bay : $price->ma_chuyen_bay;
+        $hangVe = $request->has('hang_ve') ? $request->hang_ve : $price->hang_ve;
+        $ngayBatDau = $request->has('ngay_bat_dau') ? $request->ngay_bat_dau : $price->ngay_bat_dau;
+
+        $existingPrice = GiaVe::where('ma_chuyen_bay', $maChuyenBay)
+            ->where('hang_ve', $hangVe)
+            ->where('ngay_bat_dau', $ngayBatDau)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingPrice) {
+            return response()->json([
+                'message' => 'Đã tồn tại giá vé cho hạng này trong khoảng thời gian này'
+            ], 400);
+        }
+
+        // Update tất cả các trường được gửi từ request
+        // Frontend luôn gửi đầy đủ các trường, nên chỉ cần lấy từ request
+        $updateData = [
+            'ma_chuyen_bay' => $request->input('ma_chuyen_bay', $price->ma_chuyen_bay),
+            'hang_ve' => $request->input('hang_ve', $price->hang_ve),
+            'gia' => $request->input('gia', $price->gia),
+            'hanh_ly_ky_gui' => $request->input('hanh_ly_ky_gui', $price->hanh_ly_ky_gui),
+            'chinh_sach_huy_ve' => $request->input('chinh_sach_huy_ve', $price->chinh_sach_huy_ve),
+            'chinh_sach_doi_ve' => $request->input('chinh_sach_doi_ve', $price->chinh_sach_doi_ve),
+            'ngay_bat_dau' => $request->input('ngay_bat_dau', $price->ngay_bat_dau),
+            'ngay_ket_thuc' => $request->input('ngay_ket_thuc', $price->ngay_ket_thuc),
+        ];
+
+        $price->update($updateData);
 
         return response()->json([
             'message' => 'Cập nhật giá vé thành công',

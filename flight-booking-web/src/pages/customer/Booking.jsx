@@ -4,6 +4,7 @@ import {
   createBooking,
   getFlightDetail,
   getFlightSeats,
+  createPaymentUrl,
 } from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import SeatMap from "../../components/SeatMap";
@@ -371,9 +372,13 @@ export default function Booking() {
 
       const response = await createBooking(bookingData);
 
-      // Navigate to booking list page (will create confirmation page later)
+      // Đặt vé thành công, redirect đến trang "Vé của tôi"
       navigate("/bookings", {
-        state: { booking: response.data },
+        state: {
+          message:
+            "Đặt vé thành công! Bạn có thể thanh toán hoặc hủy vé trong trang 'Vé của tôi'.",
+          booking: response.data,
+        },
       });
     } catch (err) {
       console.error("Error creating booking:", err);
