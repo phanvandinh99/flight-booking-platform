@@ -15,6 +15,7 @@ import BookingManagement from "./pages/airline/BookingManagement";
 import AirlineReports from "./pages/airline/AirlineReports";
 import CustomerHome from "./pages/customer/CustomerHome";
 import FlightSearch from "./pages/customer/FlightSearch";
+import FlightDetail from "./pages/customer/FlightDetail";
 import FlightList from "./pages/customer/FlightList";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/" element={<CustomerHome />} />
         <Route path="/flights" element={<FlightList />} />
         <Route path="/search" element={<FlightSearch />} />
+        <Route path="/flight/:id" element={<FlightDetail />} />
 
         {/* Admin protected */}
         <Route element={<ProtectedRoute allowRoles={["admin"]} />}>

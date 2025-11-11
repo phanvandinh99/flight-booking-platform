@@ -612,7 +612,7 @@ export default function CustomerHome() {
                       )}
                       <button
                         className="btn-view-icon"
-                        onClick={() => navigate(`/search?flight=${flight.id}`)}
+                        onClick={() => navigate(`/flight/${flight.id}`)}
                         title="Xem chi tiết"
                       >
                         <svg

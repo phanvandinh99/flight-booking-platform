@@ -2,11 +2,15 @@
 .flight-search-page {
   min-height: 100vh;
   background: #f8fafc;
+  display: flex;
+  flex-direction: column;
 }
 
-.search-header {
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* Header Styles - Kế thừa từ CustomerHome */
+.customer-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -29,6 +33,11 @@
   font-weight: 700;
   color: #1e293b;
   cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .logo svg {
@@ -39,6 +48,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .nav-link {
@@ -46,9 +56,11 @@
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
-.nav-link:hover {
+.nav-link:hover,
+.nav-link.active {
   color: #667eea;
 }
 
@@ -60,6 +72,92 @@
   border-radius: 8px;
 }
 
+/* Footer Styles - Kế thừa từ CustomerHome */
+.customer-footer {
+  background: #1e293b;
+  color: white;
+  padding: 60px 24px 24px;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+}
+
+.footer-section h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: white;
+}
+
+.footer-section p {
+  margin: 0 0 12px 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 8px;
+}
+
+.footer-section ul li a {
+  color: #cbd5e1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-section ul li a:hover {
+  color: white;
+}
+
+.social-links {
+  display: flex;
+  gap: 16px;
+}
+
+.social-links a {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.social-links a:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.footer-bottom p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
 .search-main {
   max-width: 1400px;
   margin: 0 auto;
@@ -67,11 +165,12 @@
 }
 
 .search-info {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .route-info {
@@ -84,18 +183,20 @@
 .route-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-.airport-code {
-  font-size: 24px;
-  font-weight: 700;
+.airport-name-large {
+  font-size: 28px;
+  font-weight: 800;
   color: #1e293b;
+  line-height: 1.2;
 }
 
-.airport-name {
+.airport-code-small {
   font-size: 14px;
   color: #64748b;
+  font-weight: 500;
 }
 
 .route-arrow {
@@ -117,10 +218,11 @@
 
 /* Filters Sidebar */
 .filters-sidebar {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.1);
   height: fit-content;
   position: sticky;
   top: 100px;
@@ -213,17 +315,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  border-radius: 16px;
-  padding: 20px 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .results-header h2 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 22px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .sort-controls {
@@ -254,18 +360,32 @@
 
 .flight-card {
   background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  transition: all 0.2s ease;
+  align-items: stretch;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  position: relative;
+}
+
+.flight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
 }
 
 .flight-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+  transform: translateY(-4px);
+  border-color: rgba(102, 126, 234, 0.3);
 }
 
 .flight-info {
@@ -273,6 +393,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 24px 28px;
 }
 
 .flight-time {
@@ -285,18 +406,29 @@
 .time-arrival {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .time {
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.airport {
-  font-size: 14px;
+.airport-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+}
+
+.airport-code {
+  font-size: 12px;
   color: #64748b;
+  font-weight: 500;
 }
 
 .duration {
@@ -359,33 +491,53 @@
 .flight-price {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 12px;
-  margin-left: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-left: 1px solid #e2e8f0;
+  min-width: 180px;
+  max-width: 220px;
+  flex-shrink: 0;
 }
 
 .price {
-  font-size: 24px;
-  font-weight: 700;
-  color: #667eea;
+  font-size: 22px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  word-break: break-word;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .btn-select {
-  padding: 12px 32px;
+  padding: 12px 24px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   color: white;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  width: 100%;
+  max-width: 100%;
 }
 
 .btn-select:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.btn-select:active {
+  transform: translateY(0);
 }
 
 .no-results {
@@ -409,8 +561,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: 100px 20px;
   text-align: center;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.1);
+  margin: 40px 0;
 }
 
 .loading-spinner-large {
@@ -430,45 +586,52 @@
 }
 
 .error-icon {
-  width: 80px;
-  height: 80px;
-  background: #f1f5f9;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  margin-bottom: 24px;
+  color: #667eea;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
 }
 
 .error-container h3 {
-  margin: 0 0 12px 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .error-container p {
-  margin: 0 0 24px 0;
-  font-size: 14px;
+  margin: 0 0 32px 0;
+  font-size: 16px;
   color: #64748b;
+  max-width: 500px;
 }
 
 .btn-retry {
-  padding: 12px 24px;
+  padding: 14px 32px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   color: white;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .btn-retry:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 /* Responsive */
@@ -487,22 +650,59 @@
     padding: 16px;
   }
 
+  .search-info {
+    padding: 24px 20px;
+  }
+
+  .route-info {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .route-arrow {
+    transform: rotate(90deg);
+  }
+
   .flight-card {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .flight-info {
+    padding: 20px;
+  }
+
   .flight-price {
     margin-left: 0;
-    margin-top: 16px;
+    margin-top: 0;
+    padding: 20px;
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    min-width: auto;
+    max-width: 100%;
+  }
+
+  .price {
+    font-size: 20px;
+    word-break: break-word;
+  }
+
+  .btn-select {
+    width: auto;
+    padding: 12px 24px;
   }
 
   .results-header {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
+  }
+
+  .sort-controls {
+    width: 100%;
+    justify-content: space-between;
   }
 }

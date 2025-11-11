@@ -445,29 +445,33 @@
 .btn-view-details {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 32px;
+  gap: 6px;
+  padding: 10px 18px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   color: white;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  width: 100%;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.25);
+  white-space: nowrap;
   justify-content: center;
 }
 
 .btn-view-details:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
   background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 .btn-view-details:active {
   transform: translateY(0);
+}
+
+.btn-view-details svg {
+  flex-shrink: 0;
 }
 
 /* Loading & No Results */
@@ -623,5 +627,20 @@
     height: 40px;
     padding: 0 12px;
     font-size: 14px;
+  }
+
+  .flight-actions {
+    padding: 16px 20px;
+  }
+
+  .btn-view-details {
+    padding: 8px 16px;
+    font-size: 13px;
+    gap: 5px;
+  }
+
+  .btn-view-details svg {
+    width: 16px;
+    height: 16px;
   }
 }
