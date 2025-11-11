@@ -34,6 +34,18 @@ export async function getTodayFlights() {
   return res.data;
 }
 
+// Lấy danh sách chuyến bay với filter, sort, pagination (public endpoint)
+export async function getFlightList(params = {}) {
+  const res = await client.get("/search/flights/list", { params });
+  return res.data;
+}
+
+// Lấy thông tin ghế của chuyến bay (public endpoint)
+export async function getFlightSeats(flightId) {
+  const res = await client.get(`/search/flights/${flightId}/seats`);
+  return res.data;
+}
+
 /**
  * API cho Customer - Đặt vé
  */

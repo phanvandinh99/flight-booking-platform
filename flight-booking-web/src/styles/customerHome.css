@@ -295,29 +295,6 @@
   margin-top: -4px;
 }
 
-.swap-btn {
-  position: absolute;
-  top: 50%;
-  left: calc(50% - 20px);
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 2px solid #e2e8f0;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.swap-btn:hover {
-  border-color: #667eea;
-  background: #f8fafc;
-  transform: translateY(-50%) rotate(180deg);
-}
 
 .passengers {
   position: relative;
@@ -535,6 +512,13 @@
   color: #1e293b;
 }
 
+.airport-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
 .time {
   font-size: 14px;
   color: #64748b;
@@ -596,6 +580,27 @@
 .btn-view:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-view-icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-view-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 /* Features Section */
@@ -762,12 +767,6 @@
 
   .search-fields {
     grid-template-columns: 1fr;
-  }
-
-  .swap-btn {
-    position: static;
-    transform: none;
-    margin: 8px auto;
   }
 
   .features-section {

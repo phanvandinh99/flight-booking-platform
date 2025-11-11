@@ -8,6 +8,7 @@ use App\Models\ChuyenBay;
 use App\Models\SanBay;
 use App\Models\TuyenBay;
 use App\Models\GiaVe;
+use App\Models\HanhKhach;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
@@ -92,8 +93,9 @@ class TimKiemChuyenBayController extends Controller
                 ->first();
 
             if ($tuyenBayVe) {
-                $requestVe = clone $request;
-                $requestVe->ngay_khoi_hanh = $request->ngay_ve;
+                // Tạo request mới cho chuyến bay về
+                $requestVe = new Request($request->all());
+                $requestVe->merge(['ngay_khoi_hanh' => $request->ngay_ve]);
                 $chuyenBayVe = $this->timChuyenBay($tuyenBayVe, $requestVe, 've');
             }
         }
@@ -261,6 +263,71 @@ class TimKiemChuyenBayController extends Controller
     }
 
     /**
+     * Lấy thông tin ghế của chuyến bay
+     */
+    public function thongTinGhe($id)
+    {
+        $chuyenBay = ChuyenBay::with(['may_bay'])->find($id);
+
+        if (!$chuyenBay) {
+            return response()->json([
+                'message' => 'Không tìm thấy chuyến bay'
+            ], 404);
+        }
+
+        // Lấy tất cả ghế đã đặt (đã thanh toán)
+        $gheDaDat = HanhKhach::whereHas('dat_ve', function ($query) use ($id) {
+            $query->where('ma_chuyen_bay', $id)
+                ->where('trang_thai', 'da_thanh_toan');
+        })->whereNotNull('so_ghe')
+            ->pluck('so_ghe')
+            ->toArray();
+
+        // Lấy tất cả ghế đang giữ chỗ (chưa thanh toán, chưa hết hạn)
+        $gheGiuCho = HanhKhach::whereHas('dat_ve', function ($query) use ($id) {
+            $query->where('ma_chuyen_bay', $id)
+                ->where('trang_thai', 'giu_cho')
+                ->where('thoi_gian_het_han_giu_cho', '>', now());
+        })->whereNotNull('so_ghe')
+            ->pluck('so_ghe')
+            ->toArray();
+
+        // Lấy sơ đồ ghế từ máy bay
+        $soDoGhe = $chuyenBay->may_bay->so_do_ghe ?? [];
+        $tongSoGhe = $chuyenBay->may_bay->tong_so_ghe ?? 0;
+
+        // Lấy tất cả giá vé hiện tại của chuyến bay
+        $giaVe = GiaVe::where('ma_chuyen_bay', $chuyenBay->id)
+            ->where('ngay_bat_dau', '<=', now())
+            ->where('ngay_ket_thuc', '>=', now())
+            ->orderByRaw("CASE 
+                WHEN hang_ve = 'hang_nhat' THEN 1 
+                WHEN hang_ve = 'thuong_gia' THEN 2 
+                WHEN hang_ve = 'pho_thong_cao_cap' THEN 3 
+                WHEN hang_ve = 'pho_thong' THEN 4 
+                ELSE 5 
+            END")
+            ->get()
+            ->map(function ($gv) {
+                return [
+                    'hang_ve' => $gv->hang_ve,
+                    'gia' => (float) $gv->gia,
+                ];
+            });
+
+        return response()->json([
+            'data' => [
+                'ma_chuyen_bay' => $chuyenBay->id,
+                'so_do_ghe' => $soDoGhe,
+                'tong_so_ghe' => $tongSoGhe,
+                'ghe_da_dat' => $gheDaDat,
+                'ghe_giu_cho' => $gheGiuCho,
+                'gia_ve' => $giaVe,
+            ]
+        ]);
+    }
+
+    /**
      * Lấy danh sách chuyến bay từ hôm nay trở đi
      */
     public function chuyenBayHomNay()
@@ -288,6 +355,110 @@ class TimKiemChuyenBayController extends Controller
 
         return response()->json([
             'data' => $chuyenBay
+        ]);
+    }
+
+    /**
+     * Lấy danh sách chuyến bay với filter, sort, pagination
+     */
+    public function danhSachChuyenBay(Request $request)
+    {
+        $today = Carbon::today();
+
+        $query = ChuyenBay::where('trang_thai', 'du_kien')
+            ->whereDate('gio_khoi_hanh', '>=', $today)
+            ->with([
+                'hang_hang_khong',
+                'may_bay',
+                'tuyen_bay.san_bay_di',
+                'tuyen_bay.san_bay_den',
+                'gia_ve' => function ($query) {
+                    $query->where('ngay_bat_dau', '<=', now())
+                        ->where('ngay_ket_thuc', '>=', now())
+                        ->where('hang_ve', 'pho_thong')
+                        ->orderBy('gia', 'asc')
+                        ->limit(1);
+                }
+            ]);
+
+        // Filter theo hãng hàng không
+        if ($request->has('hang_hang_khong') && $request->hang_hang_khong) {
+            $query->whereIn('ma_hang_hang_khong', is_array($request->hang_hang_khong)
+                ? $request->hang_hang_khong
+                : [$request->hang_hang_khong]);
+        }
+
+        // Filter theo loại máy bay
+        if ($request->has('loai_may_bay') && $request->loai_may_bay) {
+            $query->whereHas('may_bay', function ($q) use ($request) {
+                $q->where('loai_may_bay', 'like', '%' . $request->loai_may_bay . '%');
+            });
+        }
+
+        // Get all flights first
+        $allFlights = $query->get();
+
+        // Filter theo giá tiền
+        $giaTu = $request->get('gia_tu');
+        $giaDen = $request->get('gia_den');
+        
+        if ($giaTu) {
+            $allFlights = $allFlights->filter(function ($flight) use ($giaTu) {
+                $giaVe = $flight->gia_ve->first();
+                if (!$giaVe) return false;
+                return $giaVe->gia >= $giaTu;
+            });
+        }
+
+        if ($giaDen) {
+            $allFlights = $allFlights->filter(function ($flight) use ($giaDen) {
+                $giaVe = $flight->gia_ve->first();
+                if (!$giaVe) return false;
+                return $giaVe->gia <= $giaDen;
+            });
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'gio_khoi_hanh');
+        $sortOrder = $request->get('sort_order', 'asc');
+
+        if ($sortBy === 'gia') {
+            // Sort by price - sort in memory
+            $allFlights = $allFlights->sortBy(function ($flight) {
+                $giaVe = $flight->gia_ve->first();
+                return $giaVe ? $giaVe->gia : PHP_INT_MAX;
+            }, SORT_REGULAR, $sortOrder === 'desc');
+        } elseif ($sortBy === 'loai_may_bay') {
+            // Sort by aircraft type
+            $allFlights = $allFlights->sortBy(function ($flight) {
+                return $flight->may_bay->loai_may_bay ?? '';
+            }, SORT_REGULAR, $sortOrder === 'desc');
+        } else {
+            // Sort by other fields
+            $allFlights = $allFlights->sortBy($sortBy, SORT_REGULAR, $sortOrder === 'desc');
+        }
+
+        // Reset keys after sorting
+        $allFlights = $allFlights->values();
+
+        // Manual pagination
+        $perPage = $request->get('per_page', 12);
+        $currentPage = $request->get('page', 1);
+        $total = $allFlights->count();
+        $lastPage = ceil($total / $perPage);
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedFlights = $allFlights->slice($offset, $perPage)->values();
+
+        return response()->json([
+            'data' => $paginatedFlights,
+            'pagination' => [
+                'current_page' => (int)$currentPage,
+                'last_page' => $lastPage,
+                'per_page' => $perPage,
+                'total' => $total,
+                'from' => $total > 0 ? $offset + 1 : null,
+                'to' => min($offset + $perPage, $total),
+            ]
         ]);
     }
 }

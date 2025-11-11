@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AirlineApproval from "./pages/admin/AirlineApproval";
 import AirportManagement from "./pages/admin/AirportManagement";
@@ -15,6 +16,9 @@ import BookingManagement from "./pages/airline/BookingManagement";
 import AirlineReports from "./pages/airline/AirlineReports";
 import CustomerHome from "./pages/customer/CustomerHome";
 import FlightSearch from "./pages/customer/FlightSearch";
+import FlightDetail from "./pages/customer/FlightDetail";
+import FlightList from "./pages/customer/FlightList";
+import Booking from "./pages/customer/Booking";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -22,10 +26,14 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Public customer pages */}
         <Route path="/" element={<CustomerHome />} />
+        <Route path="/flights" element={<FlightList />} />
         <Route path="/search" element={<FlightSearch />} />
+        <Route path="/flight/:id" element={<FlightDetail />} />
+        <Route path="/booking" element={<Booking />} />
 
         {/* Admin protected */}
         <Route element={<ProtectedRoute allowRoles={["admin"]} />}>

@@ -9,7 +9,9 @@ use App\Models\ChuyenBay;
 use App\Models\HanhKhach;
 use App\Models\GiaVe;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Mail\BookingConfirmationMail;
 
 class DatVeController extends Controller
 {
@@ -108,6 +110,16 @@ class DatVeController extends Controller
             'hanh_khach'
         ]);
 
+        // Gửi email xác nhận đặt vé
+        try {
+            Mail::to($request->thong_tin_lien_he['email'])->send(
+                new BookingConfirmationMail($datVe, $request->thong_tin_lien_he)
+            );
+        } catch (\Exception $e) {
+            // Log lỗi nhưng không fail request
+            // Log::error('Failed to send booking confirmation email: ' . $e->getMessage());
+        }
+
         return response()->json([
             'message' => 'Đặt vé thành công',
             'data' => [
@@ -194,7 +206,7 @@ class DatVeController extends Controller
     public function danhSachDatVe(Request $request)
     {
         $user = $request->user();
-        
+
         $datVe = DatVe::where('ma_khach_hang', $user->id)
             ->with([
                 'chuyen_bay.hang_hang_khong',
@@ -334,4 +346,3 @@ class DatVeController extends Controller
         ]);
     }
 }
-

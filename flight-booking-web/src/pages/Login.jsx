@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginApi } from "../api/auth";
 import { useAuth } from "../auth/AuthContext";
 import AuthLayout from "../components/layouts/AuthLayout";
@@ -83,6 +83,15 @@ export default function Login() {
             "Đăng nhập"
           )}
         </button>
+
+        <div className="auth-form-footer">
+          <p className="auth-form-footer-text">
+            Chưa có tài khoản?{" "}
+            <Link to="/register" className="auth-form-footer-link">
+              Đăng ký ngay
+            </Link>
+          </p>
+        </div>
       </form>
     </AuthLayout>
   );
