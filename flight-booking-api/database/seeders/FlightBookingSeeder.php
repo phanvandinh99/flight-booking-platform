@@ -71,19 +71,23 @@ class FlightBookingSeeder extends Seeder
         }
 
         // === 3. NGƯỜI DÙNG MẪU ===
+        // Admin
         NguoiDung::updateOrCreate(
             ['email' => 'admin@gmail.com'],
             [
                 'ten_day_du' => 'Admin Hệ Thống',
+                'so_dien_thoai' => '0901234567',
                 'mat_khau' => Hash::make('Abc123'),
                 'vai_tro' => 'admin'
             ]
         );
 
+        // Đại diện hãng hàng không - Vietnam Airlines
         NguoiDung::updateOrCreate(
-            ['email' => 'vn@gmail.com'],
+            ['email' => 'vnairline@gmail.com'],
             [
                 'ten_day_du' => 'Đại Diện Vietnam Airlines',
+                'so_dien_thoai' => '0901111111',
                 'mat_khau' => Hash::make('Abc123'),
                 'vai_tro' => 'dai_dien_hang',
                 'ma_hang_hang_khong' => $airlineIds['VN']
@@ -91,13 +95,114 @@ class FlightBookingSeeder extends Seeder
         );
 
         NguoiDung::updateOrCreate(
+            ['email' => 'vn.manager@gmail.com'],
+            [
+                'ten_day_du' => 'Trần Thị Bình - Quản Lý Vietnam Airlines',
+                'so_dien_thoai' => '0901111112',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['VN']
+            ]
+        );
+
+        // Đại diện hãng hàng không - Vietjet Air
+        NguoiDung::updateOrCreate(
+            ['email' => 'vjair@gmail.com'],
+            [
+                'ten_day_du' => 'Đại Diện Vietjet Air',
+                'so_dien_thoai' => '0902222221',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['VJ']
+            ]
+        );
+
+        NguoiDung::updateOrCreate(
+            ['email' => 'vj.manager@gmail.com'],
+            [
+                'ten_day_du' => 'Phạm Thị Dung - Quản Lý Vietjet Air',
+                'so_dien_thoai' => '0902222222',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['VJ']
+            ]
+        );
+
+        // Đại diện hãng hàng không - Bamboo Airways
+        NguoiDung::updateOrCreate(
+            ['email' => 'bamboo@gmail.com'],
+            [
+                'ten_day_du' => 'Đại Diện Bamboo Airways',
+                'so_dien_thoai' => '0903333331',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['QH']
+            ]
+        );
+
+        NguoiDung::updateOrCreate(
+            ['email' => 'bamboo.manager@gmail.com'],
+            [
+                'ten_day_du' => 'Võ Thị Phương - Quản Lý Bamboo Airways',
+                'so_dien_thoai' => '0903333332',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['QH']
+            ]
+        );
+
+        // Đại diện hãng hàng không - Pacific Airlines
+        NguoiDung::updateOrCreate(
+            ['email' => 'bl.representative@gmail.com'],
+            [
+                'ten_day_du' => 'Đặng Văn Giang - Đại Diện Pacific Airlines',
+                'so_dien_thoai' => '0904444441',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['BL']
+            ]
+        );
+
+        NguoiDung::updateOrCreate(
+            ['email' => 'bl.manager@gmail.com'],
+            [
+                'ten_day_du' => 'Bùi Thị Hoa - Quản Lý Pacific Airlines',
+                'so_dien_thoai' => '0904444442',
+                'mat_khau' => Hash::make('Abc123'),
+                'vai_tro' => 'dai_dien_hang',
+                'ma_hang_hang_khong' => $airlineIds['BL']
+            ]
+        );
+
+        // Khách hàng mẫu
+        NguoiDung::updateOrCreate(
             ['email' => 'giahuy@gmail.com'],
             [
-                'ten_day_du' => 'Khách Hàng Mẫu',
+                'ten_day_du' => 'Gia Huy',
+                'so_dien_thoai' => '0905555555',
                 'mat_khau' => Hash::make('Abc123'),
                 'vai_tro' => 'khach_hang'
             ]
         );
+
+        // Thêm một số khách hàng mẫu khác
+        $sampleCustomers = [
+            ['email' => 'giabao@gmail.com', 'ten' => 'Gia Bao', 'phone' => '0906666666'],
+            ['email' => 'tranhuy@gmail.com', 'ten' => 'Tran Huy', 'phone' => '0907777777'],
+            ['email' => 'nam@gmail.com', 'ten' => 'Van Nam', 'phone' => '0908888888'],
+        ];
+
+        foreach ($sampleCustomers as $customer) {
+            NguoiDung::updateOrCreate(
+                ['email' => $customer['email']],
+                [
+                    'ten_day_du' => $customer['ten'],
+                    'so_dien_thoai' => $customer['phone'],
+                    'mat_khau' => Hash::make('Abc123'),
+                    'vai_tro' => 'khach_hang'
+                ]
+            );
+        }
 
         // === 4. TUYẾN BAY NỘI ĐỊA PHỔ BIẾN ===
         $routes = [
