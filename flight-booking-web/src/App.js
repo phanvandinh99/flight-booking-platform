@@ -8,7 +8,13 @@ import RouteManagement from "./pages/admin/RouteManagement";
 import Reports from "./pages/admin/Reports";
 import SystemConfig from "./pages/admin/SystemConfig";
 import AirlineDashboard from "./pages/airline/AirlineDashboard";
+import AirplaneManagement from "./pages/airline/AirplaneManagement";
+import FlightManagement from "./pages/airline/FlightManagement";
+import PricingManagement from "./pages/airline/PricingManagement";
+import BookingManagement from "./pages/airline/BookingManagement";
+import AirlineReports from "./pages/airline/AirlineReports";
 import CustomerHome from "./pages/customer/CustomerHome";
+import FlightSearch from "./pages/customer/FlightSearch";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -19,6 +25,7 @@ function App() {
 
         {/* Public customer pages */}
         <Route path="/" element={<CustomerHome />} />
+        <Route path="/search" element={<FlightSearch />} />
 
         {/* Admin protected */}
         <Route element={<ProtectedRoute allowRoles={["admin"]} />}>
@@ -36,6 +43,11 @@ function App() {
         {/* Airline representative protected */}
         <Route element={<ProtectedRoute allowRoles={["dai_dien_hang"]} />}>
           <Route path="/airline" element={<AirlineDashboard />} />
+          <Route path="/airline/airplanes" element={<AirplaneManagement />} />
+          <Route path="/airline/flights" element={<FlightManagement />} />
+          <Route path="/airline/pricing" element={<PricingManagement />} />
+          <Route path="/airline/bookings" element={<BookingManagement />} />
+          <Route path="/airline/reports" element={<AirlineReports />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

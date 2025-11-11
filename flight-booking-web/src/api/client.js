@@ -18,9 +18,8 @@ client.interceptors.request.use((config) => {
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    const message =
-      error?.response?.data?.message || error.message || "Request error";
-    return Promise.reject(new Error(message));
+    // Giữ nguyên error object để có thể truy cập error.response
+    return Promise.reject(error);
   }
 );
 

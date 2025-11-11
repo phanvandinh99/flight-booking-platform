@@ -21,6 +21,13 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/airlines', [HangHangKhongController::class, 'index']);
 Route::get('/airlines/{id}', [HangHangKhongController::class, 'show']);
 
+// Public search data routes (for customer search form)
+Route::get('/search/airports', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachSanBay']);
+Route::get('/search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
+Route::post('/search/flights', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'timKiem']);
+Route::get('/search/flights/today', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chuyenBayHomNay']);
+Route::get('/search/flights/{id}', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chiTietChuyenBay'])->where('id', '[0-9]+');
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -74,14 +81,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('flights/routes/approved', [\App\Http\Controllers\Api\HangHangKhong\ChuyenBayController::class, 'getApprovedRoutes']);
 
         // Quản lý giá vé
-        Route::apiResource('pricing', \App\Http\Controllers\Api\HangHangKhong\GiaVeController::class);
         Route::get('pricing/flights', [\App\Http\Controllers\Api\HangHangKhong\GiaVeController::class, 'getFlights']);
+        Route::apiResource('pricing', \App\Http\Controllers\Api\HangHangKhong\GiaVeController::class);
 
         // Quản lý đặt vé
-        Route::apiResource('bookings', \App\Http\Controllers\Api\HangHangKhong\DatVeController::class);
-        Route::put('bookings/{id}/status', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'updateStatus']);
         Route::get('bookings/statistics', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'getStatistics']);
         Route::get('bookings/flights', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'getFlights']);
+        Route::put('bookings/{id}/status', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'updateStatus']);
+        Route::apiResource('bookings', \App\Http\Controllers\Api\HangHangKhong\DatVeController::class);
 
         // Báo cáo
         Route::prefix('reports')->group(function () {
@@ -96,11 +103,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Khách hàng
     Route::middleware('role:khach_hang')->prefix('customer')->group(function () {
-        // Tìm kiếm chuyến bay
-        Route::post('search/flights', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'timKiem']);
-        Route::get('search/airports', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachSanBay']);
-        Route::get('search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
-        Route::get('search/flights/{id}', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chiTietChuyenBay']);
 
         // Đặt vé (explicit routes)
         Route::post('bookings', [\App\Http\Controllers\Api\KhachHang\DatVeController::class, 'datVe']);
