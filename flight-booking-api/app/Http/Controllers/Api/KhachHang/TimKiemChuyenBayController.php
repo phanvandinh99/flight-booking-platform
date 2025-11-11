@@ -93,8 +93,9 @@ class TimKiemChuyenBayController extends Controller
                 ->first();
 
             if ($tuyenBayVe) {
-                $requestVe = clone $request;
-                $requestVe->ngay_khoi_hanh = $request->ngay_ve;
+                // Tạo request mới cho chuyến bay về
+                $requestVe = new Request($request->all());
+                $requestVe->merge(['ngay_khoi_hanh' => $request->ngay_ve]);
                 $chuyenBayVe = $this->timChuyenBay($tuyenBayVe, $requestVe, 've');
             }
         }
@@ -398,19 +399,22 @@ class TimKiemChuyenBayController extends Controller
         $allFlights = $query->get();
 
         // Filter theo giá tiền
-        if ($request->has('gia_tu') && $request->gia_tu) {
-            $allFlights = $allFlights->filter(function ($flight) use ($request) {
+        $giaTu = $request->get('gia_tu');
+        $giaDen = $request->get('gia_den');
+        
+        if ($giaTu) {
+            $allFlights = $allFlights->filter(function ($flight) use ($giaTu) {
                 $giaVe = $flight->gia_ve->first();
                 if (!$giaVe) return false;
-                return $giaVe->gia >= $request->gia_tu;
+                return $giaVe->gia >= $giaTu;
             });
         }
 
-        if ($request->has('gia_den') && $request->gia_den) {
-            $allFlights = $allFlights->filter(function ($flight) use ($request) {
+        if ($giaDen) {
+            $allFlights = $allFlights->filter(function ($flight) use ($giaDen) {
                 $giaVe = $flight->gia_ve->first();
                 if (!$giaVe) return false;
-                return $giaVe->gia <= $request->gia_den;
+                return $giaVe->gia <= $giaDen;
             });
         }
 

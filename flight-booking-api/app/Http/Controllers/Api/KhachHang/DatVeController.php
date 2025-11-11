@@ -117,7 +117,7 @@ class DatVeController extends Controller
             );
         } catch (\Exception $e) {
             // Log lỗi nhưng không fail request
-            \Log::error('Failed to send booking confirmation email: ' . $e->getMessage());
+            // Log::error('Failed to send booking confirmation email: ' . $e->getMessage());
         }
 
         return response()->json([
