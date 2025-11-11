@@ -40,6 +40,12 @@ export async function getFlightList(params = {}) {
   return res.data;
 }
 
+// Lấy thông tin ghế của chuyến bay (public endpoint)
+export async function getFlightSeats(flightId) {
+  const res = await client.get(`/search/flights/${flightId}/seats`);
+  return res.data;
+}
+
 /**
  * API cho Customer - Đặt vé
  */

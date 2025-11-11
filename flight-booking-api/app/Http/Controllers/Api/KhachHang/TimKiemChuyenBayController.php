@@ -8,6 +8,7 @@ use App\Models\ChuyenBay;
 use App\Models\SanBay;
 use App\Models\TuyenBay;
 use App\Models\GiaVe;
+use App\Models\HanhKhach;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
@@ -257,6 +258,71 @@ class TimKiemChuyenBayController extends Controller
 
         return response()->json([
             'data' => $chuyenBay
+        ]);
+    }
+
+    /**
+     * Lấy thông tin ghế của chuyến bay
+     */
+    public function thongTinGhe($id)
+    {
+        $chuyenBay = ChuyenBay::with(['may_bay'])->find($id);
+
+        if (!$chuyenBay) {
+            return response()->json([
+                'message' => 'Không tìm thấy chuyến bay'
+            ], 404);
+        }
+
+        // Lấy tất cả ghế đã đặt (đã thanh toán)
+        $gheDaDat = HanhKhach::whereHas('dat_ve', function ($query) use ($id) {
+            $query->where('ma_chuyen_bay', $id)
+                ->where('trang_thai', 'da_thanh_toan');
+        })->whereNotNull('so_ghe')
+            ->pluck('so_ghe')
+            ->toArray();
+
+        // Lấy tất cả ghế đang giữ chỗ (chưa thanh toán, chưa hết hạn)
+        $gheGiuCho = HanhKhach::whereHas('dat_ve', function ($query) use ($id) {
+            $query->where('ma_chuyen_bay', $id)
+                ->where('trang_thai', 'giu_cho')
+                ->where('thoi_gian_het_han_giu_cho', '>', now());
+        })->whereNotNull('so_ghe')
+            ->pluck('so_ghe')
+            ->toArray();
+
+        // Lấy sơ đồ ghế từ máy bay
+        $soDoGhe = $chuyenBay->may_bay->so_do_ghe ?? [];
+        $tongSoGhe = $chuyenBay->may_bay->tong_so_ghe ?? 0;
+
+        // Lấy tất cả giá vé hiện tại của chuyến bay
+        $giaVe = GiaVe::where('ma_chuyen_bay', $chuyenBay->id)
+            ->where('ngay_bat_dau', '<=', now())
+            ->where('ngay_ket_thuc', '>=', now())
+            ->orderByRaw("CASE 
+                WHEN hang_ve = 'hang_nhat' THEN 1 
+                WHEN hang_ve = 'thuong_gia' THEN 2 
+                WHEN hang_ve = 'pho_thong_cao_cap' THEN 3 
+                WHEN hang_ve = 'pho_thong' THEN 4 
+                ELSE 5 
+            END")
+            ->get()
+            ->map(function ($gv) {
+                return [
+                    'hang_ve' => $gv->hang_ve,
+                    'gia' => (float) $gv->gia,
+                ];
+            });
+
+        return response()->json([
+            'data' => [
+                'ma_chuyen_bay' => $chuyenBay->id,
+                'so_do_ghe' => $soDoGhe,
+                'tong_so_ghe' => $tongSoGhe,
+                'ghe_da_dat' => $gheDaDat,
+                'ghe_giu_cho' => $gheGiuCho,
+                'gia_ve' => $giaVe,
+            ]
         ]);
     }
 

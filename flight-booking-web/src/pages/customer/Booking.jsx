@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { createBooking, getFlightDetail } from "../../api/customer";
+import {
+  createBooking,
+  getFlightDetail,
+  getFlightSeats,
+} from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
+import SeatMap from "../../components/SeatMap";
 import "../../styles/booking.css";
 
 export default function Booking() {
@@ -13,6 +18,9 @@ export default function Booking() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [seatData, setSeatData] = useState(null);
+  const [loadingSeats, setLoadingSeats] = useState(false);
+  const [selectedSeats, setSelectedSeats] = useState([]);
 
   // Form state
   const [passengers, setPassengers] = useState([
@@ -22,6 +30,7 @@ export default function Booking() {
       loai_giay_to: "ho_chieu",
       so_giay_to: "",
       so_ghe: "",
+      gia_ghe: null, // Giá của ghế đã chọn
       loai_hanh_khach: "nguoi_lon",
     },
   ]);
@@ -62,6 +71,8 @@ export default function Booking() {
       setFlight(location.state.flight);
       setFareClass(location.state.fareClass);
       setLoading(false);
+      // Load seat data
+      loadSeatData(location.state.flight.id);
     } else {
       // Try to get from URL params if needed
       setError("Thông tin chuyến bay không hợp lệ");
@@ -69,11 +80,31 @@ export default function Booking() {
     }
   }, [location.state, user, navigate]);
 
+  const loadSeatData = async (flightId) => {
+    try {
+      setLoadingSeats(true);
+      const response = await getFlightSeats(flightId);
+      setSeatData(response.data);
+    } catch (err) {
+      console.error("Error loading seat data:", err);
+      // Không block nếu không load được seat data
+    } finally {
+      setLoadingSeats(false);
+    }
+  };
+
   const formatCurrency = (amount) => {
+    const numAmount = Number(amount);
+    if (isNaN(numAmount) || numAmount < 0) {
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(0);
+    }
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
-    }).format(amount || 0);
+    }).format(numAmount);
   };
 
   const formatTime = (dateString) => {
@@ -106,34 +137,118 @@ export default function Booking() {
     return labels[hangVe] || hangVe;
   };
 
-  const calculatePassengerPrice = (loaiHanhKhach, basePrice) => {
-    if (!basePrice) return 0;
-    switch (loaiHanhKhach) {
-      case "nguoi_lon":
-        return basePrice;
-      case "tre_em":
-        return basePrice * 0.75; // 75% giá người lớn
-      case "em_be":
-        return basePrice * 0.1; // 10% giá người lớn
-      default:
-        return basePrice;
+  const calculatePassengerPrice = (passenger) => {
+    // Sử dụng giá ghế nếu đã chọn ghế, nếu không thì dùng giá hạng vé
+    let basePrice = 0;
+
+    if (
+      passenger.gia_ghe !== null &&
+      passenger.gia_ghe !== undefined &&
+      passenger.gia_ghe > 0
+    ) {
+      basePrice = Number(passenger.gia_ghe);
+    } else if (fareClass && fareClass.gia) {
+      basePrice = Number(fareClass.gia);
     }
+
+    if (!basePrice || isNaN(basePrice) || basePrice <= 0) return 0;
+
+    let finalPrice = 0;
+    switch (passenger.loai_hanh_khach) {
+      case "nguoi_lon":
+        finalPrice = basePrice;
+        break;
+      case "tre_em":
+        finalPrice = basePrice * 0.75; // 75% giá người lớn
+        break;
+      case "em_be":
+        finalPrice = basePrice * 0.1; // 10% giá người lớn
+        break;
+      default:
+        finalPrice = basePrice;
+    }
+
+    return isNaN(finalPrice) ? 0 : Math.round(finalPrice);
   };
 
   const calculateTotalPrice = () => {
-    if (!fareClass) return 0;
-    return passengers.reduce((total, passenger) => {
-      return (
-        total +
-        calculatePassengerPrice(passenger.loai_hanh_khach, fareClass.gia)
-      );
-    }, 0);
+    // Không cần kiểm tra fareClass vì calculatePassengerPrice đã xử lý
+    let total = 0;
+
+    for (let i = 0; i < passengers.length; i++) {
+      const passenger = passengers[i];
+      const price = calculatePassengerPrice(passenger);
+      const priceNum = typeof price === "number" && !isNaN(price) ? price : 0;
+      total += priceNum;
+    }
+
+    return typeof total === "number" && !isNaN(total) ? total : 0;
   };
 
   const handlePassengerChange = (index, field, value) => {
     const updated = [...passengers];
     updated[index][field] = value;
     setPassengers(updated);
+
+    // Update selected seats list and seat price
+    if (field === "so_ghe") {
+      const currentSeats = passengers.map((p) => p.so_ghe).filter(Boolean);
+      const newSeats = updated.map((p) => p.so_ghe).filter(Boolean);
+      setSelectedSeats(newSeats);
+
+      // Nếu xóa số ghế, cũng xóa giá ghế
+      if (!value) {
+        updated[index].gia_ghe = null;
+      }
+    }
+  };
+
+  const handleSeatSelect = (seat) => {
+    // Tìm hành khách chưa có ghế
+    const passengerIndex = passengers.findIndex((p) => !p.so_ghe);
+
+    if (passengerIndex === -1) {
+      // Tất cả hành khách đã có ghế, cho phép đổi ghế
+      // Tìm ghế đang được chọn và xóa nó
+      const currentSelected = selectedSeats;
+      if (currentSelected.includes(seat.number)) {
+        // Đã chọn rồi, bỏ chọn
+        const newSelected = selectedSeats.filter((s) => s !== seat.number);
+        setSelectedSeats(newSelected);
+        const updated = passengers.map((p) => {
+          if (p.so_ghe === seat.number) {
+            return { ...p, so_ghe: "", gia_ghe: null };
+          }
+          return p;
+        });
+        setPassengers(updated);
+      } else {
+        // Chọn ghế mới - gán cho hành khách đầu tiên chưa có ghế hoặc hành khách đầu tiên
+        const updated = [...passengers];
+        if (updated[0].so_ghe) {
+          // Đổi ghế cho hành khách đầu tiên
+          const oldSeat = updated[0].so_ghe;
+          updated[0].so_ghe = seat.number;
+          updated[0].gia_ghe = seat.price || null;
+          setSelectedSeats([
+            ...selectedSeats.filter((s) => s !== oldSeat),
+            seat.number,
+          ]);
+        } else {
+          updated[0].so_ghe = seat.number;
+          updated[0].gia_ghe = seat.price || null;
+          setSelectedSeats([...selectedSeats, seat.number]);
+        }
+        setPassengers(updated);
+      }
+    } else {
+      // Gán ghế cho hành khách chưa có ghế
+      const updated = [...passengers];
+      updated[passengerIndex].so_ghe = seat.number;
+      updated[passengerIndex].gia_ghe = seat.price || null;
+      setPassengers(updated);
+      setSelectedSeats([...selectedSeats, seat.number]);
+    }
   };
 
   const handleContactChange = (field, value) => {
@@ -149,6 +264,7 @@ export default function Booking() {
         loai_giay_to: "ho_chieu",
         so_giay_to: "",
         so_ghe: "",
+        gia_ghe: null,
         loai_hanh_khach: "nguoi_lon",
       },
     ]);
@@ -158,6 +274,11 @@ export default function Booking() {
     if (passengers.length > 1) {
       setPassengers(passengers.filter((_, i) => i !== index));
     }
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const validateForm = () => {
@@ -170,13 +291,26 @@ export default function Booking() {
       return "Vui lòng điền đầy đủ thông tin liên hệ";
     }
 
+    // Validate email format
+    if (!validateEmail(contactInfo.email)) {
+      return "Email không hợp lệ. Vui lòng nhập đúng định dạng email (ví dụ: example@email.com)";
+    }
+
+    // Validate phone number (basic)
+    if (contactInfo.so_dien_thoai.length < 10) {
+      return "Số điện thoại phải có ít nhất 10 số";
+    }
+
     // Validate passengers
     for (let i = 0; i < passengers.length; i++) {
       const p = passengers[i];
-      if (!p.ho_ten) {
+      if (!p.ho_ten || p.ho_ten.trim() === "") {
         return `Vui lòng nhập họ tên hành khách ${i + 1}`;
       }
-      if (p.loai_hanh_khach === "nguoi_lon" && !p.so_giay_to) {
+      if (
+        p.loai_hanh_khach === "nguoi_lon" &&
+        (!p.so_giay_to || p.so_giay_to.trim() === "")
+      ) {
         return `Vui lòng nhập số giấy tờ cho hành khách ${i + 1}`;
       }
     }
@@ -666,18 +800,42 @@ export default function Booking() {
                       <div className="form-group price-preview">
                         <label>Giá vé</label>
                         <div className="price-display">
-                          {formatCurrency(
-                            calculatePassengerPrice(
-                              passenger.loai_hanh_khach,
-                              fareClass.gia
-                            )
-                          )}
+                          {formatCurrency(calculatePassengerPrice(passenger))}
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* Seat Selection Section */}
+              {flight && (
+                <div className="form-section">
+                  <h3>Chọn ghế</h3>
+                  {loadingSeats ? (
+                    <div className="loading-seats">
+                      <div className="loading-spinner"></div>
+                      <p>Đang tải sơ đồ ghế...</p>
+                    </div>
+                  ) : (
+                    <SeatMap
+                      flightId={flight.id}
+                      selectedSeats={selectedSeats}
+                      onSeatSelect={handleSeatSelect}
+                      bookedSeats={seatData?.ghe_da_dat || []}
+                      reservedSeats={seatData?.ghe_giu_cho || []}
+                      seatLayout={seatData?.so_do_ghe}
+                      totalSeats={
+                        seatData?.tong_so_ghe ||
+                        flight.may_bay?.tong_so_ghe ||
+                        180
+                      }
+                      fareClass={fareClass}
+                      allFareClasses={seatData?.gia_ve || []}
+                    />
+                  )}
+                </div>
+              )}
 
               {/* Contact Info Section */}
               <div className="form-section">
@@ -690,11 +848,16 @@ export default function Booking() {
                     <input
                       type="email"
                       value={contactInfo.email}
-                      onChange={(e) =>
-                        handleContactChange("email", e.target.value)
-                      }
+                      onChange={(e) => {
+                        handleContactChange("email", e.target.value);
+                        // Clear error when user types
+                        if (error && error.includes("Email")) {
+                          setError(null);
+                        }
+                      }}
                       required
                       placeholder="email@example.com"
+                      pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                     />
                   </div>
 
@@ -785,15 +948,10 @@ export default function Booking() {
                         : passenger.loai_hanh_khach === "tre_em"
                         ? "Trẻ em"
                         : "Em bé"}
-                      )
+                      ) {passenger.so_ghe && `- Ghế ${passenger.so_ghe}`}
                     </div>
                     <div className="price-value">
-                      {formatCurrency(
-                        calculatePassengerPrice(
-                          passenger.loai_hanh_khach,
-                          fareClass.gia
-                        )
-                      )}
+                      {formatCurrency(calculatePassengerPrice(passenger))}
                     </div>
                   </div>
                 ))}
