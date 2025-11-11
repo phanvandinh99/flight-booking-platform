@@ -130,9 +130,9 @@ class TimKiemChuyenBayController extends Controller
                 'may_bay',
                 'tuyen_bay.san_bay_di',
                 'tuyen_bay.san_bay_den',
-                'gia_ve' => function($query) {
+                'gia_ve' => function ($query) {
                     $query->where('ngay_bat_dau', '<=', now())
-                          ->where('ngay_ket_thuc', '>=', now());
+                        ->where('ngay_ket_thuc', '>=', now());
                 }
             ]);
 
@@ -153,9 +153,9 @@ class TimKiemChuyenBayController extends Controller
 
         // Filter theo giá vé
         if ($request->gia_tu || $request->gia_den || $request->hang_ve) {
-            $chuyenBay = $chuyenBay->filter(function($chuyen) use ($request) {
+            $chuyenBay = $chuyenBay->filter(function ($chuyen) use ($request) {
                 $giaVe = $chuyen->gia_ve->where('hang_ve', $request->hang_ve ?? 'pho_thong')->first();
-                
+
                 if (!$giaVe) return false;
 
                 if ($request->gia_tu && $giaVe->gia < $request->gia_tu) return false;
@@ -166,9 +166,9 @@ class TimKiemChuyenBayController extends Controller
         }
 
         // Tính tổng giá cho từng chuyến bay
-        $chuyenBay = $chuyenBay->map(function($chuyen) use ($request) {
+        $chuyenBay = $chuyenBay->map(function ($chuyen) use ($request) {
             $giaVe = $chuyen->gia_ve->where('hang_ve', $request->hang_ve ?? 'pho_thong')->first();
-            
+
             if ($giaVe) {
                 $tongGia = $this->tinhTongGia($giaVe->gia, $request);
                 $chuyen->tong_gia = $tongGia;
@@ -187,15 +187,15 @@ class TimKiemChuyenBayController extends Controller
     private function tinhTongGia($giaCoBan, $request)
     {
         $tongGia = 0;
-        
+
         // Người lớn: giá đầy đủ
         $tongGia += $request->nguoi_lon * $giaCoBan;
-        
+
         // Trẻ em: 75% giá người lớn
         if ($request->tre_em) {
             $tongGia += $request->tre_em * ($giaCoBan * 0.75);
         }
-        
+
         // Em bé: 10% giá người lớn
         if ($request->em_be) {
             $tongGia += $request->em_be * ($giaCoBan * 0.1);
@@ -243,9 +243,9 @@ class TimKiemChuyenBayController extends Controller
             'may_bay',
             'tuyen_bay.san_bay_di',
             'tuyen_bay.san_bay_den',
-            'gia_ve' => function($query) {
+            'gia_ve' => function ($query) {
                 $query->where('ngay_bat_dau', '<=', now())
-                      ->where('ngay_ket_thuc', '>=', now());
+                    ->where('ngay_ket_thuc', '>=', now());
             }
         ])->find($id);
 
@@ -259,5 +259,35 @@ class TimKiemChuyenBayController extends Controller
             'data' => $chuyenBay
         ]);
     }
-}
 
+    /**
+     * Lấy danh sách chuyến bay từ hôm nay trở đi
+     */
+    public function chuyenBayHomNay()
+    {
+        $today = Carbon::today();
+
+        $chuyenBay = ChuyenBay::where('trang_thai', 'du_kien')
+            ->whereDate('gio_khoi_hanh', '>=', $today)
+            ->with([
+                'hang_hang_khong',
+                'may_bay',
+                'tuyen_bay.san_bay_di',
+                'tuyen_bay.san_bay_den',
+                'gia_ve' => function ($query) {
+                    $query->where('ngay_bat_dau', '<=', now())
+                        ->where('ngay_ket_thuc', '>=', now())
+                        ->where('hang_ve', 'pho_thong')
+                        ->orderBy('gia', 'asc')
+                        ->limit(1);
+                }
+            ])
+            ->orderBy('gio_khoi_hanh', 'asc')
+            ->limit(12)
+            ->get();
+
+        return response()->json([
+            'data' => $chuyenBay
+        ]);
+    }
+}

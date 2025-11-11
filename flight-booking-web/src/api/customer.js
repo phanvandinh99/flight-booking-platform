@@ -4,9 +4,9 @@ import client from "./client";
  * API cho Customer - Tìm kiếm chuyến bay
  */
 
-// Tìm kiếm chuyến bay
+// Tìm kiếm chuyến bay (public endpoint)
 export async function searchFlights(data) {
-  const res = await client.post("/customer/search/flights", data);
+  const res = await client.post("/search/flights", data);
   return res.data;
 }
 
@@ -22,9 +22,15 @@ export async function getAirlines() {
   return res.data;
 }
 
-// Lấy chi tiết chuyến bay
+// Lấy chi tiết chuyến bay (public endpoint)
 export async function getFlightDetail(id) {
-  const res = await client.get(`/customer/search/flights/${id}`);
+  const res = await client.get(`/search/flights/${id}`);
+  return res.data;
+}
+
+// Lấy danh sách chuyến bay hôm nay (public endpoint)
+export async function getTodayFlights() {
+  const res = await client.get("/search/flights/today");
   return res.data;
 }
 
