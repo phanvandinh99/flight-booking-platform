@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Api\HangHangKhong;
 use App\Models\MayBay;
 use App\Models\TuyenBay;
 use App\Models\ChuyenBay;
+use App\Models\DatVe;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 
 use Carbon\Carbon;
+use App\Mail\FlightDelayMail;
+use App\Mail\FlightCancellationMail;
 
 class ChuyenBayController extends Controller
 {
@@ -199,6 +203,10 @@ class ChuyenBayController extends Controller
             }
         }
 
+        // Lưu thời gian khởi hành cũ để so sánh
+        $gioKhoiHanhCu = $flight->gio_khoi_hanh;
+        $trangThaiCu = $flight->trang_thai;
+
         $flight->update($request->only([
             'ma_may_bay',
             'ma_chuyen_bay',
@@ -208,6 +216,53 @@ class ChuyenBayController extends Controller
             'tan_suat',
             'trang_thai'
         ]));
+
+        // Gửi email thông báo nếu có thay đổi
+        $flight->refresh();
+        $flight->load(['tuyen_bay.san_bay_di', 'tuyen_bay.san_bay_den']);
+
+        // Kiểm tra nếu chuyến bay bị hủy
+        if ($request->has('trang_thai') && $request->trang_thai === 'bi_huy' && $trangThaiCu !== 'bi_huy') {
+            // Gửi email hủy chuyến bay cho tất cả đặt vé liên quan
+            $datVes = DatVe::where('ma_chuyen_bay', $flight->id)
+                ->whereIn('trang_thai', ['giu_cho', 'da_thanh_toan'])
+                ->with(['khach_hang', 'hanh_khach'])
+                ->get();
+
+            foreach ($datVes as $datVe) {
+                try {
+                    $email = $datVe->khach_hang->email ?? null;
+                    if ($email) {
+                        Mail::to($email)->send(
+                            new FlightCancellationMail($flight, $datVe, $request->ly_do_huy ?? null)
+                        );
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send cancellation email: ' . $e->getMessage());
+                }
+            }
+        }
+        // Kiểm tra nếu giờ khởi hành thay đổi (delay)
+        elseif ($request->has('gio_khoi_hanh') && $gioKhoiHanhCu != $request->gio_khoi_hanh) {
+            // Gửi email delay cho tất cả đặt vé liên quan
+            $datVes = DatVe::where('ma_chuyen_bay', $flight->id)
+                ->whereIn('trang_thai', ['giu_cho', 'da_thanh_toan'])
+                ->with(['khach_hang', 'hanh_khach'])
+                ->get();
+
+            foreach ($datVes as $datVe) {
+                try {
+                    $email = $datVe->khach_hang->email ?? null;
+                    if ($email) {
+                        Mail::to($email)->send(
+                            new FlightDelayMail($flight, $datVe, $request->gio_khoi_hanh)
+                        );
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Failed to send delay email: ' . $e->getMessage());
+                }
+            }
+        }
 
         return response()->json([
             'message' => 'Cập nhật chuyến bay thành công',
