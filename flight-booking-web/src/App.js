@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AirlineApproval from "./pages/admin/AirlineApproval";
 import AirportManagement from "./pages/admin/AirportManagement";
@@ -25,6 +26,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Public customer pages */}
         <Route path="/" element={<CustomerHome />} />

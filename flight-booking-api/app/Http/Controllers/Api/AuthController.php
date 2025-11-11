@@ -17,10 +17,8 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'ten_day_du' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:nguoi_dung',
-            'so_dien_thoai' => 'nullable|string|max:20',
+            'so_dien_thoai' => 'required|string|max:20',
             'password' => 'required|string|min:8|confirmed',
-            'vai_tro' => 'required|in:khach_hang,dai_dien_hang',
-            'ma_hang_hang_khong' => 'required_if:vai_tro,dai_dien_hang|nullable|exists:hang_hang_khong,id'
         ]);
 
         if ($validator->fails()) {
@@ -30,14 +28,15 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // Chỉ cho phép đăng ký với vai trò khách hàng
         // Tạo người dùng mới
         $user = NguoiDung::create([
             'ten_day_du' => $request->ten_day_du,
             'email' => $request->email,
             'so_dien_thoai' => $request->so_dien_thoai,
             'mat_khau' => Hash::make($request->password),
-            'vai_tro' => $request->vai_tro,
-            'ma_hang_hang_khong' => $request->vai_tro === 'dai_dien_hang' ? $request->ma_hang_hang_khong : null,
+            'vai_tro' => 'khach_hang', // Chỉ cho phép đăng ký với vai trò khách hàng
+            'ma_hang_hang_khong' => null,
         ]);
 
         // Tạo token
@@ -121,7 +120,7 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        
+
         return response()->json([
             'user' => [
                 'id' => $user->id,
@@ -153,7 +152,7 @@ class AuthController extends Controller
         }
 
         $updateData = $request->only(['ten_day_du', 'so_dien_thoai']);
-        
+
         if ($request->filled('password')) {
             $updateData['mat_khau'] = Hash::make($request->password);
         }
