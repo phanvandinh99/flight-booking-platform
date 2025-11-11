@@ -10,6 +10,7 @@ import SystemConfig from "./pages/admin/SystemConfig";
 import AirlineDashboard from "./pages/airline/AirlineDashboard";
 import AirplaneManagement from "./pages/airline/AirplaneManagement";
 import FlightManagement from "./pages/airline/FlightManagement";
+import PricingManagement from "./pages/airline/PricingManagement";
 import CustomerHome from "./pages/customer/CustomerHome";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="/airline" element={<AirlineDashboard />} />
           <Route path="/airline/airplanes" element={<AirplaneManagement />} />
           <Route path="/airline/flights" element={<FlightManagement />} />
+          <Route path="/airline/pricing" element={<PricingManagement />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -58,8 +58,7 @@ export const airlineMenuItems = [
           </svg>
         ),
         onClick: () => {
-          // TODO: Navigate to price management
-          console.log("Navigate to price management");
+          window.location.href = "/airline/pricing";
         },
       },
     ],

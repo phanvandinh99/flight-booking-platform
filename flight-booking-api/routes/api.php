@@ -74,8 +74,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('flights/routes/approved', [\App\Http\Controllers\Api\HangHangKhong\ChuyenBayController::class, 'getApprovedRoutes']);
 
         // Quản lý giá vé
-        Route::apiResource('pricing', \App\Http\Controllers\Api\HangHangKhong\GiaVeController::class);
         Route::get('pricing/flights', [\App\Http\Controllers\Api\HangHangKhong\GiaVeController::class, 'getFlights']);
+        Route::apiResource('pricing', \App\Http\Controllers\Api\HangHangKhong\GiaVeController::class);
 
         // Quản lý đặt vé
         Route::apiResource('bookings', \App\Http\Controllers\Api\HangHangKhong\DatVeController::class);
