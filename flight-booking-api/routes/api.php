@@ -26,6 +26,7 @@ Route::get('/search/airports', [\App\Http\Controllers\Api\KhachHang\TimKiemChuye
 Route::get('/search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
 Route::post('/search/flights', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'timKiem']);
 Route::get('/search/flights/today', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chuyenBayHomNay']);
+Route::get('/search/flights/list', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachChuyenBay']);
 Route::get('/search/flights/{id}', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'chiTietChuyenBay'])->where('id', '[0-9]+');
 
 // Protected routes

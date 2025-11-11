@@ -290,4 +290,105 @@ class TimKiemChuyenBayController extends Controller
             'data' => $chuyenBay
         ]);
     }
+
+    /**
+     * Lấy danh sách chuyến bay với filter, sort, pagination
+     */
+    public function danhSachChuyenBay(Request $request)
+    {
+        $today = Carbon::today();
+
+        $query = ChuyenBay::where('trang_thai', 'du_kien')
+            ->whereDate('gio_khoi_hanh', '>=', $today)
+            ->with([
+                'hang_hang_khong',
+                'may_bay',
+                'tuyen_bay.san_bay_di',
+                'tuyen_bay.san_bay_den',
+                'gia_ve' => function ($query) {
+                    $query->where('ngay_bat_dau', '<=', now())
+                        ->where('ngay_ket_thuc', '>=', now())
+                        ->where('hang_ve', 'pho_thong')
+                        ->orderBy('gia', 'asc')
+                        ->limit(1);
+                }
+            ]);
+
+        // Filter theo hãng hàng không
+        if ($request->has('hang_hang_khong') && $request->hang_hang_khong) {
+            $query->whereIn('ma_hang_hang_khong', is_array($request->hang_hang_khong)
+                ? $request->hang_hang_khong
+                : [$request->hang_hang_khong]);
+        }
+
+        // Filter theo loại máy bay
+        if ($request->has('loai_may_bay') && $request->loai_may_bay) {
+            $query->whereHas('may_bay', function ($q) use ($request) {
+                $q->where('loai_may_bay', 'like', '%' . $request->loai_may_bay . '%');
+            });
+        }
+
+        // Get all flights first
+        $allFlights = $query->get();
+
+        // Filter theo giá tiền
+        if ($request->has('gia_tu') && $request->gia_tu) {
+            $allFlights = $allFlights->filter(function ($flight) use ($request) {
+                $giaVe = $flight->gia_ve->first();
+                if (!$giaVe) return false;
+                return $giaVe->gia >= $request->gia_tu;
+            });
+        }
+
+        if ($request->has('gia_den') && $request->gia_den) {
+            $allFlights = $allFlights->filter(function ($flight) use ($request) {
+                $giaVe = $flight->gia_ve->first();
+                if (!$giaVe) return false;
+                return $giaVe->gia <= $request->gia_den;
+            });
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'gio_khoi_hanh');
+        $sortOrder = $request->get('sort_order', 'asc');
+
+        if ($sortBy === 'gia') {
+            // Sort by price - sort in memory
+            $allFlights = $allFlights->sortBy(function ($flight) {
+                $giaVe = $flight->gia_ve->first();
+                return $giaVe ? $giaVe->gia : PHP_INT_MAX;
+            }, SORT_REGULAR, $sortOrder === 'desc');
+        } elseif ($sortBy === 'loai_may_bay') {
+            // Sort by aircraft type
+            $allFlights = $allFlights->sortBy(function ($flight) {
+                return $flight->may_bay->loai_may_bay ?? '';
+            }, SORT_REGULAR, $sortOrder === 'desc');
+        } else {
+            // Sort by other fields
+            $allFlights = $allFlights->sortBy($sortBy, SORT_REGULAR, $sortOrder === 'desc');
+        }
+
+        // Reset keys after sorting
+        $allFlights = $allFlights->values();
+
+        // Manual pagination
+        $perPage = $request->get('per_page', 12);
+        $currentPage = $request->get('page', 1);
+        $total = $allFlights->count();
+        $lastPage = ceil($total / $perPage);
+        $offset = ($currentPage - 1) * $perPage;
+        $paginatedFlights = $allFlights->slice($offset, $perPage)->values();
+
+        return response()->json([
+            'data' => $paginatedFlights,
+            'pagination' => [
+                'current_page' => (int)$currentPage,
+                'last_page' => $lastPage,
+                'per_page' => $perPage,
+                'total' => $total,
+                'from' => $total > 0 ? $offset + 1 : null,
+                'to' => min($offset + $perPage, $total),
+            ]
+        ]);
+    }
 }

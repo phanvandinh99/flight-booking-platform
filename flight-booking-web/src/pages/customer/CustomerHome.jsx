@@ -99,14 +99,6 @@ export default function CustomerHome() {
     }
   };
 
-  const handleSwapAirports = () => {
-    setSearchData((prev) => ({
-      ...prev,
-      san_bay_di: prev.san_bay_den,
-      san_bay_den: prev.san_bay_di,
-    }));
-  };
-
   const validateForm = () => {
     const newErrors = {};
     if (!searchData.san_bay_di) {
@@ -211,6 +203,9 @@ export default function CustomerHome() {
           <nav className="header-nav">
             <a href="/" className="nav-link active">
               Trang chủ
+            </a>
+            <a href="/flights" className="nav-link">
+              Danh sách chuyến bay
             </a>
             <a href="#about" className="nav-link">
               Về chúng tôi
@@ -351,28 +346,6 @@ export default function CustomerHome() {
                     <span className="field-error">{errors.san_bay_di}</span>
                   )}
                 </div>
-
-                <button
-                  type="button"
-                  className="swap-btn"
-                  onClick={handleSwapAirports}
-                  title="Đổi chỗ"
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <polyline points="16 3 21 3 21 8" />
-                    <line x1="4" y1="20" x2="21" y2="3" />
-                    <polyline points="21 16 21 21 16 21" />
-                    <line x1="15" y1="15" x2="21" y2="21" />
-                    <line x1="3" y1="4" x2="9" y2="10" />
-                  </svg>
-                </button>
 
                 <div className="field-group">
                   <label>Sân bay đến</label>
@@ -602,8 +575,9 @@ export default function CustomerHome() {
                   <div key={flight.id} className="flight-card-mini">
                     <div className="flight-route">
                       <div className="route-item">
-                        <span className="airport-code">
-                          {flight.tuyen_bay?.san_bay_di?.ma_san_bay}
+                        <span className="airport-name">
+                          {flight.tuyen_bay?.san_bay_di?.ten_san_bay ||
+                            flight.tuyen_bay?.san_bay_di?.ma_san_bay}
                         </span>
                         <span className="time">
                           {formatTime(flight.gio_khoi_hanh)}
@@ -611,8 +585,9 @@ export default function CustomerHome() {
                       </div>
                       <div className="route-arrow">→</div>
                       <div className="route-item">
-                        <span className="airport-code">
-                          {flight.tuyen_bay?.san_bay_den?.ma_san_bay}
+                        <span className="airport-name">
+                          {flight.tuyen_bay?.san_bay_den?.ten_san_bay ||
+                            flight.tuyen_bay?.san_bay_den?.ma_san_bay}
                         </span>
                         <span className="time">
                           {formatTime(flight.gio_ha_canh)}
@@ -636,10 +611,21 @@ export default function CustomerHome() {
                         <span className="price">Liên hệ</span>
                       )}
                       <button
-                        className="btn-view"
+                        className="btn-view-icon"
                         onClick={() => navigate(`/search?flight=${flight.id}`)}
+                        title="Xem chi tiết"
                       >
-                        Chi tiết
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
                       </button>
                     </div>
                   </div>
