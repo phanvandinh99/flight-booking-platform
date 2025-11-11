@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getAirports, getTodayFlights } from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import "../../styles/customerHome.css";
@@ -201,27 +201,26 @@ export default function CustomerHome() {
             <span>Flight Booking</span>
           </div>
           <nav className="header-nav">
-            <a href="/" className="nav-link active">
+            <Link to="/" className="nav-link active">
               Trang chủ
-            </a>
-            <a href="/flights" className="nav-link">
+            </Link>
+            <Link to="/flights" className="nav-link">
               Danh sách chuyến bay
-            </a>
-            <a href="#about" className="nav-link">
+            </Link>
+            <Link to="/about" className="nav-link">
               Về chúng tôi
-            </a>
-            <a href="#help" className="nav-link">
-              Trợ giúp
-            </a>
-            <a href="#guide" className="nav-link">
+            </Link>
+            <Link to="/guide" className="nav-link">
               Hướng dẫn đặt vé
-            </a>
+            </Link>
             {user ? (
               <>
-                <a href="/bookings" className="nav-link">
+                <Link to="/bookings" className="nav-link">
                   Đặt vé của tôi
-                </a>
-                <span className="user-info">{user.ten || user.email}</span>
+                </Link>
+                <span className="user-info">
+                  {user.ten_day_du || user.email}
+                </span>
                 <a
                   href="/login"
                   className="nav-link"
@@ -752,7 +751,7 @@ export default function CustomerHome() {
             <h4>Về chúng tôi</h4>
             <ul>
               <li>
-                <a href="#about">Giới thiệu</a>
+                <Link to="/about">Giới thiệu</Link>
               </li>
               <li>
                 <a href="#careers">Tuyển dụng</a>
@@ -766,27 +765,10 @@ export default function CustomerHome() {
             </ul>
           </div>
           <div className="footer-section">
-            <h4>Trợ giúp</h4>
-            <ul>
-              <li>
-                <a href="#faq">Câu hỏi thường gặp</a>
-              </li>
-              <li>
-                <a href="#support">Hỗ trợ khách hàng</a>
-              </li>
-              <li>
-                <a href="#terms">Điều khoản sử dụng</a>
-              </li>
-              <li>
-                <a href="#privacy">Chính sách bảo mật</a>
-              </li>
-            </ul>
-          </div>
-          <div className="footer-section">
             <h4>Hướng dẫn</h4>
             <ul>
               <li>
-                <a href="#guide">Hướng dẫn đặt vé</a>
+                <Link to="/guide">Hướng dẫn đặt vé</Link>
               </li>
               <li>
                 <a href="#payment">Thanh toán</a>

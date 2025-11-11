@@ -437,7 +437,7 @@ export default function Booking() {
               <a href="/bookings" className="nav-link">
                 Đặt vé của tôi
               </a>
-              <span className="user-info">{user.ten || user.email}</span>
+              <span className="user-info">{user.ten_day_du || user.email}</span>
               <a
                 href="/login"
                 className="nav-link"

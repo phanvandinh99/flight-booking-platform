@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation, Link } from "react-router-dom";
 import { searchFlights, getAirlines, getFlightDetail } from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import "../../styles/flightSearch.css";
@@ -237,27 +237,24 @@ export default function FlightSearch() {
           <span>Flight Booking</span>
         </div>
         <nav className="header-nav">
-          <a href="/" className="nav-link">
+          <Link to="/" className="nav-link">
             Trang chủ
-          </a>
-          <a href="/flights" className="nav-link">
+          </Link>
+          <Link to="/flights" className="nav-link">
             Danh sách chuyến bay
-          </a>
-          <a href="#about" className="nav-link">
+          </Link>
+          <Link to="/about" className="nav-link">
             Về chúng tôi
-          </a>
-          <a href="#help" className="nav-link">
-            Trợ giúp
-          </a>
-          <a href="#guide" className="nav-link">
+          </Link>
+          <Link to="/guide" className="nav-link">
             Hướng dẫn đặt vé
-          </a>
+          </Link>
           {user ? (
             <>
-              <a href="/bookings" className="nav-link">
+              <Link to="/bookings" className="nav-link">
                 Đặt vé của tôi
-              </a>
-              <span className="user-info">{user.ten || user.email}</span>
+              </Link>
+              <span className="user-info">{user.ten_day_du || user.email}</span>
               <a
                 href="/login"
                 className="nav-link"
