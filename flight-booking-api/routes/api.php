@@ -21,6 +21,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/airlines', [HangHangKhongController::class, 'index']);
 Route::get('/airlines/{id}', [HangHangKhongController::class, 'show']);
 
+// Public search data routes (for customer search form)
+Route::get('/search/airports', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachSanBay']);
+Route::get('/search/airlines', [\App\Http\Controllers\Api\KhachHang\TimKiemChuyenBayController::class, 'danhSachHangHangKhong']);
+
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
 
