@@ -67,7 +67,7 @@ export const airlineMenuItems = [
     section: "Thống kê",
     items: [
       {
-        label: "Đặt vé và thống kê",
+        label: "Quản lý đặt vé",
         icon: (
           <svg
             width="20"
@@ -84,10 +84,28 @@ export const airlineMenuItems = [
             <polyline points="10 9 9 9 8 9" />
           </svg>
         ),
-        badge: "12",
         onClick: () => {
-          // TODO: Navigate to booking and statistics
-          console.log("Navigate to booking and statistics");
+          window.location.href = "/airline/bookings";
+        },
+      },
+      {
+        label: "Báo cáo & Thống kê",
+        icon: (
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        ),
+        onClick: () => {
+          window.location.href = "/airline/reports";
         },
       },
     ],

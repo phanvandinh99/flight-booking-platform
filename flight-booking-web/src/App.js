@@ -11,6 +11,8 @@ import AirlineDashboard from "./pages/airline/AirlineDashboard";
 import AirplaneManagement from "./pages/airline/AirplaneManagement";
 import FlightManagement from "./pages/airline/FlightManagement";
 import PricingManagement from "./pages/airline/PricingManagement";
+import BookingManagement from "./pages/airline/BookingManagement";
+import AirlineReports from "./pages/airline/AirlineReports";
 import CustomerHome from "./pages/customer/CustomerHome";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -42,6 +44,8 @@ function App() {
           <Route path="/airline/airplanes" element={<AirplaneManagement />} />
           <Route path="/airline/flights" element={<FlightManagement />} />
           <Route path="/airline/pricing" element={<PricingManagement />} />
+          <Route path="/airline/bookings" element={<BookingManagement />} />
+          <Route path="/airline/reports" element={<AirlineReports />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -78,10 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('pricing', \App\Http\Controllers\Api\HangHangKhong\GiaVeController::class);
 
         // Quản lý đặt vé
-        Route::apiResource('bookings', \App\Http\Controllers\Api\HangHangKhong\DatVeController::class);
-        Route::put('bookings/{id}/status', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'updateStatus']);
         Route::get('bookings/statistics', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'getStatistics']);
         Route::get('bookings/flights', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'getFlights']);
+        Route::put('bookings/{id}/status', [\App\Http\Controllers\Api\HangHangKhong\DatVeController::class, 'updateStatus']);
+        Route::apiResource('bookings', \App\Http\Controllers\Api\HangHangKhong\DatVeController::class);
 
         // Báo cáo
         Route::prefix('reports')->group(function () {
