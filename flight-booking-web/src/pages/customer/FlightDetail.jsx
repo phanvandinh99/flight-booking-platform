@@ -110,6 +110,10 @@ export default function FlightDetail() {
       alert("Vui lòng chọn hạng vé");
       return;
     }
+    if (!user) {
+      navigate("/login", { state: { from: `/flight/${flight.id}` } });
+      return;
+    }
     navigate("/booking", {
       state: {
         flight: flight,
