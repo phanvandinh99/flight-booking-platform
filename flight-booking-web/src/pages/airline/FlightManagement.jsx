@@ -384,7 +384,7 @@ export default function FlightManagement() {
       <div className="flight-management-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Chuyến Bay</h2>
+            {/* <h2>Quản lý Chuyến Bay</h2> */}
             <p>Tạo và quản lý các chuyến bay</p>
           </div>
           <div className="header-actions">

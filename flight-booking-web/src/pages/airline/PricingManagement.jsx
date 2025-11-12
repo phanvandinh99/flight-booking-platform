@@ -376,7 +376,7 @@ export default function PricingManagement() {
       <div className="pricing-management-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Giá Vé</h2>
+            {/* <h2>Quản lý Giá Vé</h2> */}
             <p>Cập nhật giá vé theo ngày, hạng ghế và chính sách khuyến mãi</p>
           </div>
           <div className="header-actions">

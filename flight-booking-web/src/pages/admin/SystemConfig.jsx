@@ -218,7 +218,7 @@ export default function SystemConfig() {
       <div className="system-config-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Cấu Hình Hệ Thống</h2>
+            {/* <h2>Cấu Hình Hệ Thống</h2> */}
             <p>Quản lý các cấu hình và tham số hệ thống</p>
           </div>
           <div className="header-actions">

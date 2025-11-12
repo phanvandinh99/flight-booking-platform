@@ -509,7 +509,7 @@ export default function AirplaneManagement() {
       <div className="airplane-management-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Máy Bay</h2>
+            {/* <h2>Quản lý Máy Bay</h2> */}
             <p>Thêm, sửa, xóa thông tin máy bay trong hệ thống</p>
           </div>
           <div className="header-actions">

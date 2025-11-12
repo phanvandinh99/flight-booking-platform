@@ -274,7 +274,7 @@ export default function RouteManagement() {
       <div className="route-management-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Tuyến Bay</h2>
+            {/* <h2>Quản lý Tuyến Bay</h2> */}
             <p>Thêm, sửa, xóa và phê duyệt tuyến bay trong hệ thống</p>
           </div>
           <div className="header-actions">

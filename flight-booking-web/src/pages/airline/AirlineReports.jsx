@@ -113,7 +113,7 @@ export default function AirlineReports() {
       <div className="airline-reports-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Báo Cáo & Thống Kê</h2>
+            {/* <h2>Báo Cáo & Thống Kê</h2> */}
             <p>Xem báo cáo doanh thu và thống kê hoạt động</p>
           </div>
           <div className="header-actions">
