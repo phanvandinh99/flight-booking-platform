@@ -145,17 +145,51 @@ class DatVeController extends Controller
         $startDate = $request->get('tu_ngay', Carbon::now()->startOfMonth());
         $endDate = $request->get('den_ngay', Carbon::now()->endOfMonth());
 
-        $query = DatVe::whereHas('chuyen_bay', function ($q) use ($user) {
+        // Đảm bảo endDate bao gồm cả ngày cuối (đến 23:59:59)
+        $endDateWithTime = Carbon::parse($endDate)->endOfDay();
+
+        $baseQuery = DatVe::whereHas('chuyen_bay', function ($q) use ($user) {
             $q->where('ma_hang_hang_khong', $user->ma_hang_hang_khong);
-        })->whereBetween('created_at', [$startDate, $endDate]);
+        })->whereBetween('created_at', [$startDate, $endDateWithTime]);
+
+        // Tổng số đặt vé
+        $tongSoDatVe = (clone $baseQuery)->count();
+
+        // Đã thanh toán
+        $daThanhToanQuery = (clone $baseQuery)->where('trang_thai', 'da_thanh_toan');
+        $daThanhToan = $daThanhToanQuery->count();
+
+        // Giữ chỗ
+        $giuCho = (clone $baseQuery)->where('trang_thai', 'giu_cho')->count();
+
+        // Đã hủy
+        $daHuy = (clone $baseQuery)->where('trang_thai', 'da_huy')->count();
+
+        // Tổng doanh thu - chỉ tính các đặt vé đã thanh toán có tong_tien > 0
+        $tongDoanhThu = (clone $baseQuery)
+            ->where('trang_thai', 'da_thanh_toan')
+            ->whereNotNull('tong_tien')
+            ->where('tong_tien', '>', 0)
+            ->sum('tong_tien');
+
+        // Doanh thu trung bình
+        $doanhThuTrungBinh = 0;
+        if ($daThanhToan > 0) {
+            $totalRevenueForAvg = (clone $baseQuery)
+                ->where('trang_thai', 'da_thanh_toan')
+                ->whereNotNull('tong_tien')
+                ->where('tong_tien', '>', 0)
+                ->avg('tong_tien');
+            $doanhThuTrungBinh = round((float)$totalRevenueForAvg, 2);
+        }
 
         $statistics = [
-            'tong_so_dat_ve' => $query->count(),
-            'da_thanh_toan' => $query->where('trang_thai', 'da_thanh_toan')->count(),
-            'giu_cho' => $query->where('trang_thai', 'giu_cho')->count(),
-            'da_huy' => $query->where('trang_thai', 'da_huy')->count(),
-            'tong_doanh_thu' => $query->where('trang_thai', 'da_thanh_toan')->sum('tong_tien'),
-            'doanh_thu_trung_binh' => $query->where('trang_thai', 'da_thanh_toan')->avg('tong_tien')
+            'tong_so_dat_ve' => $tongSoDatVe,
+            'da_thanh_toan' => $daThanhToan,
+            'giu_cho' => $giuCho,
+            'da_huy' => $daHuy,
+            'tong_doanh_thu' => (float)$tongDoanhThu ?: 0,
+            'doanh_thu_trung_binh' => $doanhThuTrungBinh
         ];
 
         return response()->json([
