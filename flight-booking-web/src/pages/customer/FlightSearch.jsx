@@ -40,7 +40,7 @@ export default function FlightSearch() {
     } else {
       performSearch();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [searchParams]);
 
   const loadAirlines = async () => {
