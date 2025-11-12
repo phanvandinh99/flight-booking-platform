@@ -443,66 +443,36 @@ export default function FlightSearch() {
       {renderHeader()}
 
       <main className="search-main">
-        <div className="search-info">
-          <div className="route-info">
-            <div className="route-item">
-              <span className="airport-name-large">
-                {searchResults.san_bay_di?.ten_san_bay ||
-                  searchResults.san_bay_di?.ma_san_bay}
-              </span>
-              <span className="airport-code-small">
-                {searchResults.san_bay_di?.ma_san_bay}
-              </span>
-            </div>
-            <div className="route-arrow">→</div>
-            <div className="route-item">
-              <span className="airport-name-large">
-                {searchResults.san_bay_den?.ten_san_bay ||
-                  searchResults.san_bay_den?.ma_san_bay}
-              </span>
-              <span className="airport-code-small">
-                {searchResults.san_bay_den?.ma_san_bay}
-              </span>
-            </div>
-          </div>
-          <div className="search-details">
-            <span>
-              {searchResults.ngay_khoi_hanh
-                ? formatDate(searchResults.ngay_khoi_hanh)
-                : searchResults.chuyen_bay_di?.[0]?.gio_khoi_hanh
-                ? formatDate(searchResults.chuyen_bay_di[0].gio_khoi_hanh)
-                : "N/A"}{" "}
-              • {searchResults.hanh_khach?.tong_so || 1} hành khách •{" "}
-              {searchResults.loai_chuyen === "khu_hoi"
-                ? "Khứ hồi"
-                : "Một chiều"}
-            </span>
-          </div>
-        </div>
-
         <div className="search-content">
           {/* Filters Sidebar */}
           <aside className="filters-sidebar">
             <h3>Bộ lọc</h3>
 
             <div className="filter-group">
-              <label>Giá vé</label>
+              <label>Giá vé (VND)</label>
               <div className="price-range">
-                <input
-                  type="number"
-                  placeholder="Từ"
-                  value={filters.gia_tu}
-                  onChange={(e) => handleFilterChange("gia_tu", e.target.value)}
-                />
-                <span>-</span>
-                <input
-                  type="number"
-                  placeholder="Đến"
-                  value={filters.gia_den}
-                  onChange={(e) =>
-                    handleFilterChange("gia_den", e.target.value)
-                  }
-                />
+                <div className="price-input-wrapper">
+                  <label className="price-input-label">Từ</label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    value={filters.gia_tu}
+                    onChange={(e) =>
+                      handleFilterChange("gia_tu", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="price-input-wrapper">
+                  <label className="price-input-label">Đến</label>
+                  <input
+                    type="number"
+                    placeholder="Không giới hạn"
+                    value={filters.gia_den}
+                    onChange={(e) =>
+                      handleFilterChange("gia_den", e.target.value)
+                    }
+                  />
+                </div>
               </div>
             </div>
 
