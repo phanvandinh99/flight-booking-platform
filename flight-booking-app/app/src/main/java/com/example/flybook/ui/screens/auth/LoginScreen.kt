@@ -297,6 +297,7 @@ fun LoginScreen(navController: NavController) {
                                         // Navigate based on user role
                                         val destination = when (authResponse.user.vai_tro) {
                                             "admin" -> Screen.AdminDashboard.route
+                                            "dai_dien_hang" -> Screen.AirlineDashboard.route
                                             "dai_dien_hang" -> Screen.Home.route // TODO: Add airline dashboard
                                             else -> Screen.Home.route
                                         }
