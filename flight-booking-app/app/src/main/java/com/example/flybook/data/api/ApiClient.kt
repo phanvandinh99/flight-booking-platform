@@ -1,5 +1,9 @@
 package com.example.flybook.data.api
 
+import com.example.flybook.data.models.Route
+import com.example.flybook.data.models.RouteDeserializer
+import com.example.flybook.data.models.AirlineAircraft
+import com.example.flybook.data.models.AirlineAircraftDeserializer
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
@@ -44,6 +48,8 @@ object ApiClient {
         .build()
     
     private val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(Route::class.java, RouteDeserializer())
+        .registerTypeAdapter(AirlineAircraft::class.java, AirlineAircraftDeserializer())
         .setLenient()
         .create()
     
@@ -55,5 +61,6 @@ object ApiClient {
     
     val apiService: ApiService = retrofit.create(ApiService::class.java)
     val adminApiService: AdminApiService = retrofit.create(AdminApiService::class.java)
+    val airlineApiService: AirlineApiService = retrofit.create(AirlineApiService::class.java)
 }
 
