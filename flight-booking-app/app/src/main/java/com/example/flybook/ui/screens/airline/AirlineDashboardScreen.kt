@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.flybook.navigation.Screen
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.airlineBottomNavItems
 import com.example.flybook.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +39,12 @@ fun AirlineDashboardScreen(navController: NavController) {
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = airlineBottomNavItems
             )
         }
     ) { paddingValues ->

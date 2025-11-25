@@ -43,6 +43,20 @@ sealed class BottomNavItem(
         icon = Icons.Default.Person,
         selectedIcon = Icons.Default.Person
     )
+    
+    object AirlineDashboard : BottomNavItem(
+        route = Screen.AirlineDashboard.route,
+        title = "Trang chủ",
+        icon = Icons.Default.Home,
+        selectedIcon = Icons.Default.Home
+    )
+    
+    object AirlineAircraft : BottomNavItem(
+        route = Screen.AirlineAircraftManagement.route,
+        title = "Máy bay",
+        icon = Icons.Default.LocationOn,
+        selectedIcon = Icons.Default.LocationOn
+    )
 }
 
 val customerBottomNavItems = listOf(
@@ -54,6 +68,11 @@ val adminBottomNavItems = listOf(
     BottomNavItem.Home,
     BottomNavItem.MyBookings,
     BottomNavItem.Admin
+)
+
+val airlineBottomNavItems = listOf(
+    BottomNavItem.AirlineDashboard,
+    BottomNavItem.AirlineAircraft
 )
 
 @Composable

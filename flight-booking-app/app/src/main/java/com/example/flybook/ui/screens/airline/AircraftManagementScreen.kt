@@ -24,6 +24,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.flybook.data.models.AirlineAircraft
 import com.example.flybook.data.repository.AircraftRepository
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.airlineBottomNavItems
 import com.example.flybook.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -169,6 +171,12 @@ fun AircraftManagementScreen(navController: NavController) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
                     }
                 }
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = airlineBottomNavItems
             )
         },
         floatingActionButton = {
