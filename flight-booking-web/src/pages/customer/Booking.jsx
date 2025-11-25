@@ -398,6 +398,45 @@ export default function Booking() {
         return;
       }
 
+      // Reload seat data để đảm bảo có dữ liệu mới nhất
+      if (flight?.id) {
+        try {
+          const seatResponse = await getFlightSeats(flight.id);
+          const latestSeatData = seatResponse.data;
+          
+          // Kiểm tra xem ghế đã chọn có còn trống không
+          const bookedSeats = latestSeatData?.ghe_da_dat || [];
+          const reservedSeats = latestSeatData?.ghe_giu_cho || [];
+          const allOccupiedSeats = [...bookedSeats, ...reservedSeats];
+          
+          const selectedSeatNumbers = passengers
+            .map((p) => p.so_ghe?.trim())
+            .filter(Boolean);
+          
+          const occupiedSelectedSeats = selectedSeatNumbers.filter((seat) =>
+            allOccupiedSeats.some((occupied) => 
+              occupied?.trim() === seat || occupied === seat
+            )
+          );
+          
+          if (occupiedSelectedSeats.length > 0) {
+            setError(
+              `Các ghế sau đã được đặt hoặc đang được giữ chỗ: ${occupiedSelectedSeats.join(", ")}. Vui lòng chọn ghế khác.`
+            );
+            setSubmitting(false);
+            // Reload seat map với dữ liệu mới
+            setSeatData(latestSeatData);
+            return;
+          }
+          
+          // Cập nhật seat data với dữ liệu mới nhất
+          setSeatData(latestSeatData);
+        } catch (seatErr) {
+          console.error("Error reloading seat data:", seatErr);
+          // Tiếp tục với dữ liệu cũ nếu không load được
+        }
+      }
+
       const bookingData = {
         ma_chuyen_bay_di: flight.id,
         ma_chuyen_bay_ve: location.state?.selectedFlightVe?.id || null,

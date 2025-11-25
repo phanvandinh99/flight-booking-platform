@@ -73,6 +73,66 @@ class DatVeController extends Controller
             }
         }
 
+        // Kiểm tra ghế đã được đặt chưa (cho chuyến bay đi)
+        $gheDaChon = [];
+        foreach ($request->hanh_khach as $hanhKhachData) {
+            if (!empty($hanhKhachData['so_ghe'])) {
+                $gheDaChon[] = trim($hanhKhachData['so_ghe']);
+            }
+        }
+
+        if (!empty($gheDaChon)) {
+            // Kiểm tra ghế đã được đặt (đã thanh toán) trong chuyến bay đi
+            $gheDaDat = HanhKhach::whereHas('dat_ve', function ($query) use ($chuyenBayDi) {
+                $query->where('ma_chuyen_bay', $chuyenBayDi->id)
+                    ->where('trang_thai', 'da_thanh_toan');
+            })
+                ->whereNotNull('so_ghe')
+                ->whereIn('so_ghe', $gheDaChon)
+                ->pluck('so_ghe')
+                ->toArray();
+
+            if (!empty($gheDaDat)) {
+                return response()->json([
+                    'message' => 'Một số ghế đã được đặt: ' . implode(', ', $gheDaDat),
+                    'errors' => [
+                        'so_ghe' => ['Các ghế sau đã được đặt: ' . implode(', ', $gheDaDat)]
+                    ]
+                ], 422);
+            }
+
+            // Kiểm tra ghế đang được giữ chỗ (chưa hết hạn) trong chuyến bay đi
+            $gheGiuCho = HanhKhach::whereHas('dat_ve', function ($query) use ($chuyenBayDi) {
+                $query->where('ma_chuyen_bay', $chuyenBayDi->id)
+                    ->where('trang_thai', 'giu_cho')
+                    ->where('thoi_gian_het_han_giu_cho', '>', now());
+            })
+                ->whereNotNull('so_ghe')
+                ->whereIn('so_ghe', $gheDaChon)
+                ->pluck('so_ghe')
+                ->toArray();
+
+            if (!empty($gheGiuCho)) {
+                return response()->json([
+                    'message' => 'Một số ghế đang được giữ chỗ: ' . implode(', ', $gheGiuCho),
+                    'errors' => [
+                        'so_ghe' => ['Các ghế sau đang được giữ chỗ: ' . implode(', ', $gheGiuCho)]
+                    ]
+                ], 422);
+            }
+
+            // Kiểm tra ghế trùng lặp trong cùng một booking
+            $gheTrungLap = array_diff_assoc($gheDaChon, array_unique($gheDaChon));
+            if (!empty($gheTrungLap)) {
+                return response()->json([
+                    'message' => 'Không thể chọn cùng một ghế cho nhiều hành khách: ' . implode(', ', array_unique($gheTrungLap)),
+                    'errors' => [
+                        'so_ghe' => ['Các ghế sau được chọn trùng lặp: ' . implode(', ', array_unique($gheTrungLap))]
+                    ]
+                ], 422);
+            }
+        }
+
         // Tính tổng giá vé
         $tongGia = $this->tinhTongGiaVe($chuyenBayDi, $chuyenBayVe, $request->hang_ve, $request->hanh_khach);
 
@@ -95,7 +155,7 @@ class DatVeController extends Controller
                 'ma_dat_ve' => $datVe->id,
                 'ho_ten' => $hanhKhachData['ho_ten'],
                 'so_ho_chieu' => $hanhKhachData['so_ho_chieu'] ?? null,
-                'so_ghe' => $hanhKhachData['so_ghe'] ?? null,
+                'so_ghe' => !empty($hanhKhachData['so_ghe']) ? trim($hanhKhachData['so_ghe']) : null,
                 'hang_ve' => $request->hang_ve,
                 'loai_hanh_khach' => $hanhKhachData['loai_hanh_khach'],
                 'loai_giay_to' => $hanhKhachData['loai_giay_to'] ?? null,

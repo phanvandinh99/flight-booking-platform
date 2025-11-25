@@ -91,11 +91,17 @@ export default function SeatMap({
         );
         let status = "available";
 
-        if (bookedSeats.includes(seat.number)) {
+        // Normalize seat numbers for comparison (trim whitespace, case-insensitive)
+        const normalizedSeatNumber = seat.number?.trim().toUpperCase();
+        const normalizedBookedSeats = bookedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedReservedSeats = reservedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedSelectedSeats = selectedSeats.map(s => String(s).trim().toUpperCase());
+
+        if (normalizedBookedSeats.includes(normalizedSeatNumber)) {
           status = "booked";
-        } else if (reservedSeats.includes(seat.number)) {
+        } else if (normalizedReservedSeats.includes(normalizedSeatNumber)) {
           status = "reserved";
-        } else if (selectedSeats.includes(seat.number)) {
+        } else if (normalizedSelectedSeats.includes(normalizedSeatNumber)) {
           status = "selected";
         }
 
@@ -126,11 +132,17 @@ export default function SeatMap({
         const seatNumber = `${row}${letter}`;
         let status = "available";
 
-        if (bookedSeats.includes(seatNumber)) {
+        // Normalize seat numbers for comparison (trim whitespace, case-insensitive)
+        const normalizedSeatNumber = seatNumber.trim().toUpperCase();
+        const normalizedBookedSeats = bookedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedReservedSeats = reservedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedSelectedSeats = selectedSeats.map(s => String(s).trim().toUpperCase());
+
+        if (normalizedBookedSeats.includes(normalizedSeatNumber)) {
           status = "booked";
-        } else if (reservedSeats.includes(seatNumber)) {
+        } else if (normalizedReservedSeats.includes(normalizedSeatNumber)) {
           status = "reserved";
-        } else if (selectedSeats.includes(seatNumber)) {
+        } else if (normalizedSelectedSeats.includes(normalizedSeatNumber)) {
           status = "selected";
         }
 
