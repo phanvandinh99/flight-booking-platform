@@ -3,16 +3,22 @@ package com.example.flybook.ui.screens.search
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.flybook.data.models.FlightSearchRequest
 import com.example.flybook.data.repository.FlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.FlightCard
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.customerBottomNavItems
+import com.example.flybook.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,9 +62,20 @@ fun FlightSearchScreen(navController: NavController) {
                 title = { Text("Tìm kiếm chuyến bay") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Text("←")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryBlue,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = customerBottomNavItems
             )
         }
     ) { paddingValues ->

@@ -5,9 +5,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.flybook.data.repository.BookingRepository
+import com.example.flybook.ui.theme.*
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.customerBottomNavItems
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,11 +42,16 @@ fun MyBookingsScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = { Text("Đặt vé của tôi") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Text("←")
-                    }
-                }
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryBlue,
+                    titleContentColor = Color.White
+                )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = customerBottomNavItems
             )
         }
     ) { paddingValues ->

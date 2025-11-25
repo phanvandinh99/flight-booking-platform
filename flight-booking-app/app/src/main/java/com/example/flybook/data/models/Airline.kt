@@ -5,6 +5,9 @@ data class Airline(
     val ten_hang: String,
     val ma_hang: String?,
     val logo: String?,
-    val trang_thai: String?
+    val trang_thai: String?,
+    val mo_ta: String? = null,
+    val quoc_gia: String? = null,
+    val website: String? = null
 )
 

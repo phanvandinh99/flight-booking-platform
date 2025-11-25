@@ -11,6 +11,10 @@ import com.example.flybook.ui.screens.search.FlightSearchScreen
 import com.example.flybook.ui.screens.detail.FlightDetailScreen
 import com.example.flybook.ui.screens.booking.BookingScreen
 import com.example.flybook.ui.screens.bookings.MyBookingsScreen
+import com.example.flybook.ui.screens.admin.AdminDashboardScreen
+import com.example.flybook.ui.screens.admin.AirlineApprovalScreen
+import com.example.flybook.ui.screens.admin.AirportManagementScreen
+import com.example.flybook.ui.screens.admin.RouteManagementScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -22,6 +26,12 @@ sealed class Screen(val route: String) {
     }
     object Booking : Screen("booking")
     object MyBookings : Screen("my_bookings")
+    
+    // Admin screens
+    object AdminDashboard : Screen("admin/dashboard")
+    object AdminAirlineApproval : Screen("admin/airline_approval")
+    object AdminAirportManagement : Screen("admin/airport_management")
+    object AdminRouteManagement : Screen("admin/route_management")
 }
 
 @Composable
@@ -54,6 +64,20 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.MyBookings.route) {
             MyBookingsScreen(navController = navController)
+        }
+        
+        // Admin routes
+        composable(Screen.AdminDashboard.route) {
+            AdminDashboardScreen(navController = navController)
+        }
+        composable(Screen.AdminAirlineApproval.route) {
+            AirlineApprovalScreen(navController = navController)
+        }
+        composable(Screen.AdminAirportManagement.route) {
+            AirportManagementScreen(navController = navController)
+        }
+        composable(Screen.AdminRouteManagement.route) {
+            RouteManagementScreen(navController = navController)
         }
     }
 }

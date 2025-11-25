@@ -13,12 +13,14 @@ data class Flight(
     val so_ghe_trong: Int? = null
 )
 
+@com.google.gson.annotations.JsonAdapter(RouteDeserializer::class)
 data class Route(
     val id: Int,
-    val san_bay_di: Airport,
-    val san_bay_den: Airport,
-    val khoang_cach: Double?,
-    val thoi_gian_bay: Int?
+    val san_bay_di: Airport?,
+    val san_bay_den: Airport?,
+    val khoang_cach: Double? = null,
+    val thoi_gian_bay: Int? = null,
+    val duoc_phe_duyet: Boolean? = null
 )
 
 data class Aircraft(
