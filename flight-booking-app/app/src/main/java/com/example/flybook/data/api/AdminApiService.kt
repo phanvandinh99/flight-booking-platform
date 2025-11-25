@@ -3,6 +3,9 @@ package com.example.flybook.data.api
 import com.example.flybook.data.models.Airline
 import com.example.flybook.data.models.Airport
 import com.example.flybook.data.models.Route
+import com.example.flybook.data.models.MonthlyRevenue
+import com.example.flybook.data.models.RevenueSummary
+import com.example.flybook.data.models.TopAirline
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -60,6 +63,19 @@ interface AdminApiService {
     
     @POST("admin/routes/{id}/revoke")
     suspend fun revokeRoute(@Path("id") id: Int): Response<ApiResponse<Route>>
+    
+    // Reports
+    @GET("admin/reports/revenue/summary")
+    suspend fun getRevenueSummary(): Response<ApiResponse<RevenueSummary>>
+    
+    @GET("admin/reports/revenue/monthly")
+    suspend fun getMonthlyRevenue(
+        @Query("tu_ngay") tuNgay: String? = null,
+        @Query("den_ngay") denNgay: String? = null
+    ): Response<ApiResponse<List<MonthlyRevenue>>>
+    
+    @GET("admin/reports/top-airlines")
+    suspend fun getTopAirlines(@Query("limit") limit: Int = 10): Response<ApiResponse<List<TopAirline>>>
 }
 
 data class CreateRouteRequest(
