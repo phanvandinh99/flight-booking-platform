@@ -128,9 +128,9 @@ fun AdminDashboardScreen(navController: NavController) {
                 DashboardCard(
                     title = "Báo cáo tổng hợp",
                     description = "Xem các báo cáo và thống kê hệ thống",
-                    icon = Icons.Default.Home,
+                    icon = Icons.Default.Info,
                     gradientColors = listOf(Color(0xFF43E97B), Color(0xFF38F9D7)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AdminReports.route) }
                 )
                 
                 DashboardCard(
