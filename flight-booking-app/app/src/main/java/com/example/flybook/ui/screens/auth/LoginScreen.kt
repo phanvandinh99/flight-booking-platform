@@ -293,7 +293,15 @@ fun LoginScreen(navController: NavController) {
                                     .onSuccess { authResponse ->
                                         AuthManager.saveToken(context, authResponse.token)
                                         AuthManager.saveUserEmail(context, authResponse.user.email)
-                                        navController.navigate(Screen.Home.route) {
+                                        
+                                        // Navigate based on user role
+                                        val destination = when (authResponse.user.vai_tro) {
+                                            "admin" -> Screen.AdminDashboard.route
+                                            "dai_dien_hang" -> Screen.Home.route // TODO: Add airline dashboard
+                                            else -> Screen.Home.route
+                                        }
+                                        
+                                        navController.navigate(destination) {
                                             popUpTo(Screen.Login.route) { inclusive = true }
                                         }
                                     }
