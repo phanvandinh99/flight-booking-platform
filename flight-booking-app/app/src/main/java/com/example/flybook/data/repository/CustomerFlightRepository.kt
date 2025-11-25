@@ -1,31 +1,26 @@
 package com.example.flybook.data.repository
 
-import com.example.flybook.data.api.AirlineApiService
 import com.example.flybook.data.api.ApiClient
-import com.example.flybook.data.api.CreateFlightRequest
+import com.example.flybook.data.api.ApiService
 import com.example.flybook.data.api.ErrorResponse
-import com.example.flybook.data.api.UpdateFlightRequest
-import com.example.flybook.data.models.AirlineFlight
-import com.example.flybook.data.models.ApprovedRoute
+import com.example.flybook.data.models.Flight
+import com.example.flybook.data.models.FlightSearchRequest
+import com.example.flybook.data.models.FlightSearchResponse
 import com.google.gson.Gson
 import retrofit2.HttpException
 
-class FlightRepository {
-    private val apiService: AirlineApiService = ApiClient.airlineApiService
+class CustomerFlightRepository {
+    private val apiService: ApiService = ApiClient.apiService
     
-    suspend fun getFlights(
-        ngayKhoiHanh: String? = null,
-        trangThai: String? = null,
-        maTuyenBay: Int? = null
-    ): Result<List<AirlineFlight>> {
+    suspend fun getAirports(): Result<List<com.example.flybook.data.models.Airport>> {
         return try {
-            val response = apiService.getFlights(ngayKhoiHanh, trangThai, maTuyenBay)
+            val response = apiService.getAirports()
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.success && apiResponse.data != null) {
                     Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception(apiResponse.message ?: "Không thể tải danh sách chuyến bay"))
+                    Result.failure(Exception(apiResponse.message ?: "Không thể tải danh sách sân bay"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string()
@@ -33,10 +28,10 @@ class FlightRepository {
                     try {
                         Gson().fromJson(errorBody, ErrorResponse::class.java).message
                     } catch (e: Exception) {
-                        "Không thể tải danh sách chuyến bay: ${response.message()}"
+                        "Không thể tải danh sách sân bay: ${response.message()}"
                     }
                 } else {
-                    "Không thể tải danh sách chuyến bay: ${response.message()}"
+                    "Không thể tải danh sách sân bay: ${response.message()}"
                 }
                 Result.failure(Exception(errorMessage))
             }
@@ -51,21 +46,21 @@ class FlightRepository {
             } else {
                 e.message()
             }
-            Result.failure(Exception(errorMessage ?: "Không thể tải danh sách chuyến bay"))
+            Result.failure(Exception(errorMessage ?: "Không thể tải danh sách sân bay"))
         } catch (e: Exception) {
-            Result.failure(Exception("Không thể tải danh sách chuyến bay: ${e.message}"))
+            Result.failure(Exception("Không thể tải danh sách sân bay: ${e.message}"))
         }
     }
     
-    suspend fun getApprovedRoutes(): Result<List<ApprovedRoute>> {
+    suspend fun getTodayFlights(): Result<List<Flight>> {
         return try {
-            val response = apiService.getApprovedRoutes()
+            val response = apiService.getTodayFlights()
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.success && apiResponse.data != null) {
                     Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception(apiResponse.message ?: "Không thể tải danh sách tuyến bay"))
+                    Result.failure(Exception(apiResponse.message ?: "Không thể tải danh sách chuyến bay hôm nay"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string()
@@ -73,10 +68,10 @@ class FlightRepository {
                     try {
                         Gson().fromJson(errorBody, ErrorResponse::class.java).message
                     } catch (e: Exception) {
-                        "Không thể tải danh sách tuyến bay: ${response.message()}"
+                        "Không thể tải danh sách chuyến bay hôm nay: ${response.message()}"
                     }
                 } else {
-                    "Không thể tải danh sách tuyến bay: ${response.message()}"
+                    "Không thể tải danh sách chuyến bay hôm nay: ${response.message()}"
                 }
                 Result.failure(Exception(errorMessage))
             }
@@ -91,30 +86,21 @@ class FlightRepository {
             } else {
                 e.message()
             }
-            Result.failure(Exception(errorMessage ?: "Không thể tải danh sách tuyến bay"))
+            Result.failure(Exception(errorMessage ?: "Không thể tải danh sách chuyến bay hôm nay"))
         } catch (e: Exception) {
-            Result.failure(Exception("Không thể tải danh sách tuyến bay: ${e.message}"))
+            Result.failure(Exception("Không thể tải danh sách chuyến bay hôm nay: ${e.message}"))
         }
     }
     
-    suspend fun createFlight(
-        maMayBay: Int,
-        maChuyenBay: String,
-        maTuyenBay: Int,
-        gioKhoiHanh: String,
-        gioHaCanh: String,
-        tanSuat: String,
-        trangThai: String = "du_kien"
-    ): Result<AirlineFlight> {
+    suspend fun searchFlights(request: FlightSearchRequest): Result<FlightSearchResponse> {
         return try {
-            val request = CreateFlightRequest(maMayBay, maChuyenBay, maTuyenBay, gioKhoiHanh, gioHaCanh, tanSuat, trangThai)
-            val response = apiService.createFlight(request)
+            val response = apiService.searchFlights(request)
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.success && apiResponse.data != null) {
                     Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception(apiResponse.message ?: "Không thể tạo chuyến bay"))
+                    Result.failure(Exception(apiResponse.message ?: "Không thể tìm kiếm chuyến bay"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string()
@@ -122,10 +108,10 @@ class FlightRepository {
                     try {
                         Gson().fromJson(errorBody, ErrorResponse::class.java).message
                     } catch (e: Exception) {
-                        "Không thể tạo chuyến bay: ${response.message()}"
+                        "Không thể tìm kiếm chuyến bay: ${response.message()}"
                     }
                 } else {
-                    "Không thể tạo chuyến bay: ${response.message()}"
+                    "Không thể tìm kiếm chuyến bay: ${response.message()}"
                 }
                 Result.failure(Exception(errorMessage))
             }
@@ -140,31 +126,21 @@ class FlightRepository {
             } else {
                 e.message()
             }
-            Result.failure(Exception(errorMessage ?: "Không thể tạo chuyến bay"))
+            Result.failure(Exception(errorMessage ?: "Không thể tìm kiếm chuyến bay"))
         } catch (e: Exception) {
-            Result.failure(Exception("Không thể tạo chuyến bay: ${e.message}"))
+            Result.failure(Exception("Không thể tìm kiếm chuyến bay: ${e.message}"))
         }
     }
     
-    suspend fun updateFlight(
-        id: Int,
-        maMayBay: Int? = null,
-        maChuyenBay: String? = null,
-        maTuyenBay: Int? = null,
-        gioKhoiHanh: String? = null,
-        gioHaCanh: String? = null,
-        tanSuat: String? = null,
-        trangThai: String? = null
-    ): Result<AirlineFlight> {
+    suspend fun getFlightDetail(id: Int): Result<Flight> {
         return try {
-            val request = UpdateFlightRequest(maMayBay, maChuyenBay, maTuyenBay, gioKhoiHanh, gioHaCanh, tanSuat, trangThai)
-            val response = apiService.updateFlight(id, request)
+            val response = apiService.getFlightDetail(id)
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.success && apiResponse.data != null) {
                     Result.success(apiResponse.data)
                 } else {
-                    Result.failure(Exception(apiResponse.message ?: "Không thể cập nhật chuyến bay"))
+                    Result.failure(Exception(apiResponse.message ?: "Không thể tải chi tiết chuyến bay"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string()
@@ -172,10 +148,10 @@ class FlightRepository {
                     try {
                         Gson().fromJson(errorBody, ErrorResponse::class.java).message
                     } catch (e: Exception) {
-                        "Không thể cập nhật chuyến bay: ${response.message()}"
+                        "Không thể tải chi tiết chuyến bay: ${response.message()}"
                     }
                 } else {
-                    "Không thể cập nhật chuyến bay: ${response.message()}"
+                    "Không thể tải chi tiết chuyến bay: ${response.message()}"
                 }
                 Result.failure(Exception(errorMessage))
             }
@@ -190,44 +166,10 @@ class FlightRepository {
             } else {
                 e.message()
             }
-            Result.failure(Exception(errorMessage ?: "Không thể cập nhật chuyến bay"))
+            Result.failure(Exception(errorMessage ?: "Không thể tải chi tiết chuyến bay"))
         } catch (e: Exception) {
-            Result.failure(Exception("Không thể cập nhật chuyến bay: ${e.message}"))
-        }
-    }
-    
-    suspend fun deleteFlight(id: Int): Result<Unit> {
-        return try {
-            val response = apiService.deleteFlight(id)
-            if (response.isSuccessful) {
-                Result.success(Unit)
-            } else {
-                val errorBody = response.errorBody()?.string()
-                val errorMessage = if (!errorBody.isNullOrEmpty()) {
-                    try {
-                        Gson().fromJson(errorBody, ErrorResponse::class.java).message
-                    } catch (e: Exception) {
-                        "Không thể xóa chuyến bay: ${response.message()}"
-                    }
-                } else {
-                    "Không thể xóa chuyến bay: ${response.message()}"
-                }
-                Result.failure(Exception(errorMessage))
-            }
-        } catch (e: HttpException) {
-            val errorBody = e.response()?.errorBody()?.string()
-            val errorMessage = if (!errorBody.isNullOrEmpty()) {
-                try {
-                    Gson().fromJson(errorBody, ErrorResponse::class.java).message
-                } catch (parseException: Exception) {
-                    e.message()
-                }
-            } else {
-                e.message()
-            }
-            Result.failure(Exception(errorMessage ?: "Không thể xóa chuyến bay"))
-        } catch (e: Exception) {
-            Result.failure(Exception("Không thể xóa chuyến bay: ${e.message}"))
+            Result.failure(Exception("Không thể tải chi tiết chuyến bay: ${e.message}"))
         }
     }
 }
+

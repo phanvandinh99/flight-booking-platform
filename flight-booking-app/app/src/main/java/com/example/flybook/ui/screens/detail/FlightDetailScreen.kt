@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.flybook.data.repository.FlightRepository
+import com.example.flybook.data.repository.CustomerFlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.formatCurrency
 import com.example.flybook.ui.components.formatTime
@@ -25,7 +25,7 @@ fun FlightDetailScreen(
     navController: NavController,
     flightId: Int
 ) {
-    val flightRepository = remember { FlightRepository() }
+    val flightRepository = remember { CustomerFlightRepository() }
     val scope = rememberCoroutineScope()
     
     var isLoading by remember { mutableStateOf(true) }

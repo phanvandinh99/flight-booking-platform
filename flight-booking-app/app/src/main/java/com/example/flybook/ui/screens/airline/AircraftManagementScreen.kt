@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +25,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.flybook.data.models.AirlineAircraft
 import com.example.flybook.data.repository.AircraftRepository
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.airlineBottomNavItems
 import com.example.flybook.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -156,7 +159,7 @@ fun AircraftManagementScreen(navController: NavController) {
                 title = { Text("Quản Lý Máy Bay") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -169,6 +172,12 @@ fun AircraftManagementScreen(navController: NavController) {
                         Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
                     }
                 }
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = airlineBottomNavItems
             )
         },
         floatingActionButton = {

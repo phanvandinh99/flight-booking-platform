@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.flybook.data.models.FlightSearchRequest
-import com.example.flybook.data.repository.FlightRepository
+import com.example.flybook.data.repository.CustomerFlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.FlightCard
 import com.example.flybook.ui.components.BottomNavigationBar
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlightSearchScreen(navController: NavController) {
-    val flightRepository = remember { FlightRepository() }
+    val flightRepository = remember { CustomerFlightRepository() }
     val scope = rememberCoroutineScope()
     
     var isLoading by remember { mutableStateOf(false) }

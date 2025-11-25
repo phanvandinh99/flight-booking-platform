@@ -11,7 +11,7 @@ import com.example.flybook.ui.theme.*
 import androidx.navigation.NavController
 import com.example.flybook.data.models.Airport
 import com.example.flybook.data.models.Flight
-import com.example.flybook.data.repository.FlightRepository
+import com.example.flybook.data.repository.CustomerFlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.FlightSearchForm
 import com.example.flybook.ui.components.TodayFlightsList
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
-    val flightRepository = remember { FlightRepository() }
+    val flightRepository = remember { CustomerFlightRepository() }
     val scope = rememberCoroutineScope()
     
     var airports by remember { mutableStateOf<List<Airport>>(emptyList()) }

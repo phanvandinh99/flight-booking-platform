@@ -43,6 +43,20 @@ sealed class BottomNavItem(
         icon = Icons.Default.Person,
         selectedIcon = Icons.Default.Person
     )
+    
+    object AirlineDashboard : BottomNavItem(
+        route = Screen.AirlineDashboard.route,
+        title = "Trang chủ",
+        icon = Icons.Default.Home,
+        selectedIcon = Icons.Default.Home
+    )
+    
+    object AirlineAircraft : BottomNavItem(
+        route = Screen.AirlineAircraftManagement.route,
+        title = "Máy bay",
+        icon = Icons.Default.LocationOn,
+        selectedIcon = Icons.Default.LocationOn
+    )
 }
 
 val customerBottomNavItems = listOf(
@@ -56,6 +70,11 @@ val adminBottomNavItems = listOf(
     BottomNavItem.Admin
 )
 
+val airlineBottomNavItems = listOf(
+    BottomNavItem.AirlineDashboard,
+    BottomNavItem.AirlineAircraft
+)
+
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
@@ -65,8 +84,8 @@ fun BottomNavigationBar(
     val currentRoute = navBackStackEntry?.destination?.route
     
     NavigationBar(
-        containerColor = Color(0xFFFAFAFA),
-        tonalElevation = 16.dp
+        containerColor = Color.White,
+        tonalElevation = 8.dp
     ) {
         items.forEach { item ->
             val isSelected = currentRoute == item.route
@@ -87,27 +106,53 @@ fun BottomNavigationBar(
                 },
                 selected = isSelected,
                 onClick = {
-                    if (currentRoute != item.route) {
-                        navController.navigate(item.route) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                    when {
+                        item.route == Screen.AirlineDashboard.route -> {
+                            // Always navigate to airline dashboard
+                            if (currentRoute != Screen.AirlineDashboard.route) {
+                                navController.navigate(Screen.AirlineDashboard.route) {
+                                    // If we're on an airline sub-route, clear back stack to start
+                                    if (currentRoute?.startsWith("airline/") == true) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = false
+                                        }
+                                    }
+                                    launchSingleTop = true
+                                }
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
+                        }
+                        item.route == Screen.AdminDashboard.route -> {
+                            // Always navigate to admin dashboard
+                            if (currentRoute != Screen.AdminDashboard.route) {
+                                navController.navigate(Screen.AdminDashboard.route) {
+                                    // If we're on an admin sub-route, clear back stack to start
+                                    if (currentRoute?.startsWith("admin/") == true) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = false
+                                        }
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                        currentRoute != item.route -> {
+                            // For other routes, normal navigation
+                            navController.navigate(item.route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         }
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryBlue,
                     selectedTextColor = PrimaryBlue,
-                    indicatorColor = PrimaryBlue.copy(alpha = 0.15f),
-                    unselectedIconColor = TextSecondary.copy(alpha = 0.7f),
-                    unselectedTextColor = TextSecondary.copy(alpha = 0.7f)
+                    indicatorColor = PrimaryBlue.copy(alpha = 0.12f),
+                    unselectedIconColor = TextSecondary.copy(alpha = 0.6f),
+                    unselectedTextColor = TextSecondary.copy(alpha = 0.6f)
                 )
             )
         }
