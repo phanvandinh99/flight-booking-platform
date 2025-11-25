@@ -138,7 +138,7 @@ fun AdminDashboardScreen(navController: NavController) {
                     description = "Thiết lập các thông số hệ thống",
                     icon = Icons.Default.Settings,
                     gradientColors = listOf(Color(0xFFFA709A), Color(0xFFFEE140)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AdminSystemConfig.route) }
                 )
             }
         }

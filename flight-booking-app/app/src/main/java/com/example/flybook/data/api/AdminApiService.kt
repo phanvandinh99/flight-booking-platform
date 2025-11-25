@@ -6,6 +6,7 @@ import com.example.flybook.data.models.Route
 import com.example.flybook.data.models.MonthlyRevenue
 import com.example.flybook.data.models.RevenueSummary
 import com.example.flybook.data.models.TopAirline
+import com.example.flybook.data.models.SystemConfig
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -76,7 +77,29 @@ interface AdminApiService {
     
     @GET("admin/reports/top-airlines")
     suspend fun getTopAirlines(@Query("limit") limit: Int = 10): Response<ApiResponse<List<TopAirline>>>
+    
+    // System Configuration
+    @GET("admin/config")
+    suspend fun getConfigs(): Response<ApiResponse<List<SystemConfig>>>
+    
+    @POST("admin/config")
+    suspend fun createConfig(@Body request: CreateConfigRequest): Response<ApiResponse<SystemConfig>>
+    
+    @PUT("admin/config/{key}")
+    suspend fun updateConfig(@Path("key") key: String, @Body request: UpdateConfigRequest): Response<ApiResponse<SystemConfig>>
+    
+    @DELETE("admin/config/{key}")
+    suspend fun deleteConfig(@Path("key") key: String): Response<ApiResponse<Unit>>
 }
+
+data class CreateConfigRequest(
+    val ten_cau_hinh: String,
+    val gia_tri: String
+)
+
+data class UpdateConfigRequest(
+    val gia_tri: String
+)
 
 data class CreateRouteRequest(
     val san_bay_di: Int,
