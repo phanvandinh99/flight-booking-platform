@@ -122,7 +122,7 @@ fun AdminDashboardScreen(navController: NavController) {
                     description = "Thiết lập và quản lý các tuyến bay",
                     icon = Icons.Default.LocationOn,
                     gradientColors = listOf(Color(0xFF4FACFE), Color(0xFF00F2FE)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AdminRouteManagement.route) }
                 )
                 
                 DashboardCard(

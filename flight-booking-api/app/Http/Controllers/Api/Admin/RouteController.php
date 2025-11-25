@@ -72,7 +72,7 @@ class RouteController extends Controller
             return response()->json(['message' => 'Không tìm thấy tuyến bay'], 404);
         }
         $route->update(['duoc_phe_duyet' => true]);
-        return response()->json(['message' => 'Đã phê duyệt tuyến bay', 'data' => $route]);
+        return response()->json(['message' => 'Đã phê duyệt tuyến bay', 'data' => $route->fresh()->load(['san_bay_di', 'san_bay_den'])]);
     }
 
     public function revoke($id)
@@ -82,6 +82,6 @@ class RouteController extends Controller
             return response()->json(['message' => 'Không tìm thấy tuyến bay'], 404);
         }
         $route->update(['duoc_phe_duyet' => false]);
-        return response()->json(['message' => 'Đã thu hồi phê duyệt', 'data' => $route]);
+        return response()->json(['message' => 'Đã thu hồi phê duyệt', 'data' => $route->fresh()->load(['san_bay_di', 'san_bay_den'])]);
     }
 }

@@ -2,6 +2,7 @@ package com.example.flybook.data.api
 
 import com.example.flybook.data.models.Airline
 import com.example.flybook.data.models.Airport
+import com.example.flybook.data.models.Route
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -37,7 +38,41 @@ interface AdminApiService {
     
     @DELETE("admin/airports/{id}")
     suspend fun deleteAirport(@Path("id") id: Int): Response<ApiResponse<Unit>>
+    
+    // Route Management
+    @GET("admin/routes")
+    suspend fun getRoutes(): Response<ApiResponse<List<Route>>>
+    
+    @GET("admin/routes/{id}")
+    suspend fun getRoute(@Path("id") id: Int): Response<ApiResponse<Route>>
+    
+    @POST("admin/routes")
+    suspend fun createRoute(@Body request: CreateRouteRequest): Response<ApiResponse<Route>>
+    
+    @PUT("admin/routes/{id}")
+    suspend fun updateRoute(@Path("id") id: Int, @Body request: UpdateRouteRequest): Response<ApiResponse<Route>>
+    
+    @DELETE("admin/routes/{id}")
+    suspend fun deleteRoute(@Path("id") id: Int): Response<ApiResponse<Unit>>
+    
+    @POST("admin/routes/{id}/approve")
+    suspend fun approveRoute(@Path("id") id: Int): Response<ApiResponse<Route>>
+    
+    @POST("admin/routes/{id}/revoke")
+    suspend fun revokeRoute(@Path("id") id: Int): Response<ApiResponse<Route>>
 }
+
+data class CreateRouteRequest(
+    val san_bay_di: Int,
+    val san_bay_den: Int,
+    val duoc_phe_duyet: Boolean? = false
+)
+
+data class UpdateRouteRequest(
+    val san_bay_di: Int? = null,
+    val san_bay_den: Int? = null,
+    val duoc_phe_duyet: Boolean? = null
+)
 
 data class CreateAirportRequest(
     val ma_san_bay: String,
