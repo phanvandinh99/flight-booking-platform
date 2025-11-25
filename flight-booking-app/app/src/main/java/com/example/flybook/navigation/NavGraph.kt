@@ -13,6 +13,7 @@ import com.example.flybook.ui.screens.booking.BookingScreen
 import com.example.flybook.ui.screens.bookings.MyBookingsScreen
 import com.example.flybook.ui.screens.admin.AdminDashboardScreen
 import com.example.flybook.ui.screens.admin.AirlineApprovalScreen
+import com.example.flybook.ui.screens.admin.AirportManagementScreen
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -28,6 +29,7 @@ sealed class Screen(val route: String) {
     // Admin screens
     object AdminDashboard : Screen("admin/dashboard")
     object AdminAirlineApproval : Screen("admin/airline_approval")
+    object AdminAirportManagement : Screen("admin/airport_management")
 }
 
 @Composable
@@ -68,6 +70,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.AdminAirlineApproval.route) {
             AirlineApprovalScreen(navController = navController)
+        }
+        composable(Screen.AdminAirportManagement.route) {
+            AirportManagementScreen(navController = navController)
         }
     }
 }

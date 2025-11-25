@@ -56,52 +56,44 @@ fun AdminDashboardScreen(navController: NavController) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Welcome card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            // Welcome card - compact version
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Row(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(PrimaryBlue, PrimaryPurple)
-                                ),
-                                shape = RoundedCornerShape(12.dp)
+                        .size(40.dp)
+                        .background(
+                            brush = Brush.linearGradient(
+                                colors = listOf(PrimaryBlue, PrimaryPurple)
                             ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Admin",
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
+                            shape = RoundedCornerShape(10.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Admin",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Column {
+                    Text(
+                        text = "Trang Quản Trị",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.SemiBold
                         )
-                    }
-                    Column {
-                        Text(
-                            text = "Chào mừng đến với Trang Quản Trị",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                        Text(
-                            text = "Quản lý hệ thống đặt vé máy bay một cách hiệu quả",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
-                        )
-                    }
+                    )
+                    Text(
+                        text = "Quản lý hệ thống đặt vé máy bay",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary
+                    )
                 }
             }
             
@@ -122,7 +114,7 @@ fun AdminDashboardScreen(navController: NavController) {
                     description = "Thêm, sửa, xóa thông tin sân bay",
                     icon = Icons.Default.LocationOn,
                     gradientColors = listOf(Color(0xFFF093FB), Color(0xFFF5576C)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AdminAirportManagement.route) }
                 )
                 
                 DashboardCard(
