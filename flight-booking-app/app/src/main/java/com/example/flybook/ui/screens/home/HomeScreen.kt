@@ -5,7 +5,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.flybook.ui.theme.*
 import androidx.navigation.NavController
 import com.example.flybook.data.models.Airport
 import com.example.flybook.data.models.Flight
@@ -13,6 +15,8 @@ import com.example.flybook.data.repository.FlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.FlightSearchForm
 import com.example.flybook.ui.components.TodayFlightsList
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.customerBottomNavItems
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,10 +54,18 @@ fun HomeScreen(navController: NavController) {
                     TextButton(onClick = { navController.navigate(Screen.Login.route) }) {
                         Text("Đăng nhập")
                     }
-                    TextButton(onClick = { navController.navigate(Screen.MyBookings.route) }) {
-                        Text("Đặt vé của tôi")
-                    }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryBlue,
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = customerBottomNavItems
             )
         }
     ) { paddingValues ->

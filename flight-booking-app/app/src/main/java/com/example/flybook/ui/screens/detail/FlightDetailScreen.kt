@@ -1,16 +1,22 @@
 package com.example.flybook.ui.screens.detail
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.flybook.data.repository.FlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.formatCurrency
 import com.example.flybook.ui.components.formatTime
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.customerBottomNavItems
+import com.example.flybook.ui.theme.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,9 +52,20 @@ fun FlightDetailScreen(
                 title = { Text("Chi tiết chuyến bay") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Text("←")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = PrimaryBlue,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = customerBottomNavItems
             )
         }
     ) { paddingValues ->

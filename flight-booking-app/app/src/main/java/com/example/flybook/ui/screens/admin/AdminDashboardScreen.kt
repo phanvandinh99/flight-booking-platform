@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.theme.*
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.adminBottomNavItems
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,12 @@ fun AdminDashboardScreen(navController: NavController) {
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
                 )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = adminBottomNavItems
             )
         }
     ) { paddingValues ->

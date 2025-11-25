@@ -24,6 +24,8 @@ import com.example.flybook.data.models.Airline
 import com.example.flybook.data.repository.AdminRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.theme.*
+import com.example.flybook.ui.components.BottomNavigationBar
+import com.example.flybook.ui.components.adminBottomNavItems
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -104,6 +106,12 @@ fun AirlineApprovalScreen(navController: NavController) {
                     navigationIconContentColor = Color.White,
                     actionIconContentColor = Color.White
                 )
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                items = adminBottomNavItems
             )
         }
     ) { paddingValues ->
