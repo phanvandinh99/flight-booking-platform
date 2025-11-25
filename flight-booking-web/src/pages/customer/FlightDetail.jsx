@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getFlightDetail } from "../../api/customer";
+import {
+  useNavigate,
+  useParams,
+  useSearchParams,
+  Link,
+} from "react-router-dom";
+import { getFlightDetail, getFlightSeats } from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import "../../styles/flightDetail.css";
 
@@ -13,6 +18,7 @@ export default function FlightDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFareClass, setSelectedFareClass] = useState(null);
+  const [seatAvailability, setSeatAvailability] = useState(null);
 
   // Support both route param and query param for backward compatibility
   const flightId = id || searchParams.get("flight");
@@ -36,6 +42,8 @@ export default function FlightDetail() {
       if (response.data.gia_ve && response.data.gia_ve.length > 0) {
         setSelectedFareClass(response.data.gia_ve[0]);
       }
+      // Load seat availability
+      loadSeatAvailability(flightId);
     } catch (err) {
       setError(
         err.response?.data?.message || "Không thể tải chi tiết chuyến bay"
@@ -43,6 +51,62 @@ export default function FlightDetail() {
       console.error("Error loading flight detail:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSeatAvailability = async (flightId) => {
+    try {
+      const response = await getFlightSeats(flightId);
+      const seatData = response.data;
+
+      // Tính số ghế còn lại cho mỗi hạng vé
+      const totalSeats = seatData.tong_so_ghe || 0;
+      const bookedSeats = seatData.ghe_da_dat || [];
+      const reservedSeats = seatData.ghe_giu_cho || [];
+      const allOccupiedSeats = [...new Set([...bookedSeats, ...reservedSeats])];
+
+      // Phân bổ ghế theo hạng vé (dựa trên row number)
+      // Hạng nhất: rows 1-3
+      // Thương gia: rows 4-6
+      // Phổ thông: rows 7+
+      const fareClassSeats = {
+        hang_nhat: [],
+        thuong_gia: [],
+        pho_thong: [],
+      };
+
+      // Tính số ghế theo hạng vé
+      for (let row = 1; row <= Math.ceil(totalSeats / 6); row++) {
+        for (let col = 0; col < 6; col++) {
+          const seatNumber = `${row}${String.fromCharCode(65 + col)}`;
+          if (row <= 3) {
+            fareClassSeats.hang_nhat.push(seatNumber);
+          } else if (row <= 6) {
+            fareClassSeats.thuong_gia.push(seatNumber);
+          } else {
+            fareClassSeats.pho_thong.push(seatNumber);
+          }
+        }
+      }
+
+      // Tính số ghế còn lại cho mỗi hạng vé
+      const availability = {};
+      Object.keys(fareClassSeats).forEach((hangVe) => {
+        const seats = fareClassSeats[hangVe];
+        const occupied = seats.filter((seat) =>
+          allOccupiedSeats.includes(seat)
+        );
+        availability[hangVe] = {
+          total: seats.length,
+          occupied: occupied.length,
+          available: seats.length - occupied.length,
+        };
+      });
+
+      setSeatAvailability(availability);
+    } catch (err) {
+      console.error("Error loading seat availability:", err);
+      // Không block nếu không load được
     }
   };
 
@@ -106,18 +170,16 @@ export default function FlightDetail() {
   };
 
   const handleBookFlight = () => {
-    if (!selectedFareClass) {
-      alert("Vui lòng chọn hạng vé");
-      return;
-    }
     if (!user) {
       navigate("/login", { state: { from: `/flight/${flight.id}` } });
       return;
     }
+    // Không bắt buộc chọn hạng vé, sẽ chọn ở trang booking
     navigate("/booking", {
       state: {
         flight: flight,
-        fareClass: selectedFareClass,
+        fareClass:
+          selectedFareClass || (flight.gia_ve && flight.gia_ve[0]) || null,
       },
     });
   };
@@ -139,27 +201,24 @@ export default function FlightDetail() {
           <span>Flight Booking</span>
         </div>
         <nav className="header-nav">
-          <a href="/" className="nav-link">
+          <Link to="/" className="nav-link">
             Trang chủ
-          </a>
-          <a href="/flights" className="nav-link">
+          </Link>
+          <Link to="/flights" className="nav-link">
             Danh sách chuyến bay
-          </a>
-          <a href="#about" className="nav-link">
+          </Link>
+          <Link to="/about" className="nav-link">
             Về chúng tôi
-          </a>
-          <a href="#help" className="nav-link">
-            Trợ giúp
-          </a>
-          <a href="#guide" className="nav-link">
+          </Link>
+          <Link to="/guide" className="nav-link">
             Hướng dẫn đặt vé
-          </a>
+          </Link>
           {user ? (
             <>
-              <a href="/bookings" className="nav-link">
+              <Link to="/bookings" className="nav-link">
                 Đặt vé của tôi
-              </a>
-              <span className="user-info">{user.ten || user.email}</span>
+              </Link>
+              <span className="user-info">{user.ten_day_du || user.email}</span>
               <a
                 href="/login"
                 className="nav-link"
@@ -551,6 +610,28 @@ export default function FlightDetail() {
                         </div>
                       </div>
                       <div className="fare-class-details">
+                        {seatAvailability && seatAvailability[fare.hang_ve] && (
+                          <div className="fare-detail-item availability">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M9 11l3 3L22 4"></path>
+                              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                            </svg>
+                            <span>
+                              Còn lại:{" "}
+                              <strong>
+                                {seatAvailability[fare.hang_ve].available}
+                              </strong>{" "}
+                              / {seatAvailability[fare.hang_ve].total} ghế
+                            </span>
+                          </div>
+                        )}
                         <div className="fare-detail-item">
                           <svg
                             width="16"
@@ -598,27 +679,25 @@ export default function FlightDetail() {
                   {selectedFareClass ? (
                     <>
                       <div className="summary-item">
-                        <span>Hạng vé:</span>
+                        <span>Hạng vé mặc định:</span>
                         <span className="summary-value">
                           {getFareClassLabel(selectedFareClass.hang_ve)}
                         </span>
                       </div>
                       <div className="summary-item">
-                        <span>Giá vé:</span>
+                        <span>Giá từ:</span>
                         <span className="summary-price">
                           {formatCurrency(selectedFareClass.gia)}
                         </span>
                       </div>
                     </>
                   ) : (
-                    <p className="no-selection">Vui lòng chọn hạng vé</p>
+                    <p className="no-selection">
+                      Bạn có thể chọn hạng vé khi đặt ghế
+                    </p>
                   )}
                 </div>
-                <button
-                  className="btn-book-flight"
-                  onClick={handleBookFlight}
-                  disabled={!selectedFareClass}
-                >
+                <button className="btn-book-flight" onClick={handleBookFlight}>
                   <svg
                     width="20"
                     height="20"

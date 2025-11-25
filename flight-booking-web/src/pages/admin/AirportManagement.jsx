@@ -232,7 +232,7 @@ export default function AirportManagement() {
       <div className="airport-management-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Sân Bay</h2>
+            {/* <h2>Quản lý Sân Bay</h2> */}
             <p>Thêm, sửa, xóa thông tin sân bay trong hệ thống</p>
           </div>
           <div className="header-actions">

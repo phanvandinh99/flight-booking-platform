@@ -13,10 +13,13 @@ class DatVe extends Model
         'ma_dat_ve',
         'trang_thai',
         'thoi_gian_het_han_giu_cho',
-        'tong_tien'
+        'tong_tien',
+        'ma_giao_dich',
+        'thoi_gian_thanh_toan'
     ];
     protected $casts = [
         'thoi_gian_het_han_giu_cho' => 'datetime',
+        'thoi_gian_thanh_toan' => 'datetime',
         'tong_tien' => 'decimal:2',
     ];
 

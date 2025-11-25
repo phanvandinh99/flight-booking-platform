@@ -4,6 +4,7 @@ import {
   createBooking,
   getFlightDetail,
   getFlightSeats,
+  createPaymentUrl,
 } from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import SeatMap from "../../components/SeatMap";
@@ -66,19 +67,56 @@ export default function Booking() {
       return;
     }
 
-    // Get flight and fare class from location state or params
-    if (location.state?.flight && location.state?.fareClass) {
-      setFlight(location.state.flight);
-      setFareClass(location.state.fareClass);
-      setLoading(false);
-      // Load seat data
-      loadSeatData(location.state.flight.id);
+    // Get flight from location state
+    if (location.state?.flight) {
+      const flightData = location.state.flight;
+      setFlight(flightData);
+
+      // If fareClass is provided, use it
+      if (location.state?.fareClass) {
+        setFareClass(location.state.fareClass);
+        setLoading(false);
+        loadSeatData(flightData.id);
+      } else {
+        // Load flight detail to get fare classes
+        loadFlightDetail(flightData.id);
+      }
     } else {
-      // Try to get from URL params if needed
       setError("Thông tin chuyến bay không hợp lệ");
       setLoading(false);
     }
   }, [location.state, user, navigate]);
+
+  const loadFlightDetail = async (flightId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getFlightDetail(flightId);
+      const flightDetail = response.data;
+
+      // Update flight with full details
+      setFlight(flightDetail);
+
+      // Auto-select first fare class if available
+      if (flightDetail.gia_ve && flightDetail.gia_ve.length > 0) {
+        setFareClass(flightDetail.gia_ve[0]);
+      } else {
+        // If no fare classes, create a default one based on tong_gia
+        setFareClass({
+          hang_ve: "pho_thong",
+          gia: flightDetail.tong_gia || 0,
+        });
+      }
+
+      // Load seat data
+      loadSeatData(flightId);
+    } catch (err) {
+      console.error("Error loading flight detail:", err);
+      setError("Không thể tải thông tin chuyến bay. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadSeatData = async (flightId) => {
     try {
@@ -354,9 +392,54 @@ export default function Booking() {
       setSubmitting(true);
       setError(null);
 
+      // Ensure we have fareClass
+      if (!fareClass || !fareClass.hang_ve) {
+        setError("Vui lòng chọn hạng vé");
+        return;
+      }
+
+      // Reload seat data để đảm bảo có dữ liệu mới nhất
+      if (flight?.id) {
+        try {
+          const seatResponse = await getFlightSeats(flight.id);
+          const latestSeatData = seatResponse.data;
+          
+          // Kiểm tra xem ghế đã chọn có còn trống không
+          const bookedSeats = latestSeatData?.ghe_da_dat || [];
+          const reservedSeats = latestSeatData?.ghe_giu_cho || [];
+          const allOccupiedSeats = [...bookedSeats, ...reservedSeats];
+          
+          const selectedSeatNumbers = passengers
+            .map((p) => p.so_ghe?.trim())
+            .filter(Boolean);
+          
+          const occupiedSelectedSeats = selectedSeatNumbers.filter((seat) =>
+            allOccupiedSeats.some((occupied) => 
+              occupied?.trim() === seat || occupied === seat
+            )
+          );
+          
+          if (occupiedSelectedSeats.length > 0) {
+            setError(
+              `Các ghế sau đã được đặt hoặc đang được giữ chỗ: ${occupiedSelectedSeats.join(", ")}. Vui lòng chọn ghế khác.`
+            );
+            setSubmitting(false);
+            // Reload seat map với dữ liệu mới
+            setSeatData(latestSeatData);
+            return;
+          }
+          
+          // Cập nhật seat data với dữ liệu mới nhất
+          setSeatData(latestSeatData);
+        } catch (seatErr) {
+          console.error("Error reloading seat data:", seatErr);
+          // Tiếp tục với dữ liệu cũ nếu không load được
+        }
+      }
+
       const bookingData = {
         ma_chuyen_bay_di: flight.id,
-        ma_chuyen_bay_ve: null, // One-way only for now
+        ma_chuyen_bay_ve: location.state?.selectedFlightVe?.id || null,
         hang_ve: fareClass.hang_ve,
         hanh_khach: passengers.map((p) => ({
           ho_ten: p.ho_ten,
@@ -371,9 +454,13 @@ export default function Booking() {
 
       const response = await createBooking(bookingData);
 
-      // Navigate to booking list page (will create confirmation page later)
+      // Đặt vé thành công, redirect đến trang "Vé của tôi"
       navigate("/bookings", {
-        state: { booking: response.data },
+        state: {
+          message:
+            "Đặt vé thành công! Bạn có thể thanh toán hoặc hủy vé trong trang 'Vé của tôi'.",
+          booking: response.data,
+        },
       });
     } catch (err) {
       console.error("Error creating booking:", err);
@@ -437,7 +524,7 @@ export default function Booking() {
               <a href="/bookings" className="nav-link">
                 Đặt vé của tôi
               </a>
-              <span className="user-info">{user.ten || user.email}</span>
+              <span className="user-info">{user.ten_day_du || user.email}</span>
               <a
                 href="/login"
                 className="nav-link"
@@ -588,8 +675,24 @@ export default function Booking() {
     );
   }
 
-  if (!flight || !fareClass) {
+  if (!flight) {
     return null;
+  }
+
+  // If no fareClass yet but flight is loaded, show loading or allow selection
+  if (!fareClass) {
+    return (
+      <div className="booking-page">
+        {renderHeader()}
+        <main className="booking-main">
+          <div className="loading-container">
+            <div className="loading-spinner-large"></div>
+            <p>Đang tải thông tin hạng vé...</p>
+          </div>
+        </main>
+        {renderFooter()}
+      </div>
+    );
   }
 
   return (
@@ -636,12 +739,6 @@ export default function Booking() {
                     </span>
                   </div>
                   <div className="detail-item">
-                    <span className="detail-label">Hạng vé:</span>
-                    <span className="detail-value">
-                      {getFareClassLabel(fareClass.hang_ve)}
-                    </span>
-                  </div>
-                  <div className="detail-item">
                     <span className="detail-label">Hãng hàng không:</span>
                     <span className="detail-value">
                       {flight.hang_hang_khong?.ten_hang || "N/A"}
@@ -650,6 +747,38 @@ export default function Booking() {
                 </div>
               </div>
             </div>
+
+            {/* Fare Class Selection */}
+            {flight.gia_ve && flight.gia_ve.length > 1 && (
+              <div className="form-section">
+                <h3>Chọn hạng vé</h3>
+                <div className="fare-classes-selection">
+                  {flight.gia_ve.map((fare) => (
+                    <div
+                      key={fare.id}
+                      className={`fare-class-card ${
+                        fareClass?.id === fare.id ? "selected" : ""
+                      }`}
+                      onClick={() => setFareClass(fare)}
+                    >
+                      <div className="fare-class-header">
+                        <div className="fare-class-name">
+                          {getFareClassLabel(fare.hang_ve)}
+                        </div>
+                        <div className="fare-class-price">
+                          {formatCurrency(fare.gia)}
+                        </div>
+                      </div>
+                      {fare.hanh_ly_ky_gui && (
+                        <div className="fare-class-detail">
+                          Hành lý ký gửi: {fare.hanh_ly_ky_gui}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Booking Form */}
             <form onSubmit={handleSubmit} className="booking-form">

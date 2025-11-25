@@ -61,9 +61,7 @@ export default function PricingManagement() {
       const response = await getPricing(params);
       setPricings(response.data || []);
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Không thể tải danh sách giá vé"
-      );
+      setError(err.response?.data?.message || "Không thể tải danh sách giá vé");
       console.error("Error loading pricings:", err);
     } finally {
       setLoading(false);
@@ -95,7 +93,7 @@ export default function PricingManagement() {
   const handleOpenModal = async (pricing = null) => {
     // Reload flights to ensure we have the latest data
     await loadFlights();
-    
+
     if (pricing) {
       setEditingPricing(pricing);
       // Format dates for input fields
@@ -187,9 +185,14 @@ export default function PricingManagement() {
       setSubmitting(true);
 
       const submitData = {
-        ...formData,
         ma_chuyen_bay: parseInt(formData.ma_chuyen_bay),
+        hang_ve: formData.hang_ve,
         gia: parseFloat(formData.gia),
+        hanh_ly_ky_gui: formData.hanh_ly_ky_gui || "",
+        chinh_sach_huy_ve: formData.chinh_sach_huy_ve || "",
+        chinh_sach_doi_ve: formData.chinh_sach_doi_ve || "",
+        ngay_bat_dau: formData.ngay_bat_dau,
+        ngay_ket_thuc: formData.ngay_ket_thuc,
       };
 
       if (editingPricing) {
@@ -229,8 +232,12 @@ export default function PricingManagement() {
     const search = searchTerm.toLowerCase();
     return (
       pricing.chuyen_bay?.ma_chuyen_bay?.toLowerCase().includes(search) ||
-      pricing.chuyen_bay?.tuyen_bay?.san_bay_di?.ten_san_bay?.toLowerCase().includes(search) ||
-      pricing.chuyen_bay?.tuyen_bay?.san_bay_den?.ten_san_bay?.toLowerCase().includes(search) ||
+      pricing.chuyen_bay?.tuyen_bay?.san_bay_di?.ten_san_bay
+        ?.toLowerCase()
+        .includes(search) ||
+      pricing.chuyen_bay?.tuyen_bay?.san_bay_den?.ten_san_bay
+        ?.toLowerCase()
+        .includes(search) ||
       pricing.gia?.toString().includes(search)
     );
   });
@@ -270,7 +277,14 @@ export default function PricingManagement() {
   // Reset to page 1 when search or sort changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortField, sortDirection, filterChuyenBay, filterHangVe, filterNgayBatDau]);
+  }, [
+    searchTerm,
+    sortField,
+    sortDirection,
+    filterChuyenBay,
+    filterHangVe,
+    filterNgayBatDau,
+  ]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -362,7 +376,7 @@ export default function PricingManagement() {
       <div className="pricing-management-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Giá Vé</h2>
+            {/* <h2>Quản lý Giá Vé</h2> */}
             <p>Cập nhật giá vé theo ngày, hạng ghế và chính sách khuyến mãi</p>
           </div>
           <div className="header-actions">
@@ -414,7 +428,9 @@ export default function PricingManagement() {
             >
               <option value="">Tất cả</option>
               {loadingFlights && (
-                <option value="" disabled>Đang tải...</option>
+                <option value="" disabled>
+                  Đang tải...
+                </option>
               )}
               {flights.map((flight) => (
                 <option key={flight.id} value={flight.id}>
@@ -511,11 +527,17 @@ export default function PricingManagement() {
                 ? "Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc"
                 : "Bắt đầu bằng cách thêm giá vé mới"}
             </p>
-            {!searchTerm && !filterChuyenBay && !filterHangVe && !filterNgayBatDau && (
-              <button className="btn-primary" onClick={() => handleOpenModal()}>
-                Thêm giá vé đầu tiên
-              </button>
-            )}
+            {!searchTerm &&
+              !filterChuyenBay &&
+              !filterHangVe &&
+              !filterNgayBatDau && (
+                <button
+                  className="btn-primary"
+                  onClick={() => handleOpenModal()}
+                >
+                  Thêm giá vé đầu tiên
+                </button>
+              )}
           </div>
         ) : (
           <>
@@ -534,10 +556,7 @@ export default function PricingManagement() {
                         {getSortIcon("hang_ve")}
                       </div>
                     </th>
-                    <th
-                      className="sortable"
-                      onClick={() => handleSort("gia")}
-                    >
+                    <th className="sortable" onClick={() => handleSort("gia")}>
                       <div className="th-content">
                         Giá vé
                         {getSortIcon("gia")}
@@ -568,12 +587,18 @@ export default function PricingManagement() {
                       <td>
                         <div className="route-info">
                           <div className="route-route">
-                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_di?.ma_san_bay || "N/A"} →{" "}
-                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_den?.ma_san_bay || "N/A"}
+                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_di
+                              ?.ma_san_bay || "N/A"}{" "}
+                            →{" "}
+                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_den
+                              ?.ma_san_bay || "N/A"}
                           </div>
                           <div className="route-airports">
-                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_di?.ten_san_bay || "N/A"} -{" "}
-                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_den?.ten_san_bay || "N/A"}
+                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_di
+                              ?.ten_san_bay || "N/A"}{" "}
+                            -{" "}
+                            {pricing.chuyen_bay?.tuyen_bay?.san_bay_den
+                              ?.ten_san_bay || "N/A"}
                           </div>
                         </div>
                       </td>
@@ -763,9 +788,7 @@ export default function PricingManagement() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="modal-header">
-                  <h3>
-                    {editingPricing ? "Sửa giá vé" : "Thêm giá vé mới"}
-                  </h3>
+                  <h3>{editingPricing ? "Sửa giá vé" : "Thêm giá vé mới"}</h3>
                   <button className="btn-close" onClick={handleCloseModal}>
                     <svg
                       width="24"
@@ -799,7 +822,9 @@ export default function PricingManagement() {
                       disabled={submitting || loadingFlights}
                     >
                       <option value="">
-                        {loadingFlights ? "Đang tải chuyến bay..." : "Chọn chuyến bay"}
+                        {loadingFlights
+                          ? "Đang tải chuyến bay..."
+                          : "Chọn chuyến bay"}
                       </option>
                       {flights.length === 0 && !loadingFlights && (
                         <option value="" disabled>
@@ -808,7 +833,9 @@ export default function PricingManagement() {
                       )}
                       {flights.map((flight) => (
                         <option key={flight.id} value={flight.id}>
-                          {flight.ma_chuyen_bay} - {flight.tuyen_bay?.san_bay_di?.ma_san_bay || "N/A"} → {flight.tuyen_bay?.san_bay_den?.ma_san_bay || "N/A"}
+                          {flight.ma_chuyen_bay} -{" "}
+                          {flight.tuyen_bay?.san_bay_di?.ma_san_bay || "N/A"} →{" "}
+                          {flight.tuyen_bay?.san_bay_den?.ma_san_bay || "N/A"}
                         </option>
                       ))}
                     </select>
@@ -868,9 +895,7 @@ export default function PricingManagement() {
                         disabled={submitting}
                       />
                       {formErrors.gia && (
-                        <span className="error-message">
-                          {formErrors.gia}
-                        </span>
+                        <span className="error-message">{formErrors.gia}</span>
                       )}
                     </div>
                   </div>
@@ -1029,4 +1054,3 @@ export default function PricingManagement() {
     </DashboardLayout>
   );
 }
-

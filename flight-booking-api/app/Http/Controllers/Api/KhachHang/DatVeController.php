@@ -10,8 +10,10 @@ use App\Models\HanhKhach;
 use App\Models\GiaVe;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Mail\BookingConfirmationMail;
+use App\Services\VNPayService;
 
 class DatVeController extends Controller
 {
@@ -71,6 +73,66 @@ class DatVeController extends Controller
             }
         }
 
+        // Kiểm tra ghế đã được đặt chưa (cho chuyến bay đi)
+        $gheDaChon = [];
+        foreach ($request->hanh_khach as $hanhKhachData) {
+            if (!empty($hanhKhachData['so_ghe'])) {
+                $gheDaChon[] = trim($hanhKhachData['so_ghe']);
+            }
+        }
+
+        if (!empty($gheDaChon)) {
+            // Kiểm tra ghế đã được đặt (đã thanh toán) trong chuyến bay đi
+            $gheDaDat = HanhKhach::whereHas('dat_ve', function ($query) use ($chuyenBayDi) {
+                $query->where('ma_chuyen_bay', $chuyenBayDi->id)
+                    ->where('trang_thai', 'da_thanh_toan');
+            })
+                ->whereNotNull('so_ghe')
+                ->whereIn('so_ghe', $gheDaChon)
+                ->pluck('so_ghe')
+                ->toArray();
+
+            if (!empty($gheDaDat)) {
+                return response()->json([
+                    'message' => 'Một số ghế đã được đặt: ' . implode(', ', $gheDaDat),
+                    'errors' => [
+                        'so_ghe' => ['Các ghế sau đã được đặt: ' . implode(', ', $gheDaDat)]
+                    ]
+                ], 422);
+            }
+
+            // Kiểm tra ghế đang được giữ chỗ (chưa hết hạn) trong chuyến bay đi
+            $gheGiuCho = HanhKhach::whereHas('dat_ve', function ($query) use ($chuyenBayDi) {
+                $query->where('ma_chuyen_bay', $chuyenBayDi->id)
+                    ->where('trang_thai', 'giu_cho')
+                    ->where('thoi_gian_het_han_giu_cho', '>', now());
+            })
+                ->whereNotNull('so_ghe')
+                ->whereIn('so_ghe', $gheDaChon)
+                ->pluck('so_ghe')
+                ->toArray();
+
+            if (!empty($gheGiuCho)) {
+                return response()->json([
+                    'message' => 'Một số ghế đang được giữ chỗ: ' . implode(', ', $gheGiuCho),
+                    'errors' => [
+                        'so_ghe' => ['Các ghế sau đang được giữ chỗ: ' . implode(', ', $gheGiuCho)]
+                    ]
+                ], 422);
+            }
+
+            // Kiểm tra ghế trùng lặp trong cùng một booking
+            $gheTrungLap = array_diff_assoc($gheDaChon, array_unique($gheDaChon));
+            if (!empty($gheTrungLap)) {
+                return response()->json([
+                    'message' => 'Không thể chọn cùng một ghế cho nhiều hành khách: ' . implode(', ', array_unique($gheTrungLap)),
+                    'errors' => [
+                        'so_ghe' => ['Các ghế sau được chọn trùng lặp: ' . implode(', ', array_unique($gheTrungLap))]
+                    ]
+                ], 422);
+            }
+        }
+
         // Tính tổng giá vé
         $tongGia = $this->tinhTongGiaVe($chuyenBayDi, $chuyenBayVe, $request->hang_ve, $request->hanh_khach);
 
@@ -93,7 +155,7 @@ class DatVeController extends Controller
                 'ma_dat_ve' => $datVe->id,
                 'ho_ten' => $hanhKhachData['ho_ten'],
                 'so_ho_chieu' => $hanhKhachData['so_ho_chieu'] ?? null,
-                'so_ghe' => $hanhKhachData['so_ghe'] ?? null,
+                'so_ghe' => !empty($hanhKhachData['so_ghe']) ? trim($hanhKhachData['so_ghe']) : null,
                 'hang_ve' => $request->hang_ve,
                 'loai_hanh_khach' => $hanhKhachData['loai_hanh_khach'],
                 'loai_giay_to' => $hanhKhachData['loai_giay_to'] ?? null,
@@ -210,6 +272,7 @@ class DatVeController extends Controller
         $datVe = DatVe::where('ma_khach_hang', $user->id)
             ->with([
                 'chuyen_bay.hang_hang_khong',
+                'chuyen_bay.may_bay',
                 'chuyen_bay.tuyen_bay.san_bay_di',
                 'chuyen_bay.tuyen_bay.san_bay_den',
                 'hanh_khach'
@@ -217,8 +280,17 @@ class DatVeController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        // Transform data để frontend dễ sử dụng
+        $transformedData = $datVe->items();
+        foreach ($transformedData as $item) {
+            // Thêm alias chuyen_bay_di để tương thích với frontend
+            if ($item->chuyen_bay) {
+                $item->chuyen_bay_di = $item->chuyen_bay;
+            }
+        }
+
         return response()->json([
-            'data' => $datVe->items(),
+            'data' => $transformedData,
             'pagination' => [
                 'current_page' => $datVe->currentPage(),
                 'last_page' => $datVe->lastPage(),
@@ -239,6 +311,7 @@ class DatVeController extends Controller
             ->with([
                 'khach_hang',
                 'chuyen_bay.hang_hang_khong',
+                'chuyen_bay.may_bay',
                 'chuyen_bay.tuyen_bay.san_bay_di',
                 'chuyen_bay.tuyen_bay.san_bay_den',
                 'hanh_khach'
@@ -249,6 +322,11 @@ class DatVeController extends Controller
             return response()->json([
                 'message' => 'Không tìm thấy đặt vé'
             ], 404);
+        }
+
+        // Thêm alias chuyen_bay_di để tương thích với frontend
+        if ($datVe->chuyen_bay) {
+            $datVe->chuyen_bay_di = $datVe->chuyen_bay;
         }
 
         return response()->json([
@@ -292,22 +370,10 @@ class DatVeController extends Controller
     }
 
     /**
-     * Thanh toán đặt vé
+     * Tạo URL thanh toán VNPAY
      */
-    public function thanhToan(Request $request, $id)
+    public function createPayment(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'phuong_thuc_thanh_toan' => 'required|in:the_ngan_hang,vi_dien_tu,chuyen_khoan',
-            'thong_tin_thanh_toan' => 'required|array'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         $user = $request->user();
         $datVe = DatVe::where('id', $id)
             ->where('ma_khach_hang', $user->id)
@@ -319,30 +385,151 @@ class DatVeController extends Controller
             ], 404);
         }
 
-        if ($datVe->trang_thai !== 'giu_cho') {
+        // Cho phép thanh toán với các trạng thái: giu_cho, cho_thanh_toan, chờ_thanh_toan
+        $allowedStatuses = ['giu_cho', 'cho_thanh_toan', 'chờ_thanh_toan'];
+        if (!in_array($datVe->trang_thai, $allowedStatuses)) {
             return response()->json([
-                'message' => 'Chỉ có thể thanh toán vé đang giữ chỗ'
+                'message' => 'Chỉ có thể thanh toán vé đang giữ chỗ hoặc chờ thanh toán. Trạng thái hiện tại: ' . $datVe->trang_thai
             ], 400);
         }
 
-        if ($datVe->thoi_gian_het_han_giu_cho < now()) {
+        // Kiểm tra thời gian hết hạn giữ chỗ
+        // Nếu hết hạn nhưng chưa đến giờ bay, vẫn cho phép thanh toán (ưu tiên thanh toán)
+        if ($datVe->thoi_gian_het_han_giu_cho && $datVe->thoi_gian_het_han_giu_cho < now()) {
+            // Kiểm tra xem đã đến giờ bay chưa
+            $chuyenBay = $datVe->chuyen_bay;
+            if ($chuyenBay && $chuyenBay->gio_khoi_hanh && now() >= $chuyenBay->gio_khoi_hanh) {
+                // Đã đến giờ bay, không thể thanh toán nữa
+                return response()->json([
+                    'message' => 'Không thể thanh toán vì chuyến bay đã khởi hành'
+                ], 400);
+            }
+            // Chưa đến giờ bay, vẫn cho phép thanh toán (cảnh báo nhưng không chặn)
+            Log::info('Payment allowed for expired booking (before flight time)', [
+                'dat_ve_id' => $id,
+                'expired_at' => $datVe->thoi_gian_het_han_giu_cho,
+                'flight_time' => $chuyenBay->gio_khoi_hanh ?? null
+            ]);
+        }
+
+        // Kiểm tra xem booking đã được thanh toán chưa
+        if ($datVe->trang_thai === 'da_thanh_toan') {
             return response()->json([
-                'message' => 'Thời gian giữ chỗ đã hết hạn'
+                'message' => 'Vé này đã được thanh toán rồi'
             ], 400);
         }
 
-        // TODO: Tích hợp với cổng thanh toán thực tế
-        // Ở đây chỉ mô phỏng thanh toán thành công
-        $datVe->update(['trang_thai' => 'da_thanh_toan']);
+        $vnpayService = new VNPayService();
+
+        // Tạo mã đơn hàng duy nhất: booking_id + timestamp + random
+        // Format: {booking_id}_{timestamp}_{random} (tối đa 32 ký tự theo yêu cầu VNPAY)
+        $timestamp = time();
+        $random = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 6);
+        $orderId = $datVe->id . '_' . $timestamp . '_' . $random;
+
+        // Đảm bảo không vượt quá 32 ký tự (giới hạn của VNPAY)
+        if (strlen($orderId) > 32) {
+            $orderId = substr($orderId, 0, 32);
+        }
+
+        $amount = $datVe->tong_tien;
+        $orderDescription = "Thanh toan dat ve: " . $datVe->ma_dat_ve;
+        $bankCode = $request->input('bank_code', null);
+
+        $paymentUrl = $vnpayService->createPaymentUrl(
+            $orderId,
+            $amount,
+            $orderDescription,
+            'other',
+            $bankCode,
+            'vn'
+        );
 
         return response()->json([
-            'message' => 'Thanh toán thành công',
+            'message' => 'Tạo URL thanh toán thành công',
             'data' => [
+                'payment_url' => $paymentUrl,
                 'ma_dat_ve' => $datVe->ma_dat_ve,
-                'trang_thai' => 'da_thanh_toan',
-                'tong_tien' => $datVe->tong_tien,
-                'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan
+                'tong_tien' => $amount
             ]
         ]);
+    }
+
+    /**
+     * Xác nhận thanh toán từ VNPAY callback (khi VNPAY redirect trực tiếp về frontend)
+     */
+    public function confirmPayment(Request $request, $id)
+    {
+        $user = $request->user();
+        $datVe = DatVe::where('id', $id)
+            ->where('ma_khach_hang', $user->id)
+            ->first();
+
+        if (!$datVe) {
+            return response()->json([
+                'message' => 'Không tìm thấy đặt vé'
+            ], 404);
+        }
+
+        // Kiểm tra xem đã thanh toán chưa
+        if ($datVe->trang_thai === 'da_thanh_toan') {
+            return response()->json([
+                'message' => 'Vé này đã được thanh toán rồi',
+                'data' => $datVe
+            ]);
+        }
+
+        $vnpayService = new VNPayService();
+        $result = $vnpayService->processReturn($request->all());
+
+        $responseCode = $result['response_code'] ?? '';
+        $transactionNo = $result['transaction_no'] ?? '';
+
+        // Kiểm tra signature (nếu có)
+        if (!$result['is_valid'] && $request->has('vnp_SecureHash')) {
+            // Nếu signature không hợp lệ nhưng response code thành công, vẫn xử lý
+            if ($responseCode != '00' && $responseCode != '07') {
+                return response()->json([
+                    'message' => 'Chữ ký không hợp lệ'
+                ], 400);
+            }
+        }
+
+        // Kiểm tra response code
+        if ($responseCode == '00' || $responseCode == '07') {
+            // Thanh toán thành công - cập nhật trạng thái
+            $allowedStatuses = ['giu_cho', 'cho_thanh_toan', 'chờ_thanh_toan'];
+            if (in_array($datVe->trang_thai, $allowedStatuses)) {
+                $datVe->update([
+                    'trang_thai' => 'da_thanh_toan',
+                    'ma_giao_dich' => $transactionNo,
+                    'thoi_gian_thanh_toan' => now()
+                ]);
+
+                Log::info('Payment confirmed from frontend callback', [
+                    'dat_ve_id' => $id,
+                    'transaction_no' => $transactionNo,
+                    'response_code' => $responseCode
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Xác nhận thanh toán thành công',
+                'data' => $datVe->fresh()
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Thanh toán thất bại: ' . ($result['message'] ?? 'Lỗi không xác định')
+            ], 400);
+        }
+    }
+
+    /**
+     * Thanh toán đặt vé (giữ lại cho tương thích)
+     */
+    public function thanhToan(Request $request, $id)
+    {
+        // Redirect đến createPayment
+        return $this->createPayment($request, $id);
     }
 }

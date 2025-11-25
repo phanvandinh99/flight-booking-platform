@@ -281,6 +281,12 @@ class TimKiemChuyenBayController extends Controller
                 ->where('trang_thai', 'da_thanh_toan');
         })->whereNotNull('so_ghe')
             ->pluck('so_ghe')
+            ->map(function ($ghe) {
+                return trim($ghe); // Normalize: loại bỏ khoảng trắng
+            })
+            ->filter()
+            ->unique()
+            ->values()
             ->toArray();
 
         // Lấy tất cả ghế đang giữ chỗ (chưa thanh toán, chưa hết hạn)
@@ -290,6 +296,12 @@ class TimKiemChuyenBayController extends Controller
                 ->where('thoi_gian_het_han_giu_cho', '>', now());
         })->whereNotNull('so_ghe')
             ->pluck('so_ghe')
+            ->map(function ($ghe) {
+                return trim($ghe); // Normalize: loại bỏ khoảng trắng
+            })
+            ->filter()
+            ->unique()
+            ->values()
             ->toArray();
 
         // Lấy sơ đồ ghế từ máy bay

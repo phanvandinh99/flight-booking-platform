@@ -113,7 +113,7 @@ export default function AirlineReports() {
       <div className="airline-reports-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Báo Cáo & Thống Kê</h2>
+            {/* <h2>Báo Cáo & Thống Kê</h2> */}
             <p>Xem báo cáo doanh thu và thống kê hoạt động</p>
           </div>
           <div className="header-actions">
@@ -393,15 +393,29 @@ export default function AirlineReports() {
                         </td>
                       </tr>
                     ) : (
-                      weeklyRevenue.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.tuan || `Tuần ${index + 1}`}</td>
-                          <td>{formatNumber(item.so_dat_ve || 0)}</td>
-                          <td className="revenue-cell">
-                            {formatCurrency(item.doanh_thu || 0)}
-                          </td>
-                        </tr>
-                      ))
+                      weeklyRevenue.map((item, index) => {
+                        // Format tuần - có thể có nam và tuan riêng
+                        let weekLabel = "";
+                        if (item.tuan) {
+                          if (item.nam) {
+                            weekLabel = `Tuần ${item.tuan}, ${item.nam}`;
+                          } else {
+                            weekLabel = `Tuần ${item.tuan}`;
+                          }
+                        } else {
+                          weekLabel = `Tuần ${index + 1}`;
+                        }
+
+                        return (
+                          <tr key={index}>
+                            <td>{weekLabel}</td>
+                            <td>{formatNumber(item.so_dat_ve || 0)}</td>
+                            <td className="revenue-cell">
+                              {formatCurrency(item.doanh_thu || 0)}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
@@ -427,25 +441,48 @@ export default function AirlineReports() {
                         </td>
                       </tr>
                     ) : (
-                      monthlyRevenue.map((item, index) => (
-                        <tr key={index}>
-                          <td>
-                            {item.thang
-                              ? new Date(item.thang + "-01").toLocaleDateString(
-                                  "vi-VN",
-                                  {
-                                    month: "long",
-                                    year: "numeric",
-                                  }
-                                )
-                              : `Tháng ${index + 1}`}
-                          </td>
-                          <td>{formatNumber(item.so_dat_ve || 0)}</td>
-                          <td className="revenue-cell">
-                            {formatCurrency(item.doanh_thu || 0)}
-                          </td>
-                        </tr>
-                      ))
+                      monthlyRevenue.map((item, index) => {
+                        // Xử lý format tháng - có thể là "2025-11" hoặc có nam và thang riêng
+                        let monthLabel = "";
+                        if (item.thang) {
+                          // Nếu có thang dạng "2025-11"
+                          if (
+                            typeof item.thang === "string" &&
+                            item.thang.includes("-")
+                          ) {
+                            monthLabel = new Date(
+                              item.thang + "-01"
+                            ).toLocaleDateString("vi-VN", {
+                              month: "long",
+                              year: "numeric",
+                            });
+                          } else {
+                            // Nếu có nam và thang riêng
+                            const year = item.nam || new Date().getFullYear();
+                            const month = item.thang;
+                            monthLabel = new Date(
+                              year,
+                              month - 1,
+                              1
+                            ).toLocaleDateString("vi-VN", {
+                              month: "long",
+                              year: "numeric",
+                            });
+                          }
+                        } else {
+                          monthLabel = `Tháng ${index + 1}`;
+                        }
+
+                        return (
+                          <tr key={index}>
+                            <td>{monthLabel}</td>
+                            <td>{formatNumber(item.so_dat_ve || 0)}</td>
+                            <td className="revenue-cell">
+                              {formatCurrency(item.doanh_thu || 0)}
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

@@ -91,11 +91,17 @@ export default function SeatMap({
         );
         let status = "available";
 
-        if (bookedSeats.includes(seat.number)) {
+        // Normalize seat numbers for comparison (trim whitespace, case-insensitive)
+        const normalizedSeatNumber = seat.number?.trim().toUpperCase();
+        const normalizedBookedSeats = bookedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedReservedSeats = reservedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedSelectedSeats = selectedSeats.map(s => String(s).trim().toUpperCase());
+
+        if (normalizedBookedSeats.includes(normalizedSeatNumber)) {
           status = "booked";
-        } else if (reservedSeats.includes(seat.number)) {
+        } else if (normalizedReservedSeats.includes(normalizedSeatNumber)) {
           status = "reserved";
-        } else if (selectedSeats.includes(seat.number)) {
+        } else if (normalizedSelectedSeats.includes(normalizedSeatNumber)) {
           status = "selected";
         }
 
@@ -126,11 +132,17 @@ export default function SeatMap({
         const seatNumber = `${row}${letter}`;
         let status = "available";
 
-        if (bookedSeats.includes(seatNumber)) {
+        // Normalize seat numbers for comparison (trim whitespace, case-insensitive)
+        const normalizedSeatNumber = seatNumber.trim().toUpperCase();
+        const normalizedBookedSeats = bookedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedReservedSeats = reservedSeats.map(s => String(s).trim().toUpperCase());
+        const normalizedSelectedSeats = selectedSeats.map(s => String(s).trim().toUpperCase());
+
+        if (normalizedBookedSeats.includes(normalizedSeatNumber)) {
           status = "booked";
-        } else if (reservedSeats.includes(seatNumber)) {
+        } else if (normalizedReservedSeats.includes(normalizedSeatNumber)) {
           status = "reserved";
-        } else if (selectedSeats.includes(seatNumber)) {
+        } else if (normalizedSelectedSeats.includes(normalizedSeatNumber)) {
           status = "selected";
         }
 
@@ -217,6 +229,23 @@ export default function SeatMap({
     new Set(seats.map((s) => s.fareClass).filter(Boolean))
   );
 
+  // Xác định các hàng có emergency exit (thường ở giữa cabin)
+  const rowNumbers = Object.keys(seatsByRow)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const totalRows = rowNumbers.length;
+  const exitRows = [];
+  if (totalRows > 20) {
+    // Thêm exit ở 1/3 và 2/3 chiều dài cabin
+    const exit1 = Math.floor(totalRows * 0.33);
+    const exit2 = Math.floor(totalRows * 0.67);
+    exitRows.push(rowNumbers[exit1], rowNumbers[exit2]);
+  } else if (totalRows > 10) {
+    // Thêm exit ở giữa
+    const exit = Math.floor(totalRows * 0.5);
+    exitRows.push(rowNumbers[exit]);
+  }
+
   return (
     <div className="seat-map-container">
       <div className="seat-map-header">
@@ -260,6 +289,7 @@ export default function SeatMap({
       </div>
 
       <div className="airplane-body">
+        {/* Cockpit */}
         <div className="cockpit">
           <div className="cockpit-window"></div>
         </div>
@@ -291,85 +321,136 @@ export default function SeatMap({
         <div className="seat-map">
           {Object.keys(seatsByRow)
             .sort((a, b) => parseInt(a) - parseInt(b))
-            .map((rowNum) => (
-              <div key={rowNum} className="seat-row">
-                <div className="row-number">{rowNum}</div>
-                <div className="seats-group">
-                  {/* Left side: A, B, C */}
-                  <div className="seats-left">
-                    {seatsByRow[rowNum]
-                      .filter((s) => ["A", "B", "C"].includes(s.letter))
-                      .map((seat) => (
-                        <button
-                          key={seat.number}
-                          className={getSeatClass(seat)}
-                          onClick={() => handleSeatClick(seat)}
-                          disabled={
-                            seat.status === "booked" ||
-                            seat.status === "reserved"
-                          }
-                          title={`${seat.number} - ${
-                            seat.fareClassLabel
-                          } - ${formatCurrency(seat.price)}`}
-                        >
-                          <span className="seat-letter">{seat.letter}</span>
-                          {seat.price > 0 && (
-                            <span
-                              className={`seat-price-badge ${
-                                seat.status === "available"
-                                  ? "badge-visible"
-                                  : "badge-hidden"
-                              }`}
-                            >
-                              {(seat.price / 1000).toFixed(0)}k
-                            </span>
-                          )}
-                        </button>
-                      ))}
-                  </div>
+            .map((rowNum) => {
+              const row = parseInt(rowNum);
+              const isExitRow = exitRows.includes(row);
 
-                  {/* Aisle */}
-                  <div className="aisle"></div>
-
-                  {/* Right side: D, E, F */}
-                  <div className="seats-right">
-                    {seatsByRow[rowNum]
-                      .filter((s) => ["D", "E", "F"].includes(s.letter))
-                      .map((seat) => (
-                        <button
-                          key={seat.number}
-                          className={getSeatClass(seat)}
-                          onClick={() => handleSeatClick(seat)}
-                          disabled={
-                            seat.status === "booked" ||
-                            seat.status === "reserved"
-                          }
-                          title={`${seat.number} - ${
-                            seat.fareClassLabel
-                          } - ${formatCurrency(seat.price)}`}
+              return (
+                <div key={rowNum} className="seat-row-wrapper">
+                  {/* Emergency Exit Indicator */}
+                  {isExitRow && (
+                    <div className="emergency-exit-row">
+                      <div className="exit-arrow left">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#dc2626"
+                          strokeWidth="2.5"
                         >
-                          <span className="seat-letter">{seat.letter}</span>
-                          {seat.price > 0 && (
-                            <span
-                              className={`seat-price-badge ${
-                                seat.status === "available"
-                                  ? "badge-visible"
-                                  : "badge-hidden"
-                              }`}
+                          <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                      <div className="exit-label">LỐI THOÁT HIỂM</div>
+                      <div className="exit-arrow right">
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#dc2626"
+                          strokeWidth="2.5"
+                        >
+                          <path d="M19 12H5M12 5l-7 7 7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="seat-row">
+                    <div className="row-number">{rowNum}</div>
+                    <div className="seats-group">
+                      {/* Left side: A, B, C */}
+                      <div className="seats-left">
+                        {seatsByRow[rowNum]
+                          .filter((s) => ["A", "B", "C"].includes(s.letter))
+                          .map((seat) => (
+                            <button
+                              key={seat.number}
+                              className={getSeatClass(seat)}
+                              onClick={() => handleSeatClick(seat)}
+                              disabled={
+                                seat.status === "booked" ||
+                                seat.status === "reserved"
+                              }
+                              title={`${seat.number} - ${
+                                seat.fareClassLabel
+                              } - ${formatCurrency(seat.price)}`}
                             >
-                              {(seat.price / 1000).toFixed(0)}k
-                            </span>
-                          )}
-                        </button>
-                      ))}
+                              <span className="seat-letter">{seat.letter}</span>
+                              {seat.price > 0 && (
+                                <span
+                                  className={`seat-price-badge ${
+                                    seat.status === "available"
+                                      ? "badge-visible"
+                                      : "badge-hidden"
+                                  }`}
+                                >
+                                  {(seat.price / 1000).toFixed(0)}k
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                      </div>
+
+                      {/* Aisle */}
+                      <div className="aisle"></div>
+
+                      {/* Right side: D, E, F */}
+                      <div className="seats-right">
+                        {seatsByRow[rowNum]
+                          .filter((s) => ["D", "E", "F"].includes(s.letter))
+                          .map((seat) => (
+                            <button
+                              key={seat.number}
+                              className={getSeatClass(seat)}
+                              onClick={() => handleSeatClick(seat)}
+                              disabled={
+                                seat.status === "booked" ||
+                                seat.status === "reserved"
+                              }
+                              title={`${seat.number} - ${
+                                seat.fareClassLabel
+                              } - ${formatCurrency(seat.price)}`}
+                            >
+                              <span className="seat-letter">{seat.letter}</span>
+                              {seat.price > 0 && (
+                                <span
+                                  className={`seat-price-badge ${
+                                    seat.status === "available"
+                                      ? "badge-visible"
+                                      : "badge-hidden"
+                                  }`}
+                                >
+                                  {(seat.price / 1000).toFixed(0)}k
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
 
-        <div className="exit-indicator">
-          <span>EXIT</span>
+        {/* Wings */}
+        <div className="airplane-wings">
+          <div className="wing wing-left"></div>
+          <div className="wing wing-right"></div>
+        </div>
+
+        {/* Rear Lavatory */}
+        <div className="rear-facilities">
+          <div className="facility lavatory">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="8" r="3" />
+              <path d="M12 11v6M9 17h6" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>

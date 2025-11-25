@@ -251,7 +251,7 @@ export default function AirlineApproval() {
       <div className="airline-approval-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Quản lý Phê duyệt Hãng Hàng Không</h2>
+            {/* <h2>Quản lý Phê duyệt Hãng Hàng Không</h2> */}
             <p>Xem và phê duyệt các hãng hàng không đăng ký mới</p>
           </div>
           <button

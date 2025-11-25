@@ -61,7 +61,7 @@ export default function Reports() {
       <div className="reports-page">
         <div className="page-header">
           <div className="header-content">
-            <h2>Báo Cáo Tổng Hợp</h2>
+            {/* <h2>Báo Cáo Tổng Hợp</h2> */}
             <p>Xem thống kê doanh thu và hoạt động của hệ thống</p>
           </div>
           <div className="header-actions">

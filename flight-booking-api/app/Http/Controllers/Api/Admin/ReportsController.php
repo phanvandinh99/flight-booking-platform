@@ -16,11 +16,16 @@ class ReportsController extends Controller
     public function revenueSummary(Request $request)
     {
         // Tổng doanh thu từ tất cả các đặt vé đã thanh toán
+        // Chỉ tính các đặt vé có tong_tien > 0 và không NULL
         $totalRevenue = DatVe::where('trang_thai', 'da_thanh_toan')
+            ->whereNotNull('tong_tien')
+            ->where('tong_tien', '>', 0)
             ->sum('tong_tien');
 
         // Tổng số đặt vé đã thanh toán
         $totalPaidBookings = DatVe::where('trang_thai', 'da_thanh_toan')
+            ->whereNotNull('tong_tien')
+            ->where('tong_tien', '>', 0)
             ->count();
 
         // Tổng số đặt vé (tất cả trạng thái)
@@ -28,12 +33,12 @@ class ReportsController extends Controller
 
         // Doanh thu trung bình
         $averageRevenue = $totalPaidBookings > 0
-            ? round($totalRevenue / $totalPaidBookings, 2)
+            ? round((float)$totalRevenue / $totalPaidBookings, 2)
             : 0;
 
         return response()->json([
             'data' => [
-                'tong_doanh_thu' => $totalRevenue,
+                'tong_doanh_thu' => (float)$totalRevenue ?: 0,
                 'tong_dat_ve_da_thanh_toan' => $totalPaidBookings,
                 'tong_dat_ve' => $totalBookings,
                 'doanh_thu_trung_binh' => $averageRevenue
@@ -50,12 +55,14 @@ class ReportsController extends Controller
         $endDate = $request->get('den_ngay', Carbon::now()->endOfYear());
 
         $revenue = DatVe::where('trang_thai', 'da_thanh_toan')
+            ->whereNotNull('tong_tien')
+            ->where('tong_tien', '>', 0)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->select(
                 DB::raw('YEAR(created_at) as year'),
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('COUNT(*) as orders'),
-                DB::raw('SUM(tong_tien) as revenue')
+                DB::raw('SUM(CAST(tong_tien AS DECIMAL(12,2))) as revenue')
             )
             ->groupBy('year', 'month')
             ->orderBy('year')
@@ -64,7 +71,7 @@ class ReportsController extends Controller
             ->map(function ($item) {
                 return [
                     'month' => $item->year . '-' . str_pad($item->month, 2, '0', STR_PAD_LEFT),
-                    'revenue' => (float) $item->revenue,
+                    'revenue' => (float) ($item->revenue ?: 0),
                     'orders' => (int) $item->orders
                 ];
             });
@@ -86,6 +93,8 @@ class ReportsController extends Controller
         $limit = $request->get('limit', 10);
 
         $topAirlines = DatVe::where('dat_ve.trang_thai', 'da_thanh_toan')
+            ->whereNotNull('dat_ve.tong_tien')
+            ->where('dat_ve.tong_tien', '>', 0)
             ->join('chuyen_bay', 'dat_ve.ma_chuyen_bay', '=', 'chuyen_bay.id')
             ->join('hang_hang_khong', 'chuyen_bay.ma_hang_hang_khong', '=', 'hang_hang_khong.id')
             ->select(
@@ -93,21 +102,23 @@ class ReportsController extends Controller
                 'hang_hang_khong.ten_hang',
                 'hang_hang_khong.ma_hang',
                 DB::raw('COUNT(dat_ve.id) as so_dat_ve'),
-                DB::raw('SUM(dat_ve.tong_tien) as tong_doanh_thu')
+                DB::raw('SUM(CAST(dat_ve.tong_tien AS DECIMAL(12,2))) as tong_doanh_thu')
             )
             ->groupBy('hang_hang_khong.id', 'hang_hang_khong.ten_hang', 'hang_hang_khong.ma_hang')
             ->orderBy('tong_doanh_thu', 'desc')
             ->limit($limit)
             ->get()
             ->map(function ($item) {
+                $tongDoanhThu = (float) ($item->tong_doanh_thu ?: 0);
+                $soDatVe = (int) $item->so_dat_ve;
                 return [
                     'id' => $item->id,
                     'ten_hang' => $item->ten_hang,
                     'ma_hang' => $item->ma_hang,
-                    'so_dat_ve' => (int) $item->so_dat_ve,
-                    'tong_doanh_thu' => (float) $item->tong_doanh_thu,
-                    'doanh_thu_trung_binh' => $item->so_dat_ve > 0
-                        ? round($item->tong_doanh_thu / $item->so_dat_ve, 2)
+                    'so_dat_ve' => $soDatVe,
+                    'tong_doanh_thu' => $tongDoanhThu,
+                    'doanh_thu_trung_binh' => $soDatVe > 0
+                        ? round($tongDoanhThu / $soDatVe, 2)
                         : 0
                 ];
             });

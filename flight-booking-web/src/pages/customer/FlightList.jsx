@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getFlightList, getAirlines } from "../../api/customer";
 import { useAuth } from "../../auth/AuthContext";
 import "../../styles/flightList.css";
@@ -150,21 +150,20 @@ export default function FlightList() {
             <a href="/flights" className="nav-link active">
               Danh sách chuyến bay
             </a>
-            <a href="#about" className="nav-link">
+            <Link to="/about" className="nav-link">
               Về chúng tôi
-            </a>
-            <a href="#help" className="nav-link">
-              Trợ giúp
-            </a>
-            <a href="#guide" className="nav-link">
+            </Link>
+            <Link to="/guide" className="nav-link">
               Hướng dẫn đặt vé
-            </a>
+            </Link>
             {user ? (
               <>
-                <a href="/bookings" className="nav-link">
+                <Link to="/bookings" className="nav-link">
                   Đặt vé của tôi
-                </a>
-                <span className="user-info">{user.ten || user.email}</span>
+                </Link>
+                <span className="user-info">
+                  {user.ten_day_du || user.email}
+                </span>
                 <a
                   href="/login"
                   className="nav-link"

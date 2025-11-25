@@ -19,6 +19,10 @@ import FlightSearch from "./pages/customer/FlightSearch";
 import FlightDetail from "./pages/customer/FlightDetail";
 import FlightList from "./pages/customer/FlightList";
 import Booking from "./pages/customer/Booking";
+import MyBookings from "./pages/customer/MyBookings";
+import AboutUs from "./pages/customer/AboutUs";
+import BookingGuide from "./pages/customer/BookingGuide";
+import PaymentResult from "./pages/customer/PaymentResult";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
@@ -34,6 +38,10 @@ function App() {
         <Route path="/search" element={<FlightSearch />} />
         <Route path="/flight/:id" element={<FlightDetail />} />
         <Route path="/booking" element={<Booking />} />
+        <Route path="/bookings" element={<MyBookings />} />
+        <Route path="/payment/result" element={<PaymentResult />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/guide" element={<BookingGuide />} />
 
         {/* Admin protected */}
         <Route element={<ProtectedRoute allowRoles={["admin"]} />}>
