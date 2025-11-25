@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,7 +33,7 @@ fun AirlineDashboardScreen(navController: NavController) {
                 title = { Text("Trang Quản Lý Hãng") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -114,7 +116,7 @@ fun AirlineDashboardScreen(navController: NavController) {
                     description = "Tạo và quản lý các chuyến bay",
                     icon = Icons.Default.LocationOn,
                     gradientColors = listOf(Color(0xFF4FACFE), Color(0xFF00F2FE)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AirlineFlightManagement.route) }
                 )
                 
                 DashboardCard(
@@ -128,7 +130,7 @@ fun AirlineDashboardScreen(navController: NavController) {
                 DashboardCard(
                     title = "Quản lý đặt vé",
                     description = "Xem và quản lý các đặt vé",
-                    icon = Icons.Default.List,
+                    icon = Icons.Default.ShoppingCart,
                     gradientColors = listOf(Color(0xFFF093FB), Color(0xFFF5576C)),
                     onClick = { /* TODO */ }
                 )
@@ -203,7 +205,7 @@ fun DashboardCard(
             }
             
             Icon(
-                imageVector = Icons.Default.ArrowForward,
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "Navigate",
                 tint = TextSecondary
             )
