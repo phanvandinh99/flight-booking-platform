@@ -24,6 +24,12 @@ val BorderFocus = PrimaryBlue
 val ErrorRed = Color(0xFFE53E3E)  // #e53e3e
 val ErrorBackground = Color(0xFFFED7D7)  // #fed7d7
 
+// Success colors
+val SuccessGreen = Color(0xFF48BB78)  // #48bb78
+
+// Warning colors
+val WarningYellow = Color(0xFFED8936)  // #ed8936
+
 // Placeholder
 val PlaceholderGrey = Color(0xFFA0AEC0)  // #a0aec0
 

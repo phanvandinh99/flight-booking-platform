@@ -124,7 +124,7 @@ fun AirlineDashboardScreen(navController: NavController) {
                     description = "Thiết lập giá vé cho các chuyến bay",
                     icon = Icons.Default.ShoppingCart,
                     gradientColors = listOf(Color(0xFF43E97B), Color(0xFF38F9D7)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AirlineFareManagement.route) }
                 )
                 
                 DashboardCard(
@@ -132,7 +132,7 @@ fun AirlineDashboardScreen(navController: NavController) {
                     description = "Xem và quản lý các đặt vé",
                     icon = Icons.Default.ShoppingCart,
                     gradientColors = listOf(Color(0xFFF093FB), Color(0xFFF5576C)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AirlineBookingManagement.route) }
                 )
                 
                 DashboardCard(
@@ -140,7 +140,7 @@ fun AirlineDashboardScreen(navController: NavController) {
                     description = "Xem báo cáo và thống kê doanh thu",
                     icon = Icons.Default.Info,
                     gradientColors = listOf(Color(0xFFFA709A), Color(0xFFFEE140)),
-                    onClick = { /* TODO */ }
+                    onClick = { navController.navigate(Screen.AirlineReports.route) }
                 )
             }
         }
