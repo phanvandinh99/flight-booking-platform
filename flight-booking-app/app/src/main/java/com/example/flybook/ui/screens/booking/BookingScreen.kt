@@ -28,6 +28,9 @@ import com.example.flybook.ui.components.BottomNavigationBar
 import com.example.flybook.ui.components.customerBottomNavItems
 import com.example.flybook.ui.components.formatCurrency
 import com.example.flybook.ui.components.formatTime
+import com.example.flybook.ui.components.SeatMap
+import com.example.flybook.ui.components.SeatInfo
+import com.example.flybook.ui.components.SeatStatus
 import com.example.flybook.ui.theme.*
 import com.example.flybook.util.AuthManager
 import kotlinx.coroutines.launch
@@ -50,6 +53,11 @@ fun BookingScreen(
     var flight by remember { mutableStateOf<Flight?>(null) }
     var selectedFareClass by remember { mutableStateOf<Price?>(null) }
     var currentUser by remember { mutableStateOf<User?>(null) }
+    
+    // Seat selection state
+    var seatData by remember { mutableStateOf<com.example.flybook.data.models.SeatData?>(null) }
+    var isLoadingSeats by remember { mutableStateOf(false) }
+    var selectedSeats by remember { mutableStateOf<List<String>>(emptyList()) }
     
     // Passenger form state
     var passengers by remember { 
@@ -124,6 +132,19 @@ fun BookingScreen(
                     if (it.gia_ve != null && it.gia_ve.isNotEmpty()) {
                         selectedFareClass = it.gia_ve.first()
                     }
+                    
+                    // Load seat data
+                    isLoadingSeats = true
+                    flightRepository.getFlightSeats(id)
+                        .onSuccess { 
+                            seatData = it
+                            android.util.Log.d("BookingScreen", "Seat data loaded successfully: ${it.tong_so_ghe} seats")
+                        }
+                        .onFailure { e ->
+                            android.util.Log.e("BookingScreen", "Failed to load seat data: ${e.message}", e)
+                            // Seat data is optional, don't show error
+                        }
+                    isLoadingSeats = false
                 }
                 .onFailure { 
                     errorMessage = it.message ?: "Không thể tải thông tin chuyến bay"
@@ -306,12 +327,153 @@ fun BookingScreen(
                     )
                 }
                 
+                // Seat Selection Section
+                if (flight != null) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "Chọn ghế",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                            
+                            if (isLoadingSeats) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            } else if (seatData != null) {
+                                SeatMap(
+                                    seatLayout = seatData!!.so_do_ghe,
+                                    totalSeats = seatData!!.tong_so_ghe,
+                                    bookedSeats = seatData!!.ghe_da_dat,
+                                    reservedSeats = seatData!!.ghe_giu_cho,
+                                    selectedSeats = selectedSeats,
+                                    allFareClasses = seatData!!.gia_ve,
+                                    onSeatSelect = { seat ->
+                                        if (seat.status == SeatStatus.AVAILABLE) {
+                                            // Check if we can select more seats (max = number of passengers)
+                                            val maxSeats = passengers.size
+                                            val currentSelectedCount = selectedSeats.size
+                                            
+                                            if (currentSelectedCount < maxSeats) {
+                                                // Check if seat is already selected
+                                                if (!selectedSeats.contains(seat.number)) {
+                                                    // Add to selected seats
+                                                    selectedSeats = selectedSeats + seat.number
+                                                    // Auto-assign to next passenger without seat
+                                                    val passengerIndex = passengers.indexOfFirst { it.so_ghe.isEmpty() }
+                                                    if (passengerIndex >= 0) {
+                                                        passengers = passengers.mapIndexed { index, passenger ->
+                                                            if (index == passengerIndex) {
+                                                                passenger.copy(so_ghe = seat.number)
+                                                            } else {
+                                                                passenger
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            } else {
+                                                // Show message that max seats reached
+                                                errorMessage = "Bạn chỉ có thể chọn tối đa ${maxSeats} ghế cho ${maxSeats} hành khách"
+                                            }
+                                        } else if (seat.status == SeatStatus.SELECTED) {
+                                            // Remove from selected seats
+                                            selectedSeats = selectedSeats - seat.number
+                                            // Remove from passenger
+                                            passengers = passengers.map { passenger ->
+                                                if (passenger.so_ghe == seat.number) {
+                                                    passenger.copy(so_ghe = "")
+                                                } else {
+                                                    passenger
+                                                }
+                                            }
+                                        }
+                                    }
+                                )
+                            } else {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = "Không thể tải sơ đồ ghế",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = TextSecondary
+                                    )
+                                    Text(
+                                        text = "Bạn vẫn có thể nhập số ghế thủ công",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = TextSecondary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 // Passengers Section
                 PassengersSection(
                     passengers = passengers,
-                    onPassengersChange = { passengers = it },
+                    onPassengersChange = { newPassengers ->
+                        val oldPassengerCount = passengers.size
+                        val newPassengerCount = newPassengers.size
+                        passengers = newPassengers
+                        
+                        // Sync selectedSeats with passenger seats
+                        val newSelectedSeats = newPassengers.mapNotNull { it.so_ghe.takeIf { s -> s.isNotEmpty() } }
+                        
+                        // If passenger count decreased, remove excess seats
+                        if (newPassengerCount < oldPassengerCount) {
+                            selectedSeats = newSelectedSeats
+                        } else {
+                            // Keep current selected seats, but sync with passenger seats
+                            selectedSeats = newSelectedSeats
+                        }
+                    },
                     selectedFareClass = selectedFareClass,
-                    calculatePrice = { calculatePassengerPrice(it) }
+                    calculatePrice = { calculatePassengerPrice(it) },
+                    selectedSeats = selectedSeats,
+                    onSeatChange = { passengerIndex, seatNumber ->
+                        // Check if seat is already assigned to another passenger
+                        val isSeatTaken = passengers.withIndex().any { (idx, passenger) ->
+                            idx != passengerIndex && passenger.so_ghe == seatNumber && seatNumber.isNotEmpty()
+                        }
+                        
+                        if (!isSeatTaken || seatNumber.isEmpty()) {
+                            passengers = passengers.mapIndexed { index, passenger ->
+                                if (index == passengerIndex) {
+                                    passenger.copy(so_ghe = seatNumber)
+                                } else {
+                                    passenger
+                                }
+                            }
+                            // Update selectedSeats - remove old seat if changed, add new seat
+                            val oldSeat = passengers[passengerIndex].so_ghe
+                            selectedSeats = if (seatNumber.isEmpty()) {
+                                selectedSeats - oldSeat
+                            } else {
+                                (selectedSeats - oldSeat) + seatNumber
+                            }
+                        } else {
+                            // Seat is already taken by another passenger
+                            errorMessage = "Ghế này đã được chọn cho hành khách khác"
+                        }
+                    }
                 )
                 
                 // Contact Info Section
@@ -561,7 +723,9 @@ fun PassengersSection(
     passengers: List<BookingPassengerData>,
     onPassengersChange: (List<BookingPassengerData>) -> Unit,
     selectedFareClass: Price?,
-    calculatePrice: (BookingPassengerData) -> Double
+    calculatePrice: (BookingPassengerData) -> Double,
+    selectedSeats: List<String>,
+    onSeatChange: (Int, String) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -604,7 +768,9 @@ fun PassengersSection(
                     { onPassengersChange(passengers.filterIndexed { i, _ -> i != index }) }
                 } else null,
                 selectedFareClass = selectedFareClass,
-                calculatePrice = calculatePrice
+                calculatePrice = calculatePrice,
+                passengers = passengers,
+                onSeatChange = onSeatChange
             )
         }
     }
@@ -618,7 +784,9 @@ fun PassengerCard(
     onPassengerChange: (BookingPassengerData) -> Unit,
     onRemove: (() -> Unit)?,
     selectedFareClass: Price?,
-    calculatePrice: (BookingPassengerData) -> Double
+    calculatePrice: (BookingPassengerData) -> Double,
+    passengers: List<BookingPassengerData>,
+    onSeatChange: (Int, String) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -764,11 +932,35 @@ fun PassengerCard(
             
             OutlinedTextField(
                 value = passenger.so_ghe,
-                onValueChange = { onPassengerChange(passenger.copy(so_ghe = it)) },
-                label = { Text("Số ghế (tùy chọn)") },
+                onValueChange = { 
+                    val newSeat = it.uppercase().trim()
+                    
+                    // Check if seat is already taken by another passenger
+                    val isSeatTaken = passengers.withIndex().any { (idx, p) ->
+                        idx != index && p.so_ghe == newSeat && newSeat.isNotEmpty()
+                    }
+                    
+                    if (!isSeatTaken || newSeat.isEmpty()) {
+                        onPassengerChange(passenger.copy(so_ghe = newSeat))
+                        // Sync with selectedSeats
+                        onSeatChange(index, newSeat)
+                    }
+                    // If seat is taken, don't update - user will see the seat is already selected
+                },
+                label = { Text("Số ghế (chọn từ sơ đồ ghế)") },
+                placeholder = { Text("Ví dụ: 12A") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                placeholder = { Text("Ví dụ: 12A") }
+                trailingIcon = if (passenger.so_ghe.isNotEmpty()) {
+                    {
+                        IconButton(onClick = {
+                            onPassengerChange(passenger.copy(so_ghe = ""))
+                            onSeatChange(index, "")
+                        }) {
+                            Icon(Icons.Default.Close, contentDescription = "Xóa ghế")
+                        }
+                    }
+                } else null
             )
             
             Row(
