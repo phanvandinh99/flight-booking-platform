@@ -234,7 +234,7 @@ fun FlightDetailScreen(
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 onClick = {
-                                    navController.navigate(Screen.Booking.route)
+                                    navController.navigate(Screen.Booking.createRoute(flight!!.id))
                                 }
                             ) {
                                 Row(

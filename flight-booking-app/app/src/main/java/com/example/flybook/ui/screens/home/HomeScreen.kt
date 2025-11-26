@@ -13,8 +13,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -24,13 +26,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
+import android.content.Context
+import android.util.Log
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.flybook.data.repository.AuthRepository
+import com.example.flybook.util.AuthManager
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.flybook.data.models.Airport
 import com.example.flybook.data.models.Flight
+import com.example.flybook.data.models.User
 import com.example.flybook.data.repository.CustomerFlightRepository
 import com.example.flybook.navigation.Screen
 import com.example.flybook.ui.components.BottomNavigationBar
@@ -47,8 +54,14 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
     val flightRepository = remember { CustomerFlightRepository() }
+    val authRepository = remember { AuthRepository() }
     val scope = rememberCoroutineScope()
+    
+    var currentUser by remember { mutableStateOf<User?>(null) }
+    var isLoadingUser by remember { mutableStateOf(true) }
+    var userLoadError by remember { mutableStateOf<String?>(null) }
     
     var airports by remember { mutableStateOf<List<Airport>>(emptyList()) }
     var todayFlights by remember { mutableStateOf<List<Flight>>(emptyList()) }
@@ -78,7 +91,40 @@ fun HomeScreen(navController: NavController) {
         BannerData("Trải nghiệm tuyệt vời", "Hành trình đáng nhớ", "baner3.jpg", listOf(Color(0xFFF093FB), Color(0xFFF5576C)))
     )
     
-    LaunchedEffect(Unit) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val isHomeScreen = navBackStackEntry?.destination?.route == Screen.Home.route
+    
+    // Reload user when screen is focused or when coming back from login
+    LaunchedEffect(navBackStackEntry?.id, isHomeScreen) {
+        // Load token first
+        scope.launch {
+            try {
+                Log.d("HomeScreen", "Loading token...")
+                AuthManager.loadToken(context)
+                Log.d("HomeScreen", "Token loaded, calling getMe()...")
+                
+                // Try to get current user
+                authRepository.getMe()
+                    .onSuccess { user ->
+                        currentUser = user
+                        userLoadError = null
+                        Log.d("HomeScreen", "User loaded successfully: email=${user.email}, role=${user.vai_tro}, ten_day_du=${user.ten_day_du}")
+                    }
+                    .onFailure { e ->
+                        currentUser = null
+                        userLoadError = e.message ?: "Không thể tải thông tin người dùng"
+                        Log.e("HomeScreen", "Failed to load user: ${e.message}", e)
+                        Log.e("HomeScreen", "Error type: ${e.javaClass.simpleName}")
+                    }
+            } catch (e: Exception) {
+                currentUser = null
+                userLoadError = "Lỗi: ${e.message}"
+                Log.e("HomeScreen", "Exception loading user: ${e.message}", e)
+                Log.e("HomeScreen", "Exception type: ${e.javaClass.simpleName}")
+            }
+            isLoadingUser = false
+        }
+        
         scope.launch {
             isLoadingAirports = true
             flightRepository.getAirports()
@@ -176,8 +222,56 @@ fun HomeScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    TextButton(onClick = { navController.navigate(Screen.Login.route) }) {
-                        Text("Đăng nhập", color = Color.White)
+                    if (isLoadingUser) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = Color.White
+                        )
+                    } else if (currentUser != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text(
+                                text = currentUser?.ten_day_du ?: currentUser?.email ?: "Người dùng",
+                                color = Color.White,
+                                style = MaterialTheme.typography.bodyMedium,
+                                maxLines = 1
+                            )
+                            TextButton(
+                                onClick = {
+                                    scope.launch {
+                                        try {
+                                            authRepository.logout()
+                                        } catch (e: Exception) {
+                                            Log.e("HomeScreen", "Logout error: ${e.message}", e)
+                                        }
+                                        AuthManager.clearToken(context)
+                                        currentUser = null
+                                        userLoadError = null
+                                    }
+                                }
+                            ) {
+                                Text("Đăng xuất", color = Color.White)
+                            }
+                        }
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.End
+                        ) {
+                            if (userLoadError != null) {
+                                Text(
+                                    text = userLoadError ?: "",
+                                    color = Color.Red.copy(alpha = 0.8f),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                            }
+                            TextButton(onClick = { navController.navigate(Screen.Login.route) }) {
+                                Text("Đăng nhập", color = Color.White)
+                            }
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

@@ -14,22 +14,42 @@ data class Booking(
 )
 
 data class Passenger(
-    val id: Int?,
+    val id: Int? = null,
     val ho_ten: String,
-    val ngay_sinh: String?,
-    val gioi_tinh: String?,
-    val cmnd_cccd: String?,
-    val so_dien_thoai: String?,
-    val email: String?,
-    val loai_hanh_khach: String = "nguoi_lon"
+    val ngay_sinh: String? = null,
+    val gioi_tinh: String? = null,
+    val cmnd_cccd: String? = null,
+    val so_dien_thoai: String? = null,
+    val email: String? = null,
+    val loai_hanh_khach: String = "nguoi_lon",
+    // Fields for booking request
+    val so_ho_chieu: String? = null,
+    val loai_giay_to: String? = "ho_chieu", // ho_chieu, can_cuoc
+    val so_giay_to: String? = null,
+    val so_ghe: String? = null
+)
+
+data class ContactInfo(
+    val email: String,
+    val so_dien_thoai: String,
+    val ten_day_du: String
 )
 
 data class CreateBookingRequest(
-    val chuyen_bay_id: Int,
-    val chuyen_bay_ve_id: Int? = null,
+    val ma_chuyen_bay_di: Int,
+    val ma_chuyen_bay_ve: Int? = null,
     val hang_ve: String,
-    val hang_ve_ve: String? = null,
-    val hanh_khach: List<Passenger>
+    val hanh_khach: List<BookingPassenger>,
+    val thong_tin_lien_he: ContactInfo
+)
+
+data class BookingPassenger(
+    val ho_ten: String,
+    val so_ho_chieu: String? = null,
+    val loai_giay_to: String? = "ho_chieu",
+    val so_giay_to: String? = null,
+    val so_ghe: String? = null,
+    val loai_hanh_khach: String = "nguoi_lon"
 )
 
 data class PaymentRequest(

@@ -1,11 +1,14 @@
 package com.example.flybook.data.models
 
+import com.google.gson.annotations.SerializedName
+
 data class User(
     val id: Int,
     val ten_day_du: String?,
     val email: String,
     val so_dien_thoai: String?,
     val vai_tro: String,
+    @SerializedName("ma_hang_hang_khong")
     val hang_hang_khong_id: Int? = null
 )
 

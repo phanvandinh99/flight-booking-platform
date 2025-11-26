@@ -16,7 +16,7 @@ interface ApiService {
     suspend fun logout(): Response<ApiResponse<Unit>>
     
     @GET("me")
-    suspend fun getMe(): Response<ApiResponse<User>>
+    suspend fun getMe(): Response<MeResponse>
     
     @PUT("profile")
     suspend fun updateProfile(@Body user: User): Response<ApiResponse<User>>
@@ -67,6 +67,10 @@ data class ApiResponse<T>(
     val data: T? = null,
     val message: String? = null,
     val success: Boolean = true
+)
+
+data class MeResponse(
+    val user: User
 )
 
 data class ErrorResponse(

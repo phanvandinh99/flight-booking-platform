@@ -1,9 +1,15 @@
 package com.example.flybook.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.flybook.util.AuthManager
+import kotlinx.coroutines.launch
 import com.example.flybook.ui.screens.home.HomeScreen
 import com.example.flybook.ui.screens.auth.LoginScreen
 import com.example.flybook.ui.screens.auth.RegisterScreen
@@ -32,7 +38,9 @@ sealed class Screen(val route: String) {
     object FlightDetail : Screen("flight_detail/{flightId}") {
         fun createRoute(flightId: Int) = "flight_detail/$flightId"
     }
-    object Booking : Screen("booking")
+    object Booking : Screen("booking/{flightId}") {
+        fun createRoute(flightId: Int) = "booking/$flightId"
+    }
     object MyBookings : Screen("my_bookings")
     
     // Admin screens
@@ -54,6 +62,13 @@ sealed class Screen(val route: String) {
 
 @Composable
 fun NavGraph(navController: NavHostController) {
+    val context = LocalContext.current
+    
+    // Load token when app starts
+    LaunchedEffect(Unit) {
+        AuthManager.loadToken(context)
+    }
+    
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
@@ -77,8 +92,12 @@ fun NavGraph(navController: NavHostController) {
                 flightId = flightId
             )
         }
-        composable(Screen.Booking.route) {
-            BookingScreen(navController = navController)
+        composable(Screen.Booking.route) { backStackEntry ->
+            val flightId = backStackEntry.arguments?.getString("flightId")?.toIntOrNull() ?: 0
+            BookingScreen(
+                navController = navController,
+                flightId = flightId
+            )
         }
         composable(Screen.MyBookings.route) {
             MyBookingsScreen(navController = navController)
