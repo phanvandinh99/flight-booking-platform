@@ -1,0 +1,30 @@
+const securitiesVps=(function($){const partnerCodeType={VPS:"VPS"}
+const vpsConnectStatus={LINKED:"LINKED",PENDING:"PENDING"}
+const accountStatusType={NOT_LOGIN:1,NOT_EXISTED_VPS_ACCOUNT:2,EXISTED_VPS_ACCOUNT:3,}
+function isNullOrEmpty(str){return str==null||str.trim().length==0||str=="undefined"}
+function equalIgnoreCase(str1,str2){return(str1+"").trim().toLowerCase()==(str2+"").trim().toLowerCase()}
+function hideAndShowLoading(isShow=!1){if(isShow){$(".overloadpage").show();$(".spin-loader").show()}else{$(".overloadpage").hide();$(".spin-loader").hide()}}
+function exePost(url,bodyJson,handleSuccess,handleError,isAsync){$.ajax({type:"POST",url:url,data:bodyJson,contentType:"application/json; charset=utf-8",dataType:"json",async:isAsync!=null?isAsync:!0,error:function(data,textStatus){hideAndShowLoading();if(handleError)handleError(data)},success:function(data){if(handleSuccess)handleSuccess(data)},complete:function(){hideAndShowLoading()}})}
+function initForm(){var lnkMegaMenuSecurities=$("#lnkMegaMenuSecurities");if(lnkMegaMenuSecurities){lnkMegaMenuSecurities.click(function(){$("#navbar-collapse-top").collapse("hide");$("#navbar-collapse-top").removeClass("slideInLeft");$(".overlay").fadeOut();checkVpsExisted()})}}
+function checkVpsExisted(){let url="/Services/Account.asmx/CheckVpsAccount";hideAndShowLoading(!0);exePost(url,null,(dataResult)=>{checkTypeModalVPS(dataResult)})}
+function getObjVpsNoti(){let strObj=$("#hdfVPSAccountNoti").val();let obj=null;if(!isNullOrEmpty(strObj)){obj=JSON.parse(strObj)}
+return obj}
+function checkTypeModalVPS(dataResult){let statusType=accountStatusType.NOT_LOGIN;let data=dataResult!=null&&dataResult.d!=null&&dataResult.d.Data!=null?dataResult.d.Data:null;if(dataResult==null||data==null){statusType=accountStatusType.NOT_LOGIN}else{let partnerVPS=data.PartnerLink!=null?data.PartnerLink.filter(itm=>equalIgnoreCase(itm.PartnerCode,partnerCodeType.VPS)&&equalIgnoreCase(itm.ConnectStatus,vpsConnectStatus.LINKED))[0]:null;if(partnerVPS!=null){statusType=accountStatusType.EXISTED_VPS_ACCOUNT}else{statusType=accountStatusType.NOT_EXISTED_VPS_ACCOUNT}}
+showModalExploreVPS(statusType)}
+function showModalExploreVPS(statusType){let objVpsNoti=getObjVpsNoti();if(objVpsNoti!=null){let existedVpsNumber=!1;if(statusType==accountStatusType.EXISTED_VPS_ACCOUNT){existedVpsNumber=!0}
+let contentViews=`
+                <div class='sec-popup'>
+                    <div class='sec-popup-title'>${objVpsNoti.Title}</div>
+                    <div class='sec-popup-des'>${objVpsNoti.Description}</div>
+                    ${(!isNullOrEmpty(objVpsNoti.Endow1) && !existedVpsNumber) ? `<div class='sec-popup-endow'>${objVpsNoti.Endow1}</div>` : ''}
+                    ${!isNullOrEmpty(objVpsNoti.Endow2) ? `<div class='sec-popup-endow'>${objVpsNoti.Endow2}</div>` : ''}
+                    ${!isNullOrEmpty(objVpsNoti.Endow3) ? `<div class='sec-popup-endow'>${objVpsNoti.Endow3}</div>` : ''}
+                    <div class="modal-footer justify-content-center border-top-0">
+                        <div class="d-inline-flex-column align-items-center">
+                            ${existedVpsNumber ? `<span class="sec-txt-existed">${objVpsNoti.LblExistedAccountVps}</span>` : ""}
+                            <button type="button" class="btn btn-blue pl-4 pr-4 btn-alert-ok">${existedVpsNumber ? objVpsNoti.ButtonInvestNow : objVpsNoti.ButtonLabel}</button>
+                        </div>
+                    </div>
+                    <div class="sec-popup-endow"><p style="font-style: italic;font-size: 14px;font-weight: normal;">(*) Khách hàng cần cung cấp mã Bông Sen Vàng tại phần “ID người giới thiệu” ở link mở tài khoản VPS được gắn tại nút “Đăng ký ngay” để được cộng dặm thưởng nếu thỏa mãn điều kiện chương trình.</p></div>
+                </div>`;let resModal=msgHelper.showModal(contentViews,"",()=>{setTimeout(()=>{let idModal=resModal.idModal;$('#'+idModal).addClass("sec-popup-modal");$('#'+idModal+" .btn-alert-ok").on("click",()=>{window.location.href=$("#hdfVPSExplorePageUrl").val()})})})}}
+return{initForm,showModalExploreVPS,accountStatusType}}(window.jQuery))

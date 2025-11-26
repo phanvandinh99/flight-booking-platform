@@ -1,0 +1,65 @@
+﻿.sec-popup-modal .custom-modal-title {
+    margin: 0px !important;
+    padding: 0px !important;
+}
+
+.sec-popup {
+}
+
+.sec-popup-title {
+    font-size: 18px;
+    text-transform: uppercase;
+    color: #006886;
+    font-weight: bold !important;
+    text-align: center;
+    padding: 5px 0px;
+}
+
+.sec-popup-des {
+    font-size: 16px;
+    color: #000000;
+    font-weight: normal;
+    text-align: center;
+    padding: 5px 0px;
+}
+
+.sec-popup-endow {
+    font-size: 16px;
+    color: #000000;
+    font-weight: normal;
+    /*text-align: center;*/
+}
+
+.sec-popup-modal.msg-helper-alert .btn-blue.btn-alert-ok {
+    min-height: 40px;
+    height: auto !important;
+    line-height: 20px;
+}
+.txtbtn-existed {
+    font-size: 11px;
+}
+.d-inline-flex-column {
+    display: inline-flex;
+    flex-direction: column;
+}
+.align-items-center {
+    align-items: center;
+}
+.sec-txt-existed {
+    font-size: 14px;
+    color: #000000;
+    font-weight: bold !important;
+    text-align: center;
+    padding: 5px 0px 10px 0px;
+}
+@media screen and (max-width: 550px) {
+    .sec-popup-title {
+        font-size: 16px;
+    }
+    .sec-popup-des {
+        font-size: 14px;
+    }
+    .sec-popup-endow {
+        font-size: 14px;       
+    }
+}

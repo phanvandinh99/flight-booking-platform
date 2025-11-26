@@ -1,0 +1,18 @@
+let liveChatBaseUrl='https://livechat.fpt.ai/v36/src'
+let LiveChatSocketUrl='livechat.fpt.ai:443'
+let FptAppCode='a6e43b3f14bec4c56192ab6ae6669d02'
+let FptAppName='VNA UAT Vietnam'
+let CustomStyles={languageCode:"vi",headerBackground:"#1F6987FF",headerTextColor:"#ffffffff",headerLogoEnable:!0,headerLogoLink:"https://cdn-static-v3.fpt.ai/upload/cc5d89ad1a2ac3ef4db45d7acf2d1ed6/9e1ce735dbf84a683b391000f110a409.png",headerText:"",primaryColor:"#EEEEEEEE",secondaryColor:"#1F6987FF",primaryTextColor:"#1F6987FF",secondaryTextColor:"#FFFFFFFF",buttonColor:"#CCCCCCCA",buttonTextColor:"#1F6987FF",buttonColorHover:"#FFFFFF",buttonOpacityHover:1,buttonTextColorHover:"#CE9938",quickReplyButtonAlign:"left",buttonAlign:"left",buttonWeight:"bold",quickReplyButtonBorderColor:"#CE9938",quickReplyButtonBorderColorHover:"#CE9938",bodyBackgroundEnable:!1,bodyBackgroundLink:"",avatarBot:"https://cdn-static-v3.fpt.ai/upload/cc5d89ad1a2ac3ef4db45d7acf2d1ed6/b50e394e9514822c4cbccc50e6fdc0e3.png",sendMessagePlaceholder:"Nhập câu hỏi của Quý khách tại đây",floatButtonLogo:"https://cdn-static-v3.fpt.ai/upload/cc5d89ad1a2ac3ef4db45d7acf2d1ed6/a1550bfc576af4879a5e7f3b76e8eec5.png",floatButtonTooltip:"Chat với NEO",floatButtonTooltipEnable:!0,customerLogo:"https://static.fpt.ai/vna/src/resource/vna/image12.png",customerWelcomeTextColor:"#005F6E",customerWelcomeText:"Chào mừng Quý khách đến với NEO - Trợ lý ảo của Vietnam Airlines.",customerWelcomeTextSize:"20px",customerWelcomeDesSize:"14px",customerWelcomeDes:"NEO được vận hành bằng trí tuệ nhân tạo AI và luôn sẵn sàng đồng hành và hỗ trợ Quý khách trên mọi hành trình.<br/>Bằng cách tiếp tục, Quý khách đồng ý với <a href=\"https://www.vietnamairlines.com/vn/vi/legal/conditions-of-website-use\" target=\"_blank\">Điều khoản sử dụng Website</a>, <a href=\"https://www.vietnamairlines.com/vn/vi/support/condition-of-chatbot-NEO \" target=\"_blank\">Điều khoản sử dụng Chatbot</a> và <a href=\"https://www.vietnamairlines.com/dk/vi/legal/privacy-policy\" target=\"_blank\">Chính sách bảo mật</a>.",customerWarningText:"",customerTermLink:"",customerButtonText:"BẮT ĐẦU",customerConfirmCheckbox:"Tôi đồng ý để Vietnam Airlines sử dụng toàn bộ dữ liệu trong nội dung trò chuyện với NEO.",prefixPlaceholder:"Danh xưng",css:"",}
+if(!FptAppCode){let appCodeFromHash=window.location.hash.substr(1)
+if(appCodeFromHash.length===32){FptAppCode=appCodeFromHash}}
+let FptLiveChatConfigs={appName:FptAppName,appCode:FptAppCode,styles:CustomStyles,customertheme:'theme1',namecustomer:"VNA_VN_Sender_"+Math.floor(Math.random()*1000),useClientSenderInfo:!1,}
+let FptLiveChatScript=document.createElement('script')
+FptLiveChatScript.id='fpt_ai_livechat_script'
+FptLiveChatScript.src=liveChatBaseUrl+'/static/fptai-livechat.js'
+document.body.appendChild(FptLiveChatScript)
+let FptLiveChatStyles=document.createElement('link')
+FptLiveChatStyles.id='fpt_ai_livechat_script'
+FptLiveChatStyles.rel='stylesheet'
+FptLiveChatStyles.href=liveChatBaseUrl+'/static/fptai-livechat.css'
+document.body.appendChild(FptLiveChatStyles)
+FptLiveChatScript.onload=function(){fpt_ai_render_chatbox(FptLiveChatConfigs,liveChatBaseUrl,LiveChatSocketUrl)}

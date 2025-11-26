@@ -127,15 +127,15 @@ fun FlightDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
+                                val departureAirport = flight!!.tuyen_bay?.san_bay_di
                                 Text(
-                                    text = flight!!.tuyen_bay?.san_bay_di?.ma_san_bay ?: "",
+                                    text = if (departureAirport != null) {
+                                        "${departureAirport.ma_san_bay} - ${departureAirport.ten_san_bay}"
+                                    } else {
+                                        "N/A"
+                                    },
                                     style = MaterialTheme.typography.headlineMedium
-                                )
-                                Text(
-                                    text = flight!!.tuyen_bay?.san_bay_di?.ten_san_bay ?: "",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = formatTime(flight!!.gio_khoi_hanh),
@@ -146,23 +146,29 @@ fun FlightDetailScreen(
                             
                             Text(
                                 text = "→",
-                                style = MaterialTheme.typography.headlineLarge
+                                style = MaterialTheme.typography.headlineLarge,
+                                modifier = Modifier.padding(horizontal = 16.dp)
                             )
                             
-                            Column(horizontalAlignment = Alignment.End) {
+                            Column(
+                                horizontalAlignment = Alignment.End,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                val arrivalAirport = flight!!.tuyen_bay?.san_bay_den
                                 Text(
-                                    text = flight!!.tuyen_bay?.san_bay_den?.ma_san_bay ?: "",
-                                    style = MaterialTheme.typography.headlineMedium
-                                )
-                                Text(
-                                    text = flight!!.tuyen_bay?.san_bay_den?.ten_san_bay ?: "",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    text = if (arrivalAirport != null) {
+                                        "${arrivalAirport.ma_san_bay} - ${arrivalAirport.ten_san_bay}"
+                                    } else {
+                                        "N/A"
+                                    },
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.End
                                 )
                                 Text(
                                     text = formatTime(flight!!.gio_ha_canh),
                                     style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier.padding(top = 8.dp)
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.End
                                 )
                             }
                         }
