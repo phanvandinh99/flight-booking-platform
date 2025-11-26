@@ -82,8 +82,11 @@ fun NavGraph(navController: NavHostController) {
         composable(Screen.Register.route) {
             RegisterScreen(navController = navController)
         }
-        composable(Screen.FlightSearch.route) {
-            FlightSearchScreen(navController = navController)
+        composable(Screen.FlightSearch.route) { backStackEntry ->
+            FlightSearchScreen(
+                navController = navController,
+                savedStateHandle = backStackEntry.savedStateHandle
+            )
         }
         composable(Screen.FlightDetail.route) { backStackEntry ->
             val flightId = backStackEntry.arguments?.getString("flightId")?.toIntOrNull() ?: 0

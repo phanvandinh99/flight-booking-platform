@@ -19,11 +19,27 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.FlyBook">
+            android:theme="@style/Theme.FlyBook"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Deep link để nhận callback từ VNPay -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="flybook" android:host="payment" />
+            </intent-filter>
+            <!-- HTTP/HTTPS deep link -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="payment.flybook" />
+                <data android:scheme="https" android:host="payment.flybook" />
             </intent-filter>
         </activity>
     </application>

@@ -363,9 +363,18 @@ class DatVeController extends Controller
         }
 
         $datVe->update(['trang_thai' => 'da_huy']);
+        $datVe->refresh();
+        $datVe->load([
+            'khach_hang',
+            'chuyen_bay.hang_hang_khong',
+            'chuyen_bay.tuyen_bay.san_bay_di',
+            'chuyen_bay.tuyen_bay.san_bay_den',
+            'hanh_khach'
+        ]);
 
         return response()->json([
-            'message' => 'Hủy đặt vé thành công'
+            'message' => 'Hủy đặt vé thành công',
+            'data' => $datVe
         ]);
     }
 

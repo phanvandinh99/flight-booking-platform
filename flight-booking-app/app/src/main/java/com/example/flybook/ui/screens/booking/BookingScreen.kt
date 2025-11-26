@@ -139,6 +139,9 @@ fun BookingScreen(
                         .onSuccess { 
                             seatData = it
                             android.util.Log.d("BookingScreen", "Seat data loaded successfully: ${it.tong_so_ghe} seats")
+                            android.util.Log.d("BookingScreen", "Booked seats: ${it.ghe_da_dat}")
+                            android.util.Log.d("BookingScreen", "Reserved seats: ${it.ghe_giu_cho}")
+                            android.util.Log.d("BookingScreen", "Seat layout count: ${it.so_do_ghe?.size ?: 0}")
                         }
                         .onFailure { e ->
                             android.util.Log.e("BookingScreen", "Failed to load seat data: ${e.message}", e)

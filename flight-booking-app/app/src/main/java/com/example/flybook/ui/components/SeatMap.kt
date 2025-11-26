@@ -298,12 +298,23 @@ fun generateSeatMap(
     val normalizedReservedSeats = reservedSeats.map { it.trim().uppercase() }
     val normalizedSelectedSeats = selectedSeats.map { it.trim().uppercase() }
     
+    android.util.Log.d("SeatMap", "Generating seat map with:")
+    android.util.Log.d("SeatMap", "  Booked seats (normalized): $normalizedBookedSeats")
+    android.util.Log.d("SeatMap", "  Reserved seats (normalized): $normalizedReservedSeats")
+    android.util.Log.d("SeatMap", "  Seat layout count: ${seatLayout?.size ?: 0}")
+    
     return if (seatLayout != null && seatLayout.isNotEmpty()) {
         seatLayout.map { seat ->
             val normalizedSeatNumber = seat.number.trim().uppercase()
             val status = when {
-                normalizedBookedSeats.contains(normalizedSeatNumber) -> SeatStatus.BOOKED
-                normalizedReservedSeats.contains(normalizedSeatNumber) -> SeatStatus.RESERVED
+                normalizedBookedSeats.contains(normalizedSeatNumber) -> {
+                    android.util.Log.d("SeatMap", "Seat $normalizedSeatNumber is BOOKED")
+                    SeatStatus.BOOKED
+                }
+                normalizedReservedSeats.contains(normalizedSeatNumber) -> {
+                    android.util.Log.d("SeatMap", "Seat $normalizedSeatNumber is RESERVED")
+                    SeatStatus.RESERVED
+                }
                 normalizedSelectedSeats.contains(normalizedSeatNumber) -> SeatStatus.SELECTED
                 else -> SeatStatus.AVAILABLE
             }
