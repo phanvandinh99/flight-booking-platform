@@ -188,6 +188,25 @@ fun HomeScreen(navController: NavController) {
     fun handleSearch() {
         if (!validateForm()) return
         
+        // Save parameters to current back stack entry's SavedStateHandle
+        // These will be available in the destination's SavedStateHandle
+        // Convert all to String to avoid type casting issues
+        val currentEntry = navController.currentBackStackEntry
+        currentEntry?.savedStateHandle?.apply {
+            set("search_san_bay_di", departureAirport?.ma_san_bay ?: "")
+            set("search_san_bay_den", arrivalAirport?.ma_san_bay ?: "")
+            set("search_ngay_khoi_hanh", departureDate)
+            set("search_loai_chuyen", tripType)
+            set("search_nguoi_lon", adults.toString()) // Convert to String
+            if (children > 0) set("search_tre_em", children.toString()) // Convert to String
+            if (infants > 0) set("search_em_be", infants.toString()) // Convert to String
+            if (fareClass.isNotEmpty()) set("search_hang_ve", fareClass)
+            if (tripType == "khu_hoi" && returnDate.isNotEmpty()) {
+                set("search_ngay_ve", returnDate)
+            }
+        }
+        
+        // Build query string for navigation (as backup)
         val params = buildString {
             append("san_bay_di=${departureAirport?.ma_san_bay}&")
             append("san_bay_den=${arrivalAirport?.ma_san_bay}&")
@@ -202,7 +221,35 @@ fun HomeScreen(navController: NavController) {
             }
         }
         
-        navController.navigate("${Screen.FlightSearch.route}?$params")
+        // Navigate with query string
+        val fullRoute = "${Screen.FlightSearch.route}?$params"
+        android.util.Log.d("HomeScreen", "Navigating to: $fullRoute")
+        android.util.Log.d("HomeScreen", "Params: san_bay_di=${departureAirport?.ma_san_bay}, san_bay_den=${arrivalAirport?.ma_san_bay}, ngay_khoi_hanh=$departureDate")
+        
+        navController.navigate(fullRoute) {
+            launchSingleTop = true
+        }
+        
+        // Also set parameters in destination's SavedStateHandle after navigation
+        // Convert all to String to avoid type casting issues
+        scope.launch {
+            kotlinx.coroutines.delay(50) // Small delay to ensure navigation completes
+            val destinationEntry = navController.currentBackStackEntry
+            destinationEntry?.savedStateHandle?.apply {
+                set("san_bay_di", departureAirport?.ma_san_bay ?: "")
+                set("san_bay_den", arrivalAirport?.ma_san_bay ?: "")
+                set("ngay_khoi_hanh", departureDate)
+                set("loai_chuyen", tripType)
+                set("nguoi_lon", adults.toString()) // Convert to String
+                if (children > 0) set("tre_em", children.toString()) // Convert to String
+                if (infants > 0) set("em_be", infants.toString()) // Convert to String
+                if (fareClass.isNotEmpty()) set("hang_ve", fareClass)
+                if (tripType == "khu_hoi" && returnDate.isNotEmpty()) {
+                    set("ngay_ve", returnDate)
+                }
+                android.util.Log.d("HomeScreen", "Saved params to destination SavedStateHandle")
+            }
+        }
     }
     
     Scaffold(
