@@ -2,6 +2,7 @@ package com.example.flybook.ui.screens.bookings
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.flybook.data.models.Booking
 import com.example.flybook.data.models.Flight
 import com.example.flybook.data.repository.BookingRepository
@@ -63,7 +65,11 @@ fun MyBookingsScreen(navController: NavController) {
         }
     }
     
-    LaunchedEffect(Unit) {
+    // Reload khi screen được focus lại (sau khi quay lại từ browser)
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    
+    // Reload khi quay lại screen (sẽ trigger khi user quay lại app)
+    LaunchedEffect(navBackStackEntry?.id) {
         loadBookings()
     }
     
@@ -79,6 +85,8 @@ fun MyBookingsScreen(navController: NavController) {
                 }
                 .onFailure { e ->
                     errorMessage = e.message ?: "Không thể tạo URL thanh toán"
+                    // Reload để cập nhật trạng thái
+                    loadBookings()
                 }
             processingPayment = null
         }
@@ -93,9 +101,17 @@ fun MyBookingsScreen(navController: NavController) {
                 .onSuccess {
                     // Reload danh sách
                     loadBookings()
+                    // Hiển thị thông báo thành công
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        Toast.makeText(context, "Hủy đặt vé thành công", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .onFailure { e ->
                     errorMessage = e.message ?: "Không thể hủy đặt vé"
+                    // Hiển thị thông báo lỗi
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        Toast.makeText(context, errorMessage ?: "Không thể hủy đặt vé", Toast.LENGTH_LONG).show()
+                    }
                 }
             cancelling = null
         }
