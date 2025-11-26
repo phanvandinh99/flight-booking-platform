@@ -1,0 +1,5 @@
+(function(root,factory){if(typeof define==='function'&&define.amd){define([],factory)}else if(typeof module==='object'&&module.exports){module.exports=factory()}else{root.vnaCommon=factory()}}(typeof self!=='undefined'?self:this,function(){function isNullOrEmpty(str){return str==null||str.trim().length==0||str=="undefined"}
+function equalIgnoreCase(str1,str2){return(str1+"").trim().toLowerCase()==(str2+"").trim().toLowerCase()}
+function showMessage(msg,callBackOkBtn,callBackOnClose,btnText,isHidenBtnClose){msgHelper.showAlert(msg,$("#hdfNotice").val(),function(){if(callBackOkBtn)callBackOkBtn()},null,function(e){if(!e){if(callBackOnClose)callBackOnClose()}},btnText,isHidenBtnClose)}
+function checkShowMsgMissingDOB(){let msgNoticeMissingDOB=$("#hdfShowMsgNoticeMissingDOB").val();if(!isNullOrEmpty(msgNoticeMissingDOB)){showMessage(msgNoticeMissingDOB,()=>{window.location.href='/lotusmiles/my-profile'},null,$("#hdfMsgBtnUpdate").val(),!0)}}
+return{checkShowMsgMissingDOB:checkShowMsgMissingDOB,}}))

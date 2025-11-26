@@ -1,0 +1,339 @@
+﻿window.msgHelper = (function (MSGAlertHelper, $) {
+    "use strict";
+    var publicAPIs = {};
+    publicAPIs.showAlert = function (message, title, funcCallback, onshow, onClose, btnText, isHidenBtnClose = false, isKeyEscToClose = false) {
+        var pmd = new MSGAlertHelper();
+        var idAlert = pmd.initAlertWidget(title, message, btnText, () => {
+            $('#' + idAlert).attr(pmd.clickBtnOkKey, true);
+            $('#' + idAlert).modal("hide");
+            if (typeof funcCallback === "function") funcCallback();
+        }, isHidenBtnClose);
+        pmd.setTabindexBackdrop('#' + idAlert, onshow, onClose);
+        $('#' + idAlert).modal({
+            backdrop: 'static',
+            keyboard: isKeyEscToClose ? true : false, //disable esc = false
+            show: true
+        });
+    }
+    publicAPIs.showAlertNoBtnOk = function (message, title, onshow, onClose, btnText, isHidenBtnClose = false, isKeyEscToClose = false) {
+        var pmd = new MSGAlertHelper();
+        var idAlert = pmd.initAlertWidget(title, message, btnText, () => {
+            $('#' + idAlert).attr(pmd.clickBtnOkKey, true);
+            $('#' + idAlert).modal("hide");
+        }, isHidenBtnClose, true);
+        pmd.setTabindexBackdrop('#' + idAlert, onshow, onClose);
+        $('#' + idAlert).modal({
+            backdrop: 'static',
+            keyboard: isKeyEscToClose ? true : false, //disable esc = false
+            show: true
+        });
+    }
+    publicAPIs.showConfirm = function (message, title, funcCallback, onshow, onClose, btnTextYes, btnTexClose, isHidenBtnClose = false, isKeyEscToClose = false) {
+        var pmd = new MSGAlertHelper();
+        var idConfirm = pmd.initConfirmWidget(title, message, btnTextYes, btnTexClose, () => {
+            $('#' + idConfirm).attr(pmd.clickBtnOkKey, true);
+            $('#' + idConfirm).modal("hide");
+            if (typeof funcCallback === "function") funcCallback();
+        }, isHidenBtnClose);
+        pmd.setTabindexBackdrop('#' + idConfirm, onshow, onClose);
+        $('#' + idConfirm).modal({
+            backdrop: 'static',
+            keyboard: isKeyEscToClose ? true : false, //disable esc = false
+            show: true
+        });
+    }
+    /***
+     * override JQuery jAlert
+     * */
+    publicAPIs.showjAlert = function (message, title, funcCallback) {
+        var pmd = new MSGAlertHelper();
+        var idAlert = pmd.initAlertWidget(title, message, "", () => {
+            $('#' + idAlert).attr(pmd.clickBtnOkKey, true);
+            $('#' + idAlert).modal("hide"); //funcCallback will call in hidden.bs.modal
+        }, true);
+        pmd.setTabindexBackdrop('#' + idAlert, null, funcCallback);
+        $('#' + idAlert).modal({
+            backdrop: 'static',
+            keyboard: false, //disable esc = false
+            show: true
+        });
+    }
+    /***
+     * override JQuery jConfirm
+     * */
+    publicAPIs.showjConfirm = function (message, title, funcCallback) {
+        var pmd = new MSGAlertHelper();
+        var idConfirm = pmd.initConfirmWidget(title, message, "", "", () => {
+            $('#' + idConfirm).attr(pmd.clickBtnOkKey, true);
+            $('#' + idConfirm).modal("hide"); //funcCallback will call in hidden.bs.modal
+        }, false);
+        pmd.setTabindexBackdrop('#' + idConfirm, null, funcCallback);
+        $('#' + idConfirm).modal({
+            backdrop: 'static',
+            keyboard: false, //disable esc = false
+            show: true
+        });
+    }
+
+    /***
+    * override JQuery jCustomConfirm
+    * */
+    publicAPIs.showjCustomConfirm = function (message, title, funcCallback, okButton, cancelButton) {
+        var pmd = new MSGAlertHelper();
+        var idConfirm = pmd.initConfirmWidget(title, message, okButton, cancelButton, () => {
+            $('#' + idConfirm).attr(pmd.clickBtnOkKey, true);
+            $('#' + idConfirm).modal("hide"); //funcCallback will call in hidden.bs.modal
+        }, false);
+        pmd.setTabindexBackdrop('#' + idConfirm, null, funcCallback);
+        $('#' + idConfirm).modal({
+            backdrop: 'static',
+            keyboard: false, //disable esc = false
+            show: true
+        });
+    }
+
+    publicAPIs.showModal = function (contentHtml, title, onshow, onClose, isHidenBtnClose = false, isKeyEscToClose = false) {
+        var pmd = new MSGAlertHelper();
+        var idModal = pmd.initModalWidget(contentHtml, title, isHidenBtnClose);
+        pmd.setTabindexBackdrop('#' + idModal, onshow, onClose);
+        $('#' + idModal).modal({
+            backdrop: 'static',
+            keyboard: isKeyEscToClose ? true : false, //disable esc = false
+            show: true
+        });
+        return {
+            idModal: idModal,
+            onClose: function () {
+                $('#' + idModal).modal("hide");
+            }
+        };
+    }
+
+    return publicAPIs;
+}((function ($, w) {
+    "use strict";
+
+    var cl = {
+        CLICK_BTN_OK_KEY: "click-btnOK"
+    };
+
+    var MSGAlertHelper = function () {
+        this.clickBtnOkKey = cl.CLICK_BTN_OK_KEY;
+        this.relatedTargetElement = null;
+    };
+
+    MSGAlertHelper.prototype.uuidv4 = function () {
+        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+
+    MSGAlertHelper.prototype.getDynamicId = function () {
+        return this.uuidv4().replaceAll('-', '').substring(0, 4);
+    }
+
+    MSGAlertHelper.prototype.maxZIndex = function () {
+        var elems = document.getElementsByClassName('msg-helper-alert');
+        var highest = 99990;
+        for (var i = 0; i < elems.length; i++) {
+            var zindex = Number.parseInt(
+                document.defaultView.getComputedStyle(elems[i], null).getPropertyValue("z-index"),
+                10
+            );
+            if (zindex > highest) {
+                highest = zindex;
+            }
+        }
+        return highest;
+    }
+
+    MSGAlertHelper.prototype.initAlertWidget = function (title, message, btnText, funcCallback, isHidenBtnClose, isHidenBtnOk) {
+        var idAlert = "alert_dialog_" + this.getDynamicId();
+        var hdfMsgTitleNotification = document.getElementById("hdfMsgTitleNotification"); //multiple text translate text 'OK'
+        var hdfMsgBtnOk = document.getElementById("hdfMsgBtnOk"); //multiple text translate text 'OK'
+        var txtBtnOK = "OK";
+        if (hdfMsgBtnOk != null && hdfMsgBtnOk.value != "" && hdfMsgBtnOk.value.length > 0) {
+            txtBtnOK = hdfMsgBtnOk.value;
+        }
+        if (hdfMsgTitleNotification != null && hdfMsgTitleNotification.value != "" && hdfMsgTitleNotification.value.length > 0) {
+            title = hdfMsgTitleNotification.value;
+        }
+        var alertExisted = document.getElementById(idAlert);
+        if (alertExisted == null) {
+            var uiAlertView = `
+        <div id="` + idAlert + `" class="modal msg-helper-alert" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dialog_label_title" aria-describedby="msg_h_dialog_desc">
+          <div class="modal-dialog modal-lg-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header border-bottom-0">
+                <h5 class="modal-title" id="dialog_label_title">` + title + `</h5>                
+                ` + (!isHidenBtnClose ? (`<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>`) : "") + `
+              </div>
+              <p style="border-bottom: 1px solid #0f8db1;margin-bottom: 3%;margin-left: 16%;margin-top: -3%;width: 65%;" class="col-md-offset-2"></p>
+              <div class="modal-body msg-desc-container" id="msg_h_dialog_desc">
+                <p class="msg-desc">` + message + `</p>
+              </div>
+              <div class="modal-footer justify-content-center border-top-0">
+              ` + (isHidenBtnOk ? "" : (`<button type="button" class="btn btn-blue pl-4 pr-4 btn-alert-ok">`
+                    + (btnText && btnText.length > 0 ? btnText : txtBtnOK)
+                    + `</button>`)) + `
+              </div>
+            </div>
+          </div>
+        </div>
+        `;
+            document.body.insertAdjacentHTML("beforeend", uiAlertView);
+            if (!isHidenBtnOk) {
+                document.querySelector("#" + idAlert + ".msg-helper-alert .btn-alert-ok").addEventListener("click", () => {
+                    if (funcCallback) funcCallback();
+                });
+            }
+        }
+        return idAlert;
+    }
+
+    MSGAlertHelper.prototype.initConfirmWidget = function initConfirmWidget(title, message, btnTextYes, btnTexClose, funcCallback, isHidenBtnClose) {
+        var idAlert = "alert_dialog_" + this.getDynamicId();
+        var confirmExisted = document.getElementById(idAlert);
+        var hdfMsgTitleNotification = document.getElementById("hdfMsgTitleNotification");
+        var hdfMsgBtnYes = document.getElementById("hdfMsgBtnYes"); //multiple text translate text 'Yes'
+        var hdfMsgBtnNo = document.getElementById("hdfMsgBtnNo"); //multiple text translate text 'No'
+        var txtBtnYes = "Yes";
+        if (hdfMsgBtnYes != null && hdfMsgBtnYes.value != "" && hdfMsgBtnYes.value.length > 0) {
+            txtBtnYes = hdfMsgBtnYes.value;
+        }
+        var txtBtnNo = "No";
+        if (hdfMsgBtnNo != null && hdfMsgBtnNo.value != "" && hdfMsgBtnNo.value.length > 0) {
+            txtBtnNo = hdfMsgBtnNo.value;
+        }
+        if (hdfMsgTitleNotification != null && hdfMsgTitleNotification.value != "" && hdfMsgTitleNotification.value.length > 0) {
+            title = (title == null || title.length == 0) ? hdfMsgTitleNotification.value : title;
+        }
+
+        if (confirmExisted == null) {
+            var uiConfirmView = `
+        <div id="` + idAlert + `" class="modal msg-helper-alert msg-h-confirm" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dialog_label_title" aria-describedby="msg_h_dialog_desc">
+          <div class="modal-dialog modal-lg-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header border-bottom-0">
+                <h5 class="modal-title" id="dialog_label_title">` + title + `</h5>
+                ` + (!isHidenBtnClose ? (`<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>`) : "") + `
+              </div>
+              <p style="border-bottom: 1px solid #0f8db1;margin-bottom: 3%;margin-left: 16%;margin-top: -3%;width: 65%;" class="col-md-offset-2"></p>
+              <div class="modal-body msg-desc-container" id="msg_h_dialog_desc">
+                <p class="msg-desc">` + message + `</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-blue pl-4 pr-4 btn-alert-ok">`+ (btnTextYes && btnTextYes.length > 0 ? btnTextYes : txtBtnYes) + `</button>
+                <button type="button" class="btn btn-alert-close" data-dismiss="modal">`+ (btnTexClose && btnTexClose.length > 0 ? btnTexClose : txtBtnNo) + `</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        `;
+            document.body.insertAdjacentHTML("beforeend", uiConfirmView);
+            document.querySelector("#" + idAlert + ".msg-helper-alert.msg-h-confirm .btn-alert-ok").addEventListener("click", () => {
+                if (funcCallback) funcCallback();
+            })
+        }
+        return idAlert;
+    }
+
+    MSGAlertHelper.prototype.initModalWidget = function initModalWidget(contentHtml, title, isHidenBtnClose) {
+        var idModal = "modal_dialog_" + this.getDynamicId();
+        var confirmExisted = document.getElementById(idModal);
+        if (confirmExisted == null) {
+            var uiConfirmView = `
+        <div id="` + idModal + `" class="modal msg-helper-alert msg-helper-modal msg-h-confirm" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dialog_label_title" aria-describedby="msg_h_dialog_desc">
+          <div class="modal-dialog modal-lg-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header border-bottom-0"> 
+              <h5 class="custom-modal-title">${title}&nbsp;</h5>               
+                ` + (!isHidenBtnClose ? (`<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>`) : "") + `
+              </div>
+              <div class="modal-body custom-modal-body">   
+              ${contentHtml}             
+              </div>             
+            </div>
+          </div>
+        </div>
+        `;
+            document.body.insertAdjacentHTML("beforeend", uiConfirmView);
+            // document.querySelector("#" + idAlert + ".msg-helper-alert.msg-h-confirm .btn-alert-ok").addEventListener("click", () => {
+            //   if (funcCallback) funcCallback();
+            // })
+        }
+        return idModal;
+    }
+
+    MSGAlertHelper.prototype.setTabindexBackdrop = function (modalId, onshow, onHidden) {
+        //set tab for modal show from code cs 
+        $(".modal-backdrop.in").attr("tabindex", "0");
+        $(".modal-backdrop.show").attr("tabindex", "0");
+        var that = this;
+        //bind event on show modal 
+        $(modalId).on("show.bs.modal", function (e) {
+            that.setRelatedTargetElement(document.activeElement);
+        });
+        $(modalId).on("shown.bs.modal", function (e) {
+            $(".modal-backdrop.in").attr("tabindex", "0");
+            $(".modal-backdrop.show").attr("tabindex", "0");
+            if (onshow) onshow();
+            let maxZindex = that.maxZIndex()
+            $(modalId)[0].style.setProperty('z-index', maxZindex + 1, 'important');
+            let lsBackdrop = $(modalId + "~.modal-backdrop");
+            if (lsBackdrop != null && lsBackdrop.length > 0) {
+                lsBackdrop[0].style.setProperty('z-index', maxZindex, 'important');
+            }           
+        });
+        //remove html 
+        $(modalId).on('hidden.bs.modal', function (e) {
+            var isClickBtnOK = $(modalId).attr(cl.CLICK_BTN_OK_KEY);
+            $(modalId).remove();
+            if (!isClickBtnOK) { //close btn 
+                setTimeout(() => { //fixbug some time not focus target element
+                    that.focusAfterModalClosed();
+                    if (onHidden) onHidden(false); //close btn return false
+                }, 100);//0.1 second
+            } else { //ok btn
+                that.focusAfterModalClosed();
+                if (onHidden) onHidden(true); //close ok return true
+            }
+        });
+    }
+
+    MSGAlertHelper.prototype.setRelatedTargetElement = function setRelatedTargetElement(relatedTarget) {
+        this.relatedTargetElement = relatedTarget;
+    }
+
+    MSGAlertHelper.prototype.focusAfterModalClosed = function focusAfterModalClosed() {
+        if (this.relatedTargetElement && $(this.relatedTargetElement).is(":visible")) {
+            this.relatedTargetElement.focus();
+        }
+    }
+    return MSGAlertHelper;
+}(window.jQuery, this)), jQuery));
+
+
+document.addEventListener("readystatechange", (event) => {
+    //override action JQuery jAlert, jConfirm, jCustomConfirm
+    if (typeof msgHelper != "undefined" && typeof jAlert != "undefined") {
+        jAlert = msgHelper.showjAlert;
+        jConfirm = msgHelper.showjConfirm;
+        jCustomConfirm = msgHelper.showjCustomConfirm;
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    //override action JQuery jAlert, jConfirm, jCustomConfirm
+    if (typeof msgHelper != "undefined" && typeof jAlert != "undefined") {
+        jAlert = msgHelper.showjAlert;
+        jConfirm = msgHelper.showjConfirm;
+        jCustomConfirm = msgHelper.showjCustomConfirm;
+    }
+});

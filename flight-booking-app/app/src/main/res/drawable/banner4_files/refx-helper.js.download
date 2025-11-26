@@ -1,0 +1,51 @@
+window.refxHelper=(function($){'use strict';const cabinClassType={BUSINESS:"Business",PREMIUM_ECONOMY:"PremiumEconomy",ECONOMY:"Economy"}
+const langEnums={FR:"fr",DE:"de",JA:"ja",KO:"ko",RU:"ru",VI:"vi",CN:"cn",EN:"en",TW:"tw"}
+const langCountryEnums={FR_FR:"fr-FR",DE_DE:"de-DE",JA_JP:"ja-JP",KO_KR:"ko-KR",RU_RU:"ru-RU",VI_VN:"vi-VN",ZH_HANS:"zh-Hans",EN_GB:"en-GB",ZH_HANT:"zh-Hant"}
+const redirectTypeEnums={BOOKING:"BOOKING",CHECK_IN:"CHECK_IN",MANAGER_BOOKING:"MANAGER_BOOKING",}
+const passengerTypeCodeEnums={ADT:"ADT",CHD:"CHD",INF:"INF",}
+const paramNameEnums={LANG:"lang",}
+const optionMilesMoneyEnums={MONEY:"money",MILE_MONEY:"mile-money",}
+function isNullOrEmpty(str){return str==null||str.trim().length==0||str=="undefined"}
+function equalIgnoreCase(str1,str2){return(str1+"").trim().toLowerCase()==(str2+"").trim().toLowerCase()}
+function exePost(url,bodyJson,handleSuccess,handleError,isAsync){$.ajax({type:"POST",url:url,data:bodyJson,contentType:"application/json; charset=utf-8",dataType:"json",async:isAsync!=null?isAsync:!0,error:function(data,textStatus){hideAndShowLoading();if(handleError)handleError(data)},success:function(data){if(handleSuccess)handleSuccess(data)},complete:function(){hideAndShowLoading()}})}
+function getParamsFromUrl(pName,url){var pageUrl=isNullOrEmpty(url)?window.location.href:url;if(pageUrl!=null&&pageUrl.indexOf('%')!=-1){pageUrl=decodeURIComponent(pageUrl)}
+var sPageURLSearch=(new URL(pageUrl)).search.substring(1);var sURLVariables=sPageURLSearch.split('&');var sParameterName=[];var searchValue="";for(var i=0;i<sURLVariables.length;i++){sParameterName=sURLVariables[i].split('=');if(sParameterName[0].toLocaleLowerCase()==(pName+"").toLocaleLowerCase()){searchValue=(sParameterName[1]==null||sParameterName[1].length==0)?"":decodeURIComponent(sParameterName[1]);break}}
+return(searchValue+"").trim()}
+function updateQueryStringParameter(url,key,value){if(isNullOrEmpty(url)){return url}
+var re=new RegExp("([?&])"+key+"=.*?(&|$)","i");var separator=url.indexOf('?')!==-1?"&":"?";if(url.match(re)){return url.replace(re,'$1'+key+"="+value+'$2')}else{return url+separator+key+"="+value}}
+function hideAndShowLoading(isShow=!1){if(isShow){$(".overloadpage").show();$(".spin-loader").show()}else{$(".overloadpage").hide();$(".spin-loader").hide()}}
+function getCorrectPageLanguage(){var defaultLang="en";var lang=$('#hdfForCookie_vietnamAirlines_SitecoreLanguage').val();if(isNullOrEmpty(lang)){lang=defaultLang}else{if(equalIgnoreCase("zh-CN",lang)||equalIgnoreCase("zh_CN",lang)){lang=langEnums.CN}else if(equalIgnoreCase("zh-TW",lang)||equalIgnoreCase("zh_TW",lang)){lang=langEnums.TW}else if(lang.indexOf('-')>-1||lang.indexOf('_')>-1){if(lang.indexOf('-')>-1){lang=lang.split('-')}else if(lang.indexOf('_')>-1){lang=lang.split('_')}
+lang=lang.length>0?lang[0]:defaultLang}else{lang=defaultLang}}
+switch((lang+"").toLowerCase()){case langEnums.EN:lang=langCountryEnums.EN_GB;break;case langEnums.CN:lang=langCountryEnums.ZH_HANS;break;case langEnums.TW:lang=langCountryEnums.ZH_HANT;break;case langEnums.VI:lang=langCountryEnums.VI_VN;break;case langEnums.RU:lang=langCountryEnums.RU_RU;break;case langEnums.KO:lang=langCountryEnums.KO_KR;break;case langEnums.DE:lang=langCountryEnums.DE_DE;break;case langEnums.JA:lang=langCountryEnums.JA_JP;break;case langEnums.FR:lang=langCountryEnums.FR_FR;break}
+return isNullOrEmpty(lang)?document.documentElement.lang:lang}
+function getCountryCode(){return $('#hdCountryCodeSelected').val()}
+function getRedirectUrl(redirectType){const platformUrl=$("#hdfRefxPlatformsURL").val();const endPointEnums={BOOKING:$("#hdfRefxBookingURL").val(),CHECK_IN:$("#hdfRefxCheckInURL").val(),MANAGER_BOOKING:$("#hdfRefxManagerBookingURL").val(),}
+var rdrUrl="";switch(redirectType){case redirectTypeEnums.BOOKING:rdrUrl=String.format(platformUrl,endPointEnums.BOOKING)
+break;case redirectTypeEnums.CHECK_IN:rdrUrl=String.format(platformUrl,endPointEnums.CHECK_IN)
+break;case redirectTypeEnums.MANAGER_BOOKING:rdrUrl=String.format(platformUrl,endPointEnums.MANAGER_BOOKING)
+break}
+return rdrUrl}
+function getCacheLightLogin(callBack){var url="/Services/Account.asmx/GetLightLogin";hideAndShowLoading(!0);exePost(url,null,(data)=>{hideAndShowLoading();callBack(data.d)},(data)=>{hideAndShowLoading();callBack(null)})}
+function setPortalFacts(obj,optionMilesMoney){if(obj!=null){var countryCode=getCountryCode();var lang=getCorrectPageLanguage();var lsportalFacts=[];if(!isNullOrEmpty(countryCode)){if(!isNullOrEmpty(optionMilesMoney)){switch(optionMilesMoney.toLowerCase()){case optionMilesMoneyEnums.MONEY:break;case optionMilesMoneyEnums.MILE_MONEY:countryCode=countryCode+"W";lsportalFacts.push({key:"useMiles",value:"true"});break}}
+lsportalFacts.push({key:"countryCode",value:countryCode.toUpperCase()});lsportalFacts.push({key:"language",value:lang});obj.portalFacts=JSON.stringify(lsportalFacts)}}}
+function setPrivateFacts(obj,optionMilesMoney){if(obj!=null&&!isNullOrEmpty(optionMilesMoney)&&equalIgnoreCase(optionMilesMoney,optionMilesMoneyEnums.MILE_MONEY)){var refxPrivateFactsEncrypt=$("#hdfRefxPrivateFactsEncrypt").val();if(!isNullOrEmpty(refxPrivateFactsEncrypt)){obj.privateFacts=refxPrivateFactsEncrypt}}}
+function buildObjSearchBooking(objParam){const{itineraries,promotionCode,numberADT,numberCHD,numberINF,optionMilesMoney,cabinClass}=objParam;var lsItineraries=[];if(itineraries!=null&&itineraries.length>0){itineraries.forEach(element=>{lsItineraries.push({"departureDateTime":element.departureDateTime,"originLocationCode":element.originLocationCode,"destinationLocationCode":element.destinationLocationCode,})})}
+var lstravelers=[];if(numberADT>0){for(let index=0;index<numberADT;index++){lstravelers.push({passengerTypeCode:passengerTypeCodeEnums.ADT})}}
+if(numberCHD>0){for(let index=0;index<numberCHD;index++){lstravelers.push({passengerTypeCode:passengerTypeCodeEnums.CHD})}}
+if(numberINF>0){for(let index=0;index<numberINF;index++){lstravelers.push({passengerTypeCode:passengerTypeCodeEnums.INF})}}
+var objSearch={"itineraries":lsItineraries,"travelers":lstravelers}
+var refxCommercialFareFamilies=$("#hdfRefxCommercialFareFamilies").val();var refxBusinessCommercialFareFamilies=$("#hdfRefxBusinessCommercialFareFamilies").val();if(!isNullOrEmpty(cabinClass)&&equalIgnoreCase(cabinClass,cabinClassType.BUSINESS)&&!isNullOrEmpty(refxBusinessCommercialFareFamilies)){objSearch.commercialFareFamilies=refxBusinessCommercialFareFamilies.split(",")}else if(!isNullOrEmpty(refxCommercialFareFamilies)){objSearch.commercialFareFamilies=refxCommercialFareFamilies.split(",")}
+if(!isNullOrEmpty(promotionCode)){objSearch.promotion={"code":promotionCode.trim().toUpperCase()}}
+var objSearchBooking={search:JSON.stringify(objSearch),privateFacts:null,trace:!0}
+setPortalFacts(objSearchBooking,optionMilesMoney);setPrivateFacts(objSearchBooking,optionMilesMoney);return objSearchBooking}
+function setLightLogin(obj,lightLoginResponse){if(obj!=null&&lightLoginResponse!=null&&lightLoginResponse.length>0){obj.lightLogin=JSON.stringify(lightLoginResponse)}}
+const redirectBooking=(objInput)=>{if(objInput==null){console.warn("Required input object.");return}
+var objPost=buildObjSearchBooking(objInput);getCacheLightLogin((lightLogin)=>{setLightLogin(objPost,lightLogin)
+redirectPost(getRedirectUrl(redirectTypeEnums.BOOKING),objPost)})}
+const redirectManagerBooking=(objInput)=>{if(objInput==null){console.warn("Required input object.");return}
+var objPost={recLoc:objInput.recLoc,lastName:objInput.lastName}
+getCacheLightLogin((lightLogin)=>{setLightLogin(objPost,lightLogin);if(isNullOrEmpty(objInput.linkUrl)){redirectPost(getRedirectUrl(redirectTypeEnums.MANAGER_BOOKING),objPost)}else{redirectPost(objInput.linkUrl,objPost)}})};const redirectCheckIn=(objInput)=>{if(objInput==null){console.warn("Required input object.");return}
+var objPost={lastName:objInput.lastName,identifier:objInput.identifier,program:objInput.program,}
+getCacheLightLogin((lightLogin)=>{setLightLogin(objPost,lightLogin);if(isNullOrEmpty(objInput.linkUrl)){redirectPost(getRedirectUrl(redirectTypeEnums.CHECK_IN),objPost)}else{redirectPost(objInput.linkUrl,objPost)}})};const redirectPost=(url,inputObjJson)=>{var langInUrl=getParamsFromUrl(paramNameEnums.LANG,url);var lang=getCorrectPageLanguage();if(!isNullOrEmpty(url)){if(isNullOrEmpty(langInUrl)){url=updateQueryStringParameter(url,paramNameEnums.LANG,lang)}
+$.redirect(url,inputObjJson,"POST","_parent")}}
+return{redirectBooking,redirectManagerBooking,redirectCheckIn,redirectPost}}(window.jQuery))

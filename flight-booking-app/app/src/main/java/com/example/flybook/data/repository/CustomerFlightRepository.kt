@@ -1,5 +1,6 @@
 package com.example.flybook.data.repository
 
+import android.util.Log
 import com.example.flybook.data.api.ApiClient
 import com.example.flybook.data.api.ApiService
 import com.example.flybook.data.api.ErrorResponse
@@ -58,6 +59,12 @@ class CustomerFlightRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.success && apiResponse.data != null) {
+                    // Log flight data để debug
+                    apiResponse.data.forEach { flight ->
+                        Log.d("CustomerFlightRepository", "Flight ${flight.ma_chuyen_bay}: tuyen_bay=${flight.tuyen_bay?.id}, " +
+                                "san_bay_di=${flight.tuyen_bay?.san_bay_di?.ma_san_bay}, " +
+                                "san_bay_den=${flight.tuyen_bay?.san_bay_den?.ma_san_bay}")
+                    }
                     Result.success(apiResponse.data)
                 } else {
                     Result.failure(Exception(apiResponse.message ?: "Không thể tải danh sách chuyến bay hôm nay"))
@@ -138,7 +145,11 @@ class CustomerFlightRepository {
             if (response.isSuccessful && response.body() != null) {
                 val apiResponse = response.body()!!
                 if (apiResponse.success && apiResponse.data != null) {
-                    Result.success(apiResponse.data)
+                    val flight = apiResponse.data
+                    Log.d("CustomerFlightRepository", "Flight detail ${flight.ma_chuyen_bay}: tuyen_bay=${flight.tuyen_bay?.id}, " +
+                            "san_bay_di=${flight.tuyen_bay?.san_bay_di?.ma_san_bay}, " +
+                            "san_bay_den=${flight.tuyen_bay?.san_bay_den?.ma_san_bay}")
+                    Result.success(flight)
                 } else {
                     Result.failure(Exception(apiResponse.message ?: "Không thể tải chi tiết chuyến bay"))
                 }
