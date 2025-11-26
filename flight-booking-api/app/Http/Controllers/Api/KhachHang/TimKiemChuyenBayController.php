@@ -10,6 +10,7 @@ use App\Models\TuyenBay;
 use App\Models\GiaVe;
 use App\Models\HanhKhach;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class TimKiemChuyenBayController extends Controller
@@ -280,11 +281,15 @@ class TimKiemChuyenBayController extends Controller
             $query->where('ma_chuyen_bay', $id)
                 ->where('trang_thai', 'da_thanh_toan');
         })->whereNotNull('so_ghe')
+            ->where('so_ghe', '!=', '')
             ->pluck('so_ghe')
             ->map(function ($ghe) {
-                return trim($ghe); // Normalize: loại bỏ khoảng trắng
+                // Normalize: loại bỏ khoảng trắng, chuyển thành chữ hoa
+                return strtoupper(trim($ghe));
             })
-            ->filter()
+            ->filter(function ($ghe) {
+                return !empty($ghe);
+            })
             ->unique()
             ->values()
             ->toArray();
@@ -295,14 +300,27 @@ class TimKiemChuyenBayController extends Controller
                 ->where('trang_thai', 'giu_cho')
                 ->where('thoi_gian_het_han_giu_cho', '>', now());
         })->whereNotNull('so_ghe')
+            ->where('so_ghe', '!=', '')
             ->pluck('so_ghe')
             ->map(function ($ghe) {
-                return trim($ghe); // Normalize: loại bỏ khoảng trắng
+                // Normalize: loại bỏ khoảng trắng, chuyển thành chữ hoa
+                return strtoupper(trim($ghe));
             })
-            ->filter()
+            ->filter(function ($ghe) {
+                return !empty($ghe);
+            })
             ->unique()
             ->values()
             ->toArray();
+
+        // Log để debug
+        Log::info('Seat data for flight', [
+            'flight_id' => $id,
+            'booked_seats_count' => count($gheDaDat),
+            'booked_seats' => $gheDaDat,
+            'reserved_seats_count' => count($gheGiuCho),
+            'reserved_seats' => $gheGiuCho
+        ]);
 
         // Lấy sơ đồ ghế từ máy bay
         $soDoGhe = $chuyenBay->may_bay->so_do_ghe ?? [];
