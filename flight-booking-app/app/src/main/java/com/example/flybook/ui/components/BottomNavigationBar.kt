@@ -135,6 +135,46 @@ fun BottomNavigationBar(
                                 }
                             }
                         }
+                        item.route == Screen.Home.route -> {
+                            // Handle Home navigation
+                            if (currentRoute == Screen.Home.route) {
+                                // Already on home, do nothing
+                            } else {
+                                // Navigate to home and pop back stack
+                                navController.navigate(Screen.Home.route) {
+                                    // Pop back to home
+                                    popUpTo(Screen.Home.route) {
+                                        inclusive = false
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
+                        item.route == Screen.MyBookings.route -> {
+                            // Handle MyBookings navigation
+                            if (currentRoute == Screen.MyBookings.route) {
+                                // Already on MyBookings, do nothing
+                            } else {
+                                // Navigate to MyBookings
+                                navController.navigate(Screen.MyBookings.route) {
+                                    // Pop back to home if coming from a sub-route
+                                    if (currentRoute?.startsWith("booking/") == true || 
+                                        currentRoute?.startsWith("flight_detail/") == true) {
+                                        popUpTo(Screen.Home.route) {
+                                            saveState = true
+                                        }
+                                    } else {
+                                        popUpTo(Screen.Home.route) {
+                                            saveState = true
+                                        }
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
+                        }
                         currentRoute != item.route -> {
                             // For other routes, normal navigation
                             navController.navigate(item.route) {
