@@ -41,7 +41,7 @@ interface ApiService {
     suspend fun getFlightList(@QueryMap params: Map<String, String>): Response<ApiResponse<List<Flight>>>
     
     @GET("search/flights/{id}/seats")
-    suspend fun getFlightSeats(@Path("id") id: Int): Response<ApiResponse<Any>>
+    suspend fun getFlightSeats(@Path("id") id: Int): Response<ApiResponse<SeatData>>
     
     // Customer - Bookings
     @POST("customer/bookings")

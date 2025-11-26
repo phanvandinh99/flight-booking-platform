@@ -182,5 +182,58 @@ class CustomerFlightRepository {
             Result.failure(Exception("Không thể tải chi tiết chuyến bay: ${e.message}"))
         }
     }
+    
+    suspend fun getFlightSeats(id: Int): Result<com.example.flybook.data.models.SeatData> {
+        return try {
+            android.util.Log.d("CustomerFlightRepository", "Calling getFlightSeats($id)...")
+            val response = apiService.getFlightSeats(id)
+            android.util.Log.d("CustomerFlightRepository", "getFlightSeats response code: ${response.code()}, isSuccessful: ${response.isSuccessful}")
+            
+            if (response.isSuccessful && response.body() != null) {
+                val apiResponse = response.body()!!
+                android.util.Log.d("CustomerFlightRepository", "Response body: success=${apiResponse.success}, data=${apiResponse.data}")
+                
+                // Backend may return { "data": {...} } without success field
+                if (apiResponse.data != null) {
+                    android.util.Log.d("CustomerFlightRepository", "SeatData loaded: ma_chuyen_bay=${apiResponse.data.ma_chuyen_bay}, tong_so_ghe=${apiResponse.data.tong_so_ghe}")
+                    Result.success(apiResponse.data)
+                } else {
+                    val errorMsg = apiResponse.message ?: "Không thể tải thông tin ghế"
+                    android.util.Log.e("CustomerFlightRepository", "API returned data=null: $errorMsg")
+                    Result.failure(Exception(errorMsg))
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                android.util.Log.e("CustomerFlightRepository", "Error response body: $errorBody")
+                val errorMessage = if (!errorBody.isNullOrEmpty()) {
+                    try {
+                        Gson().fromJson(errorBody, ErrorResponse::class.java).message
+                    } catch (e: Exception) {
+                        "Không thể tải thông tin ghế: ${response.code()}"
+                    }
+                } else {
+                    "Không thể tải thông tin ghế: ${response.code()}"
+                }
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: HttpException) {
+            android.util.Log.e("CustomerFlightRepository", "HttpException in getFlightSeats: code=${e.code()}, message=${e.message}", e)
+            val errorBody = e.response()?.errorBody()?.string()
+            android.util.Log.e("CustomerFlightRepository", "HttpException error body: $errorBody")
+            val errorMessage = if (!errorBody.isNullOrEmpty()) {
+                try {
+                    Gson().fromJson(errorBody, ErrorResponse::class.java).message
+                } catch (parseException: Exception) {
+                    e.message()
+                }
+            } else {
+                e.message()
+            }
+            Result.failure(Exception(errorMessage ?: "Không thể tải thông tin ghế"))
+        } catch (e: Exception) {
+            android.util.Log.e("CustomerFlightRepository", "Exception in getFlightSeats: ${e.message}", e)
+            Result.failure(Exception("Không thể tải thông tin ghế: ${e.message}"))
+        }
+    }
 }
 
